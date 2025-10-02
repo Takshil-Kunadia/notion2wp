@@ -1,0 +1,17 @@
+{
+	"name": "takshil-kunadia/notion2wp",
+	"description": "Publish content directly from Notion to WordPress",
+	"type": "wordpress-plugin",
+	"autoload": {
+		"psr-4": {
+			"TakshilKunadia\\Notion2wp\\": "src/"
+		}
+	},
+	"authors": [
+		{
+			"name": "Takshil Kunadia",
+			"email": "takshilkunadia@gmail.com"
+		}
+	],
+	"require": {}
+}

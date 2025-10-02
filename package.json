@@ -1,0 +1,10 @@
+{
+	"name": "notion2wp",
+	"description": "Publish content directly from Notion to WordPress",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC"
+}
