@@ -2,16 +2,46 @@
 	"name": "takshil-kunadia/notion2wp",
 	"description": "Publish content directly from Notion to WordPress",
 	"type": "wordpress-plugin",
-	"autoload": {
-		"psr-4": {
-			"TakshilKunadia\\Notion2wp\\": "src/"
-		}
-	},
 	"authors": [
 		{
 			"name": "Takshil Kunadia",
 			"email": "takshilkunadia@gmail.com"
 		}
 	],
-	"require": {}
+		"require-dev": {
+		"brainmaestro/composer-git-hooks": "^3.0",
+		"automattic/vipwpcs": "^3.0",
+		"wp-coding-standards/wpcs": "^3.0",
+		"dealerdirect/phpcodesniffer-composer-installer": "*",
+		"phpcompatibility/phpcompatibility-wp": "*",
+		"yoast/phpunit-polyfills": "^4.0",
+		"phpunit/phpunit": "^9.5"
+	},
+	"autoload": {
+		"classmap": [
+			"includes"
+		]
+	},
+	"scripts": {
+		"post-install-cmd": [
+			"vendor/bin/cghooks add --no-lock"
+		],
+		"post-update-cmd": [
+			"vendor/bin/cghooks update"
+		]
+	},
+	"extra": {
+		"hooks": {
+			"pre-commit": "./node_modules/.bin/lint-staged"
+		}
+	},
+	"config": {
+		"platform": {
+			"php": "8.3"
+		},
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
 }

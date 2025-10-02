@@ -1,0 +1,1 @@
+console.log('Hello, Notion2WP!');

@@ -1,10 +1,43 @@
 {
 	"name": "notion2wp",
 	"description": "Publish content directly from Notion to WordPress",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+	"author": "Takshil Kunadia",
+	"devDependencies": {
+		"@eslint/js": "^9.36.0",
+		"@rushstack/eslint-patch": "^1.12.0",
+		"@types/react": "^18.3.23",
+		"@wordpress/browserslist-config": "^6.31.0",
+		"eslint": "^9.36.0",
+		"eslint-plugin-react": "^7.37.5",
+		"globals": "^16.4.0",
+		"lint-staged": "^16.2.3",
+		"postcss-scss": "^4.0.9",
+		"webpack": "^5.102.0",
+		"webpack-cli": "^6.0.1"
 	},
-	"author": "",
-	"license": "ISC"
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"lint-staged": {
+		"*.scss": "npm run lint:scss:staged",
+		"*.(js|jsx)": "npm run lint:js:staged",
+		"*.(ts|tsx)": "npm run typescript:check",
+		"*.php": "npm run lint:php:staged"
+	},
+	"scripts": {
+		"clean": "rm -rf dist",
+		"build": "npm run clean && webpack --config webpack.config.js",
+		"start": "npm ci --legacy-peer-deps && webpack --config webpack.config.js --watch",
+		"lint": "npm run lint:scss && npm run lint:js",
+		"lint:scss": "stylelint '**/*.scss' --syntax scss",
+		"lint:scss:staged": "stylelint --cache --syntax scss",
+		"lint:js": "eslint **/*.js --no-warn-ignored",
+		"lint:js:staged": "eslint --cache **/*.js --no-warn-ignored",
+		"typescript:check": "tsc --noEmit",
+		"fix:js": "eslint **/*.js --fix --no-warn-ignored",
+		"fix:js:staged": "eslint --cache **/*.js --fix --no-warn-ignored",
+		"lint:php": "./vendor/bin/phpcs",
+		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
+		"fix:php": "./vendor/bin/phpcbf"
+	}
 }
