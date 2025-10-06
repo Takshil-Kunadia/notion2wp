@@ -78,6 +78,7 @@ class Block_Registry {
 		require_once __DIR__ . '/converters/class-image-converter.php';
 		require_once __DIR__ . '/converters/class-divider-converter.php';
 		require_once __DIR__ . '/converters/class-callout-converter.php';
+		require_once __DIR__ . '/converters/class-toggle-converter.php';
 
 		// Register converters.
 		$this->register( new Converters\Paragraph_Converter() );
@@ -88,6 +89,7 @@ class Block_Registry {
 		$this->register( new Converters\Image_Converter() );
 		$this->register( new Converters\Divider_Converter() );
 		$this->register( new Converters\Callout_Converter() );
+		$this->register( new Converters\Toggle_Converter() );
 	}
 
 	/**
