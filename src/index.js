@@ -1,17 +1,15 @@
 import { createRoot, useState } from '@wordpress/element';
-import NotionAuth from './components/NotionAuth';
+import Auth from './components/Auth';
+import Import from './components/Import';
 
-const App = () => {
-	const [ authStatus, setAuthStatus ] = useState( null ); // eslint-disable-line no-unused-vars
+// Settings page root
+const settingsRoot = document.getElementById( 'notion2wp-admin-root' );
+if ( settingsRoot ) {
+	createRoot( settingsRoot ).render( <Auth /> );
+}
 
-	return (
-		<div>
-			<NotionAuth onStatusChange={setAuthStatus} />
-		</div>
-	);
-};
-
-const root = document.getElementById( 'notion2wp-admin-root' );
-if ( root ) {
-	createRoot( root ).render( <App /> );
+// Import page root
+const importRoot = document.getElementById( 'notion2wp-import-root' );
+if ( importRoot ) {
+	createRoot( importRoot ).render( <Import /> );
 }
