@@ -76,6 +76,7 @@ class Block_Registry {
 		require_once __DIR__ . '/converters/class-quote-converter.php';
 		require_once __DIR__ . '/converters/class-code-converter.php';
 		require_once __DIR__ . '/converters/class-image-converter.php';
+		require_once __DIR__ . '/converters/class-divider-converter.php';
 
 		// Register converters.
 		$this->register( new Converters\Paragraph_Converter() );
@@ -84,6 +85,7 @@ class Block_Registry {
 		$this->register( new Converters\Quote_Converter() );
 		$this->register( new Converters\Code_Converter() );
 		$this->register( new Converters\Image_Converter() );
+		$this->register( new Converters\Divider_Converter() );
 	}
 
 	/**
