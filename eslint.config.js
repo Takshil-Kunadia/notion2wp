@@ -1,8 +1,8 @@
-import js from '@eslint/js';
-import pluginReact from 'eslint-plugin-react';
-import pluginReactHooks from 'eslint-plugin-react-hooks';
+const js = require('@eslint/js');
+const pluginReact = require('eslint-plugin-react');
+const pluginReactHooks = require('eslint-plugin-react-hooks');
 
-export default [
+module.exports = [
 	{
 		ignores: [ 'dist/**', 'vendor/**', 'node_modules/**' ],
 	},
@@ -60,9 +60,9 @@ export default [
 
 	// Node environment (for webpack, config scripts, etc.)
 	{
-		files: ['webpack.config.js', 'scripts/**/*.js'],
+		files: ['webpack.config.js', 'eslint.config.js'],
 		languageOptions: {
-			sourceType: 'module',
+			sourceType: 'script',
 			globals: {
 				require: 'readonly',
 				module: 'readonly',
