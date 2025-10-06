@@ -83,6 +83,7 @@ class Block_Registry {
 		require_once __DIR__ . '/converters/class-table-converter.php';
 		require_once __DIR__ . '/converters/class-bookmark-converter.php';
 		require_once __DIR__ . '/converters/class-embed-converter.php';
+		require_once __DIR__ . '/converters/class-file-converter.php';
 
 		// Register converters.
 		$this->register( new Converters\Paragraph_Converter() );
@@ -98,6 +99,7 @@ class Block_Registry {
 		$this->register( new Converters\Table_Converter() );
 		$this->register( new Converters\Bookmark_Converter() );
 		$this->register( new Converters\Embed_Converter() );
+		$this->register( new Converters\File_Converter() );
 	}
 
 	/**
