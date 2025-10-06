@@ -72,10 +72,12 @@ class Block_Registry {
 		// Load converter classes.
 		require_once __DIR__ . '/converters/class-paragraph-converter.php';
 		require_once __DIR__ . '/converters/class-heading-converter.php';
+		require_once __DIR__ . '/converters/class-list-converter.php';
 
 		// Register converters.
 		$this->register( new Converters\Paragraph_Converter() );
 		$this->register( new Converters\Heading_Converter() );
+		$this->register( new Converters\List_Converter() );
 	}
 
 	/**
