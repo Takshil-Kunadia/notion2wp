@@ -8,6 +8,8 @@
 namespace Notion2WP\Importer;
 
 use Notion2WP\Adapter\Notion_Client;
+use Notion2WP\Admin\Settings;
+use Notion2WP\Blocks\Block_Registry;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -279,7 +281,7 @@ class Importer_Controller {
 		$content = $this->blocks_to_html( $blocks );
 
 		// Get settings for defaults.
-		$settings = \Notion2WP\Admin\Settings::get_settings();
+		$settings = Settings::get_settings();
 
 		$post_data = [
 			'post_title'   => sanitize_text_field( $title ),
@@ -302,231 +304,22 @@ class Importer_Controller {
 	}
 
 	/**
-	 * Convert Notion blocks to HTML.
+	 * Convert Notion blocks to HTML using the block registry.
 	 *
 	 * @param array $blocks Notion blocks array.
 	 * @return string HTML content.
 	 */
 	private function blocks_to_html( $blocks ) {
-		$html = '';
+		// Load block system.
+		require_once NOTION2WP_ABSPATH . 'includes/blocks/interface-block-converter.php';
+		require_once NOTION2WP_ABSPATH . 'includes/blocks/class-abstract-block-converter.php';
+		require_once NOTION2WP_ABSPATH . 'includes/blocks/class-block-registry.php';
 
-		foreach ( $blocks as $block ) {
-			$html .= $this->block_to_html( $block );
-		}
+		// Get the block registry instance.
+		$registry = Block_Registry::get_instance();
 
-		return $html;
-	}
-
-	/**
-	 * Convert a single Notion block to HTML.
-	 *
-	 * @param array $block Notion block object.
-	 * @return string HTML string.
-	 */
-	private function block_to_html( $block ) {
-		$type = $block['type'] ?? '';
-
-		if ( empty( $type ) ) {
-			return '';
-		}
-
-		// Get block content.
-		$block_data = $block[ $type ] ?? [];
-
-		switch ( $type ) {
-			case 'paragraph':
-				return $this->paragraph_to_html( $block_data, $block );
-
-			case 'heading_1':
-			case 'heading_2':
-			case 'heading_3':
-				return $this->heading_to_html( $type, $block_data, $block );
-
-			case 'bulleted_list_item':
-			case 'numbered_list_item':
-				return $this->list_item_to_html( $type, $block_data, $block );
-
-			case 'quote':
-				return $this->quote_to_html( $block_data, $block );
-
-			case 'code':
-				return $this->code_to_html( $block_data );
-
-			case 'divider':
-				return '<hr />';
-
-			case 'image':
-				return $this->image_to_html( $block_data );
-
-			default:
-				// Unsupported block type - output as comment.
-				return '<!-- Unsupported Notion block type: ' . esc_html( $type ) . ' -->';
-		}
-	}
-
-	/**
-	 * Convert paragraph block to HTML.
-	 *
-	 * @param array $block_data Block data.
-	 * @param array $block Full block object.
-	 * @return string
-	 */
-	private function paragraph_to_html( $block_data, $block ) {
-		$text = $this->rich_text_to_html( $block_data['rich_text'] ?? [] );
-
-		// Handle children if present.
-		if ( ! empty( $block['children'] ) ) {
-			$text .= $this->blocks_to_html( $block['children'] );
-		}
-
-		return '<p>' . $text . '</p>' . "\n";
-	}
-
-	/**
-	 * Convert heading block to HTML.
-	 *
-	 * @param string $type Heading type (heading_1, heading_2, heading_3).
-	 * @param array  $block_data Block data.
-	 * @param array  $block Full block object.
-	 * @return string
-	 */
-	private function heading_to_html( $type, $block_data, $block ) {
-		$level = substr( $type, -1 );
-		$text  = $this->rich_text_to_html( $block_data['rich_text'] ?? [] );
-
-		return '<h' . $level . '>' . $text . '</h' . $level . '>' . "\n";
-	}
-
-	/**
-	 * Convert list item block to HTML.
-	 *
-	 * @param string $type List type (bulleted_list_item, numbered_list_item).
-	 * @param array  $block_data Block data.
-	 * @param array  $block Full block object.
-	 * @return string
-	 */
-	private function list_item_to_html( $type, $block_data, $block ) {
-		$text = $this->rich_text_to_html( $block_data['rich_text'] ?? [] );
-		$tag  = 'bulleted_list_item' === $type ? 'ul' : 'ol';
-
-		$html = '<' . $tag . '><li>' . $text;
-
-		// Handle nested items.
-		if ( ! empty( $block['children'] ) ) {
-			$html .= $this->blocks_to_html( $block['children'] );
-		}
-
-		$html .= '</li></' . $tag . '>' . "\n";
-
-		return $html;
-	}
-
-	/**
-	 * Convert quote block to HTML.
-	 *
-	 * @param array $block_data Block data.
-	 * @param array $block Full block object.
-	 * @return string
-	 */
-	private function quote_to_html( $block_data, $block ) {
-		$text = $this->rich_text_to_html( $block_data['rich_text'] ?? [] );
-		return '<blockquote>' . $text . '</blockquote>' . "\n";
-	}
-
-	/**
-	 * Convert code block to HTML.
-	 *
-	 * @param array $block_data Block data.
-	 * @return string
-	 */
-	private function code_to_html( $block_data ) {
-		$code     = $this->extract_rich_text( $block_data['rich_text'] ?? [] );
-		$language = $block_data['language'] ?? '';
-
-		return '<pre><code class="language-' . esc_attr( $language ) . '">' . esc_html( $code ) . '</code></pre>' . "\n";
-	}
-
-	/**
-	 * Convert image block to HTML.
-	 *
-	 * @param array $block_data Block data.
-	 * @return string
-	 */
-	private function image_to_html( $block_data ) {
-		$image_type = $block_data['type'] ?? '';
-		$url        = '';
-
-		if ( 'external' === $image_type && ! empty( $block_data['external']['url'] ) ) {
-			$url = $block_data['external']['url'];
-		} elseif ( 'file' === $image_type && ! empty( $block_data['file']['url'] ) ) {
-			$url = $block_data['file']['url'];
-		}
-
-		if ( empty( $url ) ) {
-			return '';
-		}
-
-		$caption = $this->extract_rich_text( $block_data['caption'] ?? [] );
-
-		$html = '<figure><img src="' . esc_url( $url ) . '" alt="' . esc_attr( $caption ) . '" />';
-
-		if ( $caption ) {
-			$html .= '<figcaption>' . esc_html( $caption ) . '</figcaption>';
-		}
-
-		$html .= '</figure>' . "\n";
-
-		return $html;
-	}
-
-	/**
-	 * Convert rich text array to HTML.
-	 *
-	 * @param array $rich_text Rich text array from Notion.
-	 * @return string
-	 */
-	private function rich_text_to_html( $rich_text ) {
-		if ( ! is_array( $rich_text ) ) {
-			return '';
-		}
-
-		$html = '';
-
-		foreach ( $rich_text as $text_item ) {
-			$content = $text_item['plain_text'] ?? '';
-
-			if ( empty( $content ) ) {
-				continue;
-			}
-
-			$annotations = $text_item['annotations'] ?? [];
-
-			// Apply formatting.
-			if ( ! empty( $annotations['bold'] ) ) {
-				$content = '<strong>' . $content . '</strong>';
-			}
-			if ( ! empty( $annotations['italic'] ) ) {
-				$content = '<em>' . $content . '</em>';
-			}
-			if ( ! empty( $annotations['strikethrough'] ) ) {
-				$content = '<del>' . $content . '</del>';
-			}
-			if ( ! empty( $annotations['underline'] ) ) {
-				$content = '<u>' . $content . '</u>';
-			}
-			if ( ! empty( $annotations['code'] ) ) {
-				$content = '<code>' . $content . '</code>';
-			}
-
-			// Apply link.
-			if ( ! empty( $text_item['href'] ) ) {
-				$content = '<a href="' . esc_url( $text_item['href'] ) . '">' . $content . '</a>';
-			}
-
-			$html .= $content;
-		}
-
-		return $html;
+		// Convert all blocks.
+		return $registry->convert_blocks( $blocks );
 	}
 
 	/**
