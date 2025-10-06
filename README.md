@@ -1,4 +1,4 @@
-# 🧩 Notion → WordPress Sync Plugin
+# 🧩 Notion → WordPress Plugin
 
 > Sync your Notion databases and pages directly into WordPress posts, pages, or custom post types — automatically converting Notion blocks into Gutenberg blocks.
 
