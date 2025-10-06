@@ -26,6 +26,7 @@ class Admin {
 	 */
 	public static function init() {
 		add_action( 'admin_menu', [ self::class, 'add_admin_menu' ] );
+		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue_admin_scripts' ] );
 
 		// Initialize REST API endpoints.
 		Rest_API::init();
@@ -95,12 +96,12 @@ class Admin {
 		$script_asset_file = NOTION2WP_PLUGIN_DIR . 'dist/admin.asset.php';
 		$script_asset      = file_exists( $script_asset_file ) ? file_get_contents( $script_asset_file ) : [
 			'dependencies' => $dependencies,
-			'version'      => filemtime( NOTION2WP_PLUGIN_DIR . 'dist/admin.js' ),
+			'version'      => filemtime( NOTION2WP_PLUGIN_DIR . 'dist/index.js' ),
 		];
 
 		wp_enqueue_script(
 			'notion2wp-admin',
-			NOTION2WP_PLUGIN_URL . 'dist/admin.js',
+			NOTION2WP_PLUGIN_URL . 'dist/index.js',
 			$script_asset['dependencies'],
 			$script_asset['version'],
 			true
@@ -108,7 +109,7 @@ class Admin {
 
 		wp_enqueue_style(
 			'notion2wp-admin',
-			NOTION2WP_PLUGIN_URL . 'dist/admin.css',
+			NOTION2WP_PLUGIN_URL . 'dist/index.css',
 			[ 'wp-components' ],
 			$script_asset['version']
 		);

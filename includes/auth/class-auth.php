@@ -208,7 +208,7 @@ class Auth {
 		// Generate OAuth URL.
 		$redirect_uri = self::get_plugin_redirect_uri();
 		$state        = wp_create_nonce( 'notion2wp_oauth_state' );
-		
+
 		// Store state for verification.
 		set_transient( 'notion2wp_oauth_state_' . get_current_user_id(), $state, 600 );
 
@@ -225,7 +225,7 @@ class Auth {
 	 * Handle OAuth callback.
 	 */
 	public static function handle_oauth_callback() {
-		if ( ! isset( $_GET['notion2wp_oauth_callback'] ) || ! isset( $_GET['code'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['code'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
