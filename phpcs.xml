@@ -19,6 +19,15 @@
 	</rule>
 
 	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="manage_notion2wp"/>
+			</property>
+		</properties>
+	</rule>
+
 	<config name="testVersion" value="7.2-"/>
 
 	<arg name="extensions" value="php"/>
@@ -34,4 +43,5 @@
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/dist/*</exclude-pattern>
 	<exclude-pattern>*/release/*</exclude-pattern>
+	<exclude-pattern>index.php</exclude-pattern>
 </ruleset>
