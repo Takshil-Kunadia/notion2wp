@@ -28,6 +28,12 @@ module.exports = {
 		extensions: ['.js', '.jsx', '.json']
 	},
 	externals: {
-		'@wordpress/element': ['wp', 'element']
+		'@wordpress/element': ['wp', 'element'],
+		'@wordpress/components': ['wp', 'components'],
+		'@wordpress/i18n': ['wp', 'i18n'],
+		'@wordpress/api-fetch': ['wp', 'apiFetch'],
+		'@wordpress/data': ['wp', 'data'],
+		'@wordpress/notices': ['wp', 'notices'],
+		'@wordpress/hooks': ['wp', 'hooks']
 	}
 };

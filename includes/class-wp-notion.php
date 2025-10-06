@@ -25,6 +25,8 @@ class WP_Notion {
 		require_once NOTION2WP_ABSPATH . 'includes/admin/class-rest-api.php';
 		require_once NOTION2WP_ABSPATH . 'includes/admin/class-settings.php';
 		require_once NOTION2WP_ABSPATH . 'includes/auth/class-auth.php';
+		require_once NOTION2WP_ABSPATH . 'includes/adapter/class-notion-client.php';
+		require_once NOTION2WP_ABSPATH . 'includes/importer/class-importer-controller.php';
 	}
 
 	/**

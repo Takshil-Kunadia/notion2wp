@@ -11,6 +11,10 @@ defined( 'ABSPATH' ) || exit;
 
 use Notion2WP\Admin\Settings;
 use Notion2WP\Auth\Auth;
+use Notion2WP\Importer\Importer_Controller;
+use WP_REST_Response;
+use WP_REST_Server;
+use WP_REST_Request;
 
 /**
  * REST API class for handling AJAX requests and API endpoints.
@@ -38,7 +42,7 @@ class Rest_API {
 			self::NAMESPACE,
 			'/auth/status',
 			[
-				'methods'             => \WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ self::class, 'get_auth_status' ],
 				'permission_callback' => [ self::class, 'check_permissions' ],
 			]
@@ -48,7 +52,7 @@ class Rest_API {
 			self::NAMESPACE,
 			'/auth/connect',
 			[
-				'methods'             => \WP_REST_Server::CREATABLE,
+				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ self::class, 'start_oauth_flow' ],
 				'permission_callback' => [ self::class, 'check_permissions' ],
 				'args'                => [
@@ -70,7 +74,7 @@ class Rest_API {
 			self::NAMESPACE,
 			'/auth/disconnect',
 			[
-				'methods'             => \WP_REST_Server::DELETABLE,
+				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => [ self::class, 'disconnect_oauth' ],
 				'permission_callback' => [ self::class, 'check_permissions' ],
 			]
@@ -81,7 +85,7 @@ class Rest_API {
 			self::NAMESPACE,
 			'/settings',
 			[
-				'methods'             => \WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ self::class, 'get_settings' ],
 				'permission_callback' => [ self::class, 'check_permissions' ],
 			]
@@ -91,10 +95,43 @@ class Rest_API {
 			self::NAMESPACE,
 			'/settings',
 			[
-				'methods'             => \WP_REST_Server::EDITABLE,
+				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ self::class, 'update_settings' ],
 				'permission_callback' => [ self::class, 'check_permissions' ],
 				'args'                => self::get_settings_schema(),
+			]
+		);
+
+		// Import endpoints.
+		register_rest_route(
+			self::NAMESPACE,
+			'/import/items',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ self::class, 'get_importable_items' ],
+				'permission_callback' => [ self::class, 'check_permissions' ],
+			]
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/import/pages',
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ self::class, 'import_pages' ],
+				'permission_callback' => [ self::class, 'check_permissions' ],
+				'args'                => [
+					'page_ids' => [
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => [
+							'type' => 'string',
+						],
+						'sanitize_callback' => function( $page_ids ) {
+							return array_map( 'sanitize_text_field', $page_ids );
+						},
+					],
+				],
 			]
 		);
 	}
@@ -102,7 +139,7 @@ class Rest_API {
 	/**
 	 * Check user permissions.
 	 *
-	 * @param \WP_REST_Request $request Request object.
+	 * @param WP_REST_Request $request Request object.
 	 * @return bool
 	 */
 	public static function check_permissions( $request ) {
@@ -112,21 +149,21 @@ class Rest_API {
 	/**
 	 * Get authentication status.
 	 *
-	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
 	public static function get_auth_status( $request ) {
 		// Delegate to Auth class.
 		$status = Auth::get_connection_status();
 
-		return new \WP_REST_Response( $status, 200 );
+		return new WP_REST_Response( $status, 200 );
 	}
 
 	/**
 	 * Start OAuth flow.
 	 *
-	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
 	public static function start_oauth_flow( $request ) {
 		$client_id     = $request->get_param( 'client_id' );
@@ -137,13 +174,13 @@ class Rest_API {
 
 		// Handle result.
 		if ( is_wp_error( $result ) ) {
-			return new \WP_REST_Response(
+			return new WP_REST_Response(
 				[ 'message' => $result->get_error_message() ],
 				400
 			);
 		}
 
-		return new \WP_REST_Response(
+		return new WP_REST_Response(
 			[
 				'auth_url' => $result['auth_url'],
 				'message'  => __( 'Redirect to Notion for authorization.', 'notion2wp' ),
@@ -155,21 +192,21 @@ class Rest_API {
 	/**
 	 * Disconnect OAuth.
 	 *
-	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
 	public static function disconnect_oauth( $request ) {
 		// Delegate to Auth class.
 		$result = Auth::revoke_token();
 
 		if ( $result ) {
-			return new \WP_REST_Response(
+			return new WP_REST_Response(
 				[ 'message' => __( 'Successfully disconnected from Notion.', 'notion2wp' ) ],
 				200
 			);
 		}
 
-		return new \WP_REST_Response(
+		return new WP_REST_Response(
 			[ 'message' => __( 'Failed to disconnect from Notion.', 'notion2wp' ) ],
 			500
 		);
@@ -178,8 +215,8 @@ class Rest_API {
 	/**
 	 * Get settings.
 	 *
-	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
 	public static function get_settings( $request ) {
 		$settings = Settings::get_settings();
@@ -189,14 +226,14 @@ class Rest_API {
 		unset( $settings['access_token'] );
 		unset( $settings['refresh_token'] );
 
-		return new \WP_REST_Response( $settings, 200 );
+		return new WP_REST_Response( $settings, 200 );
 	}
 
 	/**
 	 * Update settings.
 	 *
-	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
 	public static function update_settings( $request ) {
 		$current_settings = Settings::get_settings();
@@ -225,15 +262,75 @@ class Rest_API {
 		$updated = Settings::update_settings( $new_settings, false );
 
 		if ( $updated ) {
-			return new \WP_REST_Response(
+			return new WP_REST_Response(
 				[ 'message' => __( 'Settings updated successfully.', 'notion2wp' ) ],
 				200
 			);
 		}
 
-		return new \WP_REST_Response(
+		return new WP_REST_Response(
 			[ 'message' => __( 'Failed to update settings.', 'notion2wp' ) ],
 			500
+		);
+	}
+
+	/**
+	 * Get importable items (pages and databases).
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public static function get_importable_items( $request ) {
+		$importer = new Importer_Controller();
+		$items    = $importer->get_importable_items();
+
+		if ( is_wp_error( $items ) ) {
+			return new WP_REST_Response(
+				[ 'message' => $items->get_error_message() ],
+				400
+			);
+		}
+
+		return new WP_REST_Response(
+			[
+				'items' => $items,
+				'total' => count( $items ),
+			],
+			200
+		);
+	}
+
+	/**
+	 * Import selected pages.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public static function import_pages( $request ) {
+		$page_ids = $request->get_param( 'page_ids' );
+
+		$importer = new Importer_Controller();
+		$results  = $importer->import_pages( $page_ids );
+
+		if ( is_wp_error( $results ) ) {
+			return new WP_REST_Response(
+				[ 'message' => $results['errors'] ],
+				400
+			);
+		}
+
+		return new WP_REST_Response(
+			[
+				'success' => $results['success'],
+				'errors'  => $results['errors'],
+				'message' => sprintf(
+					/* translators: %1$d: number of successful imports, %2$d: number of failed imports */
+					__( 'Import complete. Success: %1$d, Failed: %2$d', 'notion2wp' ),
+					count( $results['success'] ),
+					count( $results['errors'] )
+				),
+			],
+			200
 		);
 	}
 

@@ -58,6 +58,15 @@ class Admin {
 
 		add_submenu_page(
 			self::PAGE_SLUG,
+			__( 'Import', 'notion2wp' ),
+			__( 'Import', 'notion2wp' ),
+			'manage_notion2wp',
+			'notion2wp-import',
+			[ self::class, 'render_import_page' ]
+		);
+
+		add_submenu_page(
+			self::PAGE_SLUG,
 			__( 'Sync History', 'notion2wp' ),
 			__( 'Sync History', 'notion2wp' ),
 			'manage_notion2wp',
@@ -134,6 +143,17 @@ class Admin {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Notion2WP Settings', 'notion2wp' ); ?></h1>
 			<div id="notion2wp-admin-root"></div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the import page.
+	 */
+	public static function render_import_page() {
+		?>
+		<div class="wrap">
+			<div id="notion2wp-import-root"></div>
 		</div>
 		<?php
 	}
