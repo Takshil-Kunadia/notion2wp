@@ -81,6 +81,7 @@ class Block_Registry {
 		require_once __DIR__ . '/converters/class-toggle-converter.php';
 		require_once __DIR__ . '/converters/class-todo-converter.php';
 		require_once __DIR__ . '/converters/class-table-converter.php';
+		require_once __DIR__ . '/converters/class-bookmark-converter.php';
 
 		// Register converters.
 		$this->register( new Converters\Paragraph_Converter() );
@@ -94,6 +95,7 @@ class Block_Registry {
 		$this->register( new Converters\Toggle_Converter() );
 		$this->register( new Converters\Todo_Converter() );
 		$this->register( new Converters\Table_Converter() );
+		$this->register( new Converters\Bookmark_Converter() );
 	}
 
 	/**
