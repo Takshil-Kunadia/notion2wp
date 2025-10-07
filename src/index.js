@@ -1,4 +1,4 @@
-import { createRoot, useState } from '@wordpress/element';
+import { createRoot } from '@wordpress/element';
 import Auth from './components/Auth';
 import Import from './components/Import';
 
