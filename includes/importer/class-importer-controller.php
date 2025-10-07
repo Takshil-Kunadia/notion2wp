@@ -26,12 +26,20 @@ class Importer_Controller {
 	private $notion_client;
 
 	/**
+	 * Page property handler.
+	 *
+	 * @var Page_Property_Handler
+	 */
+	private $property_handler;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Notion_Client $notion_client Notion API client instance.
 	 */
 	public function __construct( $notion_client = null ) {
-		$this->notion_client = $notion_client ?? new Notion_Client();
+		$this->notion_client    = $notion_client ?? new Notion_Client();
+		$this->property_handler = new Page_Property_Handler();
 	}
 
 	/**
@@ -73,7 +81,7 @@ class Importer_Controller {
 		$formatted = [
 			'id'               => $item['id'] ?? '',
 			'type'             => $item['object'] ?? '',
-			'title'            => $this->extract_title( $item ),
+			'title'            => $this->property_handler->extract_title( $item ),
 			'url'              => $item['url'] ?? '',
 			'created_time'     => $item['created_time'] ?? '',
 			'last_edited_time' => $item['last_edited_time'] ?? '',
@@ -82,8 +90,8 @@ class Importer_Controller {
 
 		// Add database-specific fields.
 		if ( 'database' === $item['object'] ) {
-			$formatted['description'] = $this->extract_description( $item );
-			$formatted['properties']  = $this->get_database_property_names( $item );
+			$formatted['description'] = $this->property_handler->extract_description( $item );
+			$formatted['properties']  = $this->property_handler->get_database_properties( $item );
 		}
 
 		// Add parent information.
@@ -95,85 +103,6 @@ class Importer_Controller {
 		}
 
 		return $formatted;
-	}
-
-	/**
-	 * Extract title from Notion item.
-	 *
-	 * @param array $item Notion item.
-	 * @return string
-	 */
-	private function extract_title( $item ) {
-		// For pages.
-		if ( 'page' === $item['object'] && ! empty( $item['properties'] ) ) {
-			foreach ( $item['properties'] as $property ) {
-				if ( isset( $property['type'] ) && 'title' === $property['type'] ) {
-					return $this->extract_rich_text( $property['title'] ?? [] );
-				}
-			}
-		}
-
-		// For databases.
-		if ( 'database' === $item['object'] && ! empty( $item['title'] ) ) {
-			return $this->extract_rich_text( $item['title'] );
-		}
-
-		return __( '(Untitled)', 'notion2wp' );
-	}
-
-	/**
-	 * Extract description from database.
-	 *
-	 * @param array $item Database item.
-	 * @return string
-	 */
-	private function extract_description( $item ) {
-		if ( ! empty( $item['description'] ) ) {
-			return $this->extract_rich_text( $item['description'] );
-		}
-		return '';
-	}
-
-	/**
-	 * Extract plain text from rich text array.
-	 *
-	 * @param array $rich_text Rich text array from Notion.
-	 * @return string
-	 */
-	private function extract_rich_text( $rich_text ) {
-		if ( ! is_array( $rich_text ) ) {
-			return '';
-		}
-
-		$text = '';
-		foreach ( $rich_text as $text_item ) {
-			if ( isset( $text_item['plain_text'] ) ) {
-				$text .= $text_item['plain_text'];
-			}
-		}
-
-		return $text;
-	}
-
-	/**
-	 * Get database property names.
-	 *
-	 * @param array $database Database item.
-	 * @return array
-	 */
-	private function get_database_property_names( $database ) {
-		$properties = [];
-
-		if ( ! empty( $database['properties'] ) ) {
-			foreach ( $database['properties'] as $name => $property ) {
-				$properties[] = [
-					'name' => $name,
-					'type' => $property['type'] ?? '',
-				];
-			}
-		}
-
-		return $properties;
 	}
 
 	/**
@@ -263,6 +192,20 @@ class Importer_Controller {
 			return $post_id;
 		}
 
+		// Handle cover image as featured image.
+		if ( ! empty( $page['cover'] ) ) {
+			$this->property_handler->handle_cover_image( $post_id, $page['cover'] );
+		}
+
+		// Handle page icon.
+		if ( ! empty( $page['icon'] ) ) {
+			$this->property_handler->handle_icon( $post_id, $page['icon'] );
+		}
+
+		// Extract and store page metadata.
+		$metadata = $this->property_handler->extract_metadata( $page );
+		$this->property_handler->store_metadata( $post_id, $metadata );
+
 		// Store mapping between Notion page and WordPress post.
 		$this->store_notion_mapping( $page_id, $post_id );
 
@@ -277,7 +220,7 @@ class Importer_Controller {
 	 * @return array WordPress post data.
 	 */
 	private function convert_to_wordpress_post( $page, $blocks ) {
-		$title   = $this->extract_title( $page );
+		$title   = $this->property_handler->extract_title( $page );
 		$content = $this->blocks_to_html( $blocks );
 
 		// Get settings for defaults.
