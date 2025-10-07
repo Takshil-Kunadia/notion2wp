@@ -86,6 +86,7 @@ class Importer_Controller {
 			'created_time'     => $item['created_time'] ?? '',
 			'last_edited_time' => $item['last_edited_time'] ?? '',
 			'archived'         => $item['archived'] ?? false,
+			'media'            => Page_Property_Handler::extract_file_url( $item['cover'] ) ?? null,
 		];
 
 		// Add database-specific fields.

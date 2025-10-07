@@ -82,7 +82,7 @@ class Page_Property_Handler {
 	 * @param array $file Notion file object.
 	 * @return string|null File URL or null if not found.
 	 */
-	public function extract_file_url( $file ) {
+	public static function extract_file_url( $file ) {
 		if ( empty( $file['type'] ) ) {
 			return null;
 		}

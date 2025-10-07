@@ -81,13 +81,14 @@ class Admin {
 			'wp-data',
 			'wp-notices',
 			'wp-hooks',
+			'wp-dataviews',
 		];
 
 		// Build script.
-		$script_asset_file = NOTION2WP_PLUGIN_DIR . 'dist/admin.asset.php';
-		$script_asset      = file_exists( $script_asset_file ) ? file_get_contents( $script_asset_file ) : [
+		$script_asset_file = NOTION2WP_PLUGIN_DIR . 'dist/index.asset.php';
+		$script_asset      = file_exists( $script_asset_file ) ? require $script_asset_file : [
 			'dependencies' => $dependencies,
-			'version'      => filemtime( NOTION2WP_PLUGIN_DIR . 'dist/index.js' ),
+			'version'      => filemtime( NOTION2WP_PLUGIN_DIR . 'dist/index.js' ), // phpcs:ignore WordPressVIPMinimum.Files.IncludingNonPHPFile.IncludingNonPHPFile
 		];
 
 		wp_enqueue_script(
@@ -114,6 +115,7 @@ class Admin {
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
 				'adminUrl'    => admin_url( 'admin.php?page=' . self::PAGE_SLUG ),
 				'redirectUrl' => Auth::get_plugin_redirect_uri(),
+				'siteLogo'    => get_site_icon_url(),
 			]
 		);
 	}

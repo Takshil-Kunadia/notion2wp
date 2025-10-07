@@ -2,6 +2,11 @@ import { createRoot } from '@wordpress/element';
 import Auth from './components/Auth';
 import Import from './components/Import';
 
+/**
+ * Import Style.
+ */
+import './style.scss';
+
 // Settings page root
 const settingsRoot = document.getElementById( 'notion2wp-admin-root' );
 if ( settingsRoot ) {

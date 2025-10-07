@@ -37,3 +37,4 @@ release
 # Misc
 tsconfig.tsbuildinfo
 .eslintcache
+.stylelintcache

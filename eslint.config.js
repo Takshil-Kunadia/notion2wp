@@ -61,7 +61,7 @@ module.exports = [
 
 	// Node environment (for webpack, config scripts, etc.)
 	{
-		files: ['webpack.config.js', 'eslint.config.js'],
+		files: ['*.config.js'],
 		languageOptions: {
 			sourceType: 'script',
 			globals: {

@@ -1,9 +1,9 @@
 /**
  * Notion Import Component
- * 
+ *
  * Displays a list of available Notion pages and databases for import.
  * Allows users to select items and import them as WordPress posts.
- * 
+ *
  * Features:
  * - Fetches pages/databases from Notion API
  * - Multi-select with bulk actions
@@ -11,37 +11,57 @@
  * - Detailed success/error reporting
  */
 
-import { useState, useEffect } from '@wordpress/element';
-import { 
-	Button, 
-	Spinner, 
-	Notice, 
-	CheckboxControl,
+import { useState, useEffect, useMemo } from '@wordpress/element';
+import {
+	Button,
+	Spinner,
+	Notice,
 	Card,
 	CardBody,
-	CardHeader,
 	Flex,
 	FlexItem,
 	FlexBlock,
-	TabPanel,
 } from '@wordpress/components';
+import { DataViews } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 
-const NotionImport = () => {
+const Import = () => {
 	// Get localized data from WordPress
 	const apiUrl = window.notion2wpAdmin?.apiUrl || '/wp-json/notion2wp/v1/';
 	const nonce = window.notion2wpAdmin?.nonce || '';
+	const siteLogo = window.notion2wpAdmin?.siteLogo || '';
 
 	// Component state
 	const [ items, setItems ] = useState( [] );
-	const [ selectedItems, setSelectedItems ] = useState( new Set() );
 	const [ loading, setLoading ] = useState( false );
 	const [ importing, setImporting ] = useState( false );
 	const [ error, setError ] = useState( '' );
 	const [ success, setSuccess ] = useState( '' );
 	const [ importResults, setImportResults ] = useState( null );
-	const [ activeTab, setActiveTab ] = useState( 'all' );
+
+	// DataViews state
+	const [ view, setView ] = useState( {
+		type: 'table',
+		search: '',
+		filters: [],
+		page: 1,
+		perPage: 20,
+		sort: {
+			field: 'last_edited_time',
+			direction: 'desc',
+		},
+		fields: [ 'type', 'properties', 'last_edited_time' ],
+		titleField: 'title',
+		mediaField: 'media',
+		layout: {
+			styles: {
+				satellites: {
+					align: 'end',
+				},
+			},
+		},
+	} );
 
 	// Fetch items on component mount
 	useEffect( () => {
@@ -76,62 +96,12 @@ const NotionImport = () => {
 	};
 
 	/**
-	 * Toggle item selection
-	 * 
-	 * @param {string} itemId - Notion item ID
-	 */
-	const handleSelectItem = ( itemId ) => {
-		const newSelected = new Set( selectedItems );
-		if ( newSelected.has( itemId ) ) {
-			newSelected.delete( itemId );
-		} else {
-			newSelected.add( itemId );
-		}
-		setSelectedItems( newSelected );
-	};
-
-	/**
-	 * Get items filtered by current tab
-	 * 
-	 * @returns {Array} Filtered items
-	 */
-	const getVisibleItems = () => {
-		if ( activeTab === 'pages' ) {
-			return items.filter( item => item.type === 'page' );
-		}
-		if ( activeTab === 'databases' ) {
-			return items.filter( item => item.type === 'database' );
-		}
-		return items;
-	};
-
-	/**
-	 * Select or deselect all visible items
-	 */
-	const handleSelectAll = () => {
-		const visibleItems = getVisibleItems();
-		
-		// Check if all visible items are selected
-		const allSelected = visibleItems.every( item => selectedItems.has( item.id ) );
-		
-		if ( allSelected ) {
-			// Deselect all visible items
-			const newSelected = new Set( selectedItems );
-			visibleItems.forEach( item => newSelected.delete( item.id ) );
-			setSelectedItems( newSelected );
-		} else {
-			// Select all visible items
-			const newSelected = new Set( selectedItems );
-			visibleItems.forEach( item => newSelected.add( item.id ) );
-			setSelectedItems( newSelected );
-		}
-	};
-
-	/**
 	 * Import selected pages
+	 *
+	 * @param {Array} selectedItems - Array of selected item objects
 	 */
-	const handleImport = async () => {
-		if ( selectedItems.size === 0 ) {
+	const handleImport = async ( selectedItems ) => {
+		if ( ! selectedItems || selectedItems.length === 0 ) {
 			setError( __( 'Please select at least one item to import.', 'notion2wp' ) );
 			return;
 		}
@@ -142,6 +112,8 @@ const NotionImport = () => {
 		setImportResults( null );
 
 		try {
+			const pageIds = selectedItems.map( item => item.id );
+
 			const res = await fetch( `${ apiUrl }import/pages`, {
 				method: 'POST',
 				headers: {
@@ -149,7 +121,7 @@ const NotionImport = () => {
 					'X-WP-Nonce': nonce,
 				},
 				body: JSON.stringify( {
-					page_ids: Array.from( selectedItems ),
+					page_ids: pageIds,
 				} ),
 			} );
 
@@ -158,7 +130,6 @@ const NotionImport = () => {
 			if ( res.ok ) {
 				setSuccess( data.message || __( 'Import completed successfully!', 'notion2wp' ) );
 				setImportResults( data );
-				setSelectedItems( new Set() );
 			} else {
 				setError( data.message || __( 'Import failed.', 'notion2wp' ) );
 			}
@@ -167,92 +138,170 @@ const NotionImport = () => {
 		}
 
 		setImporting( false );
+		clearImportResults();
 	};
 
-	// Calculate counts for tabs
-	const pagesCount = items.filter( item => item.type === 'page' ).length;
-	const databasesCount = items.filter( item => item.type === 'database' ).length;
-	const visibleItems = getVisibleItems();
-	const allVisibleSelected = visibleItems.length > 0 && 
-		visibleItems.every( item => selectedItems.has( item.id ) );
+	/**
+	 * Clear import results after a delay
+	 */
+	const clearImportResults = () => {
+		setTimeout(() => {
+			setImportResults( null );
+			setError( '' );
+			setSuccess( '' );
+		}, 5000);
+	};
 
 	/**
-	 * Render individual item row
-	 * 
-	 * @param {Object} item - Notion item
-	 * @returns {JSX.Element} Table row
+	 * Handle view change
 	 */
-	const renderItemRow = ( item ) => (
-		<tr key={ item.id } style={ { opacity: item.archived ? 0.6 : 1 } }>
-			<td style={ { width: '40px' } }>
-				<CheckboxControl
-					checked={ selectedItems.has( item.id ) }
-					onChange={ () => handleSelectItem( item.id ) }
-					aria-label={ __( 'Select', 'notion2wp' ) + ' ' + item.title }
-				/>
-			</td>
-			<td>
-				<Flex align="flex-start" gap={ 2 }>
-					<FlexBlock>
-						<strong>{ item.title }</strong>
-						{ item.archived && (
-							<span style={ {
-								marginLeft: '8px',
-								color: '#757575',
-								fontSize: '12px',
-								fontStyle: 'italic',
-							} }>
-								({ __( 'Archived', 'notion2wp' ) })
-							</span>
-						) }
-						{ item.type === 'database' && item.description && (
-							<div style={ { 
-								color: '#757575',
-								fontSize: '13px',
-								marginTop: '4px',
-							} }>
-								{ item.description }
-							</div>
-						) }
-					</FlexBlock>
-				</Flex>
-			</td>
-			{ item.type === 'database' && activeTab !== 'pages' && (
-				<td style={ { fontSize: '12px', color: '#50575e' } }>
-					{ item.properties && item.properties.length > 0 ? (
-						<>{ item.properties.length } { __( 'properties', 'notion2wp' ) }</>
-					) : (
-						'-'
-					) }
-				</td>
-			) }
-			<td style={ { fontSize: '13px', color: '#50575e' } }>
-				{ new Date( item.last_edited_time ).toLocaleString() }
-			</td>
-			<td>
-				<Button
-					href={ item.url }
-					target="_blank"
-					rel="noopener noreferrer"
-					variant="link"
-					icon={ external }
-					iconSize={ 16 }
-					iconPosition="right"
-				>
-					{ __( 'View in Notion', 'notion2wp' ) }
-				</Button>
-			</td>
-		</tr>
-	);
+	const onChangeView = ( newView ) => {
+		// TODO: Update items as per the new view.
+		setView( newView );
+	};
+
+	/**
+	 * DataViews fields configuration
+	 */
+	const fields = useMemo( () => [
+		{
+			id: 'title',
+			label: __( 'Title', 'notion2wp' ),
+			enableGlobalSearch: true,
+			enableSorting: false,
+			isVisible: true,
+			render: ( { item } ) => {
+				return (
+					<Flex gap={ 2 } align="flex-start">
+						<FlexBlock>
+							<strong>{ item.title || __( 'Untitled', 'notion2wp' ) }</strong>
+							{ item.archived && (
+								<span style={{
+									marginLeft: '8px',
+									color: '#757575',
+									fontSize: '12px',
+									fontStyle: 'italic',
+								}}>
+									({ __( 'Archived', 'notion2wp' ) })
+								</span>
+							) }
+							{ item.type === 'database' && item.description && (
+								<div style={{
+									color: '#757575',
+									fontSize: '13px',
+									marginTop: '4px',
+								}}>
+									{ item.description }
+								</div>
+							) }
+						</FlexBlock>
+					</Flex>
+				);
+			},
+		},
+		{
+			id: 'media',
+			label: __( 'Media', 'notion2wp' ),
+			isVisible: false,
+			type: 'media',
+			render: ( { item } ) => {
+				return item.media ? (
+					<img src={ item.media } alt={ __( 'Media', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
+				) : (
+					<img src={ siteLogo } alt={ __( 'Site Logo', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
+				);
+			},
+		},
+		{
+			id: 'type',
+			label: __( 'Type', 'notion2wp' ),
+			elements: [
+				{ value: 'page', label: __( 'Page', 'notion2wp' ) },
+				{ value: 'database', label: __( 'Database', 'notion2wp' ) },
+			],
+			isVisible: false,
+			filterBy: {
+				operators: [ 'isAny' ],
+			},
+			enableSorting: true,
+			render: ( { item } ) => {
+				return item.type === 'page' 
+					? __( 'Page', 'notion2wp' ) 
+					: __( 'Database', 'notion2wp' );
+			},
+		},
+		{
+			id: 'properties',
+			label: __( 'Properties', 'notion2wp' ),
+			isVisible: true,
+			enableSorting: false,
+			render: ( { item } ) => {
+				if ( item.type !== 'database' || ! item.properties ) {
+					return '-';
+				}
+				return `${ item.properties.length } ${ __( 'properties', 'notion2wp' ) }`;
+			},
+		},
+		{
+			id: 'last_edited_time',
+			label: __( 'Last Edited', 'notion2wp' ),
+			isVisible: true,
+			enableSorting: true,
+			render: ( { item } ) => {
+				return new Date( item.last_edited_time ).toLocaleString();
+			},
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	], [] );
+
+	/**
+	 * DataViews actions configuration
+	 */
+	const actions = useMemo( () => [
+		{
+			id: 'import',
+			label: __( 'Import to WordPress', 'notion2wp' ),
+			isPrimary: true,
+			icon: 'download',
+			supportsBulk: true,
+			callback: async ( selectedItems ) => {
+				await handleImport( selectedItems );
+			},
+		},
+		{
+			id: 'view_notion',
+			label: __( 'View in Notion', 'notion2wp' ),
+			variant: 'secondary',
+			icon: external,
+			supportsBulk: false,
+			callback: ( selectedItems ) => {
+				if ( selectedItems.length === 1 ) {
+					const item = selectedItems[0];
+					window.open( item.url, '_blank', 'noopener noreferrer' );
+				}
+			},
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	], [] );
+
+	/**
+	 * Calculate pagination info
+	 */
+	const paginationInfo = useMemo( () => {
+		return {
+			totalItems: items.length,
+			totalPages: Math.ceil( items.length / view.perPage ),
+		};
+	}, [ items.length, view.perPage ] );
 
 	return (
-		<div style={ { maxWidth: '1400px' } }>
-			<Flex justify="space-between" align="flex-start" style={ { marginBottom: '1.5rem' } }>
+		<div style={{ maxWidth: '1400px' }}>
+			<Flex justify="space-between" align="flex-start" style={{ marginBottom: '1.5rem' }}>
 				<FlexBlock>
-					<h1 style={ { margin: 0 } }>
+					<h1 style={{ margin: 0 }}>
 						{ __( 'Import from Notion', 'notion2wp' ) }
 					</h1>
-					<p style={ { marginTop: '0.5rem', color: '#50575e' } }>
+					<p style={{ marginTop: '0.5rem', color: '#50575e' }}>
 						{ __( 'Select pages or databases from your Notion workspace to import as WordPress posts.', 'notion2wp' ) }
 					</p>
 				</FlexBlock>
@@ -269,32 +318,23 @@ const NotionImport = () => {
 				</FlexItem>
 			</Flex>
 
-			{ /* Error/Success Messages */ }
-			{ error && (
-				<Notice status="error" isDismissible onRemove={ () => setError( '' ) }>
-					{ error }
-				</Notice>
-			) }
-
-			{ success && (
-				<Notice status="success" isDismissible onRemove={ () => setSuccess( '' ) }>
-					{ success }
+			{ /* Importing Notice */ }
+			{ importing && (
+				<Notice status="info">
+					{ __( 'Importing selected items. This may take a few moments...', 'notion2wp' ) }
 				</Notice>
 			) }
 
 			{ /* Import Results */ }
 			{ importResults && (
-				<Card style={ { marginBottom: '1.5rem' } }>
-					<CardHeader>
-						<strong>{ __( 'Import Results', 'notion2wp' ) }</strong>
-					</CardHeader>
+				<Card style={{ marginBottom: '1.5rem' }}>
 					<CardBody>
-						{ importResults.success && importResults.success.length > 0 && (
-							<div style={ { marginBottom: importResults.errors?.length > 0 ? '1.5rem' : 0 } }>
-								<h4 style={ { color: '#00a32a', marginTop: 0 } }>
+						{ success && importResults.success && importResults.success.length > 0 && (
+							<div style={{ marginBottom: importResults.errors?.length > 0 ? '1.5rem' : 0 }}>
+								<h4 style={{ color: '#00a32a', marginTop: 0 }}>
 									✓ { __( 'Successfully Imported', 'notion2wp' ) } ({ importResults.success.length })
 								</h4>
-								<ul style={ { marginBottom: 0 } }>
+								<ul style={{ marginBottom: 0 }}>
 									{ importResults.success.map( ( result ) => (
 										<li key={ result.page_id }>
 											<a
@@ -305,7 +345,7 @@ const NotionImport = () => {
 												{ __( 'Post ID:', 'notion2wp' ) } { result.post_id }
 											</a>
 											{ ' ' }
-											<span style={ { color: '#757575', fontSize: '12px' } }>
+											<span style={{ color: '#757575', fontSize: '12px' }}>
 												({ result.page_id })
 											</span>
 										</li>
@@ -314,14 +354,14 @@ const NotionImport = () => {
 							</div>
 						) }
 
-						{ importResults.errors && importResults.errors.length > 0 && (
+						{ error && importResults.errors && importResults.errors.length > 0 && (
 							<div>
-								<h4 style={ { color: '#d63638', marginTop: 0 } }>
+								<h4 style={{ color: '#d63638', marginTop: 0 }}>
 									✗ { __( 'Failed', 'notion2wp' ) } ({ importResults.errors.length })
 								</h4>
-								<ul style={ { marginBottom: 0 } }>
+								<ul style={{ marginBottom: 0 }}>
 									{ importResults.errors.map( ( result, idx ) => (
-										<li key={ idx } style={ { color: '#d63638' } }>
+										<li key={ idx } style={{ color: '#d63638' }}>
 											<code>{ result.page_id }</code>: { result.message }
 										</li>
 									) ) }
@@ -336,9 +376,9 @@ const NotionImport = () => {
 			{ loading ? (
 				<Card>
 					<CardBody>
-						<Flex align="center" justify="center" style={ { padding: '3rem' } }>
+						<Flex align="center" justify="center" style={{ padding: '3rem' }}>
 							<Spinner />
-							<span style={ { marginLeft: '1rem' } }>
+							<span style={{ marginLeft: '1rem' }}>
 								{ __( 'Loading items from Notion...', 'notion2wp' ) }
 							</span>
 						</Flex>
@@ -347,9 +387,9 @@ const NotionImport = () => {
 			) : items.length === 0 ? (
 				<Card>
 					<CardBody>
-						<div style={ { textAlign: 'center', padding: '2rem' } }>
+						<div style={{ textAlign: 'center', padding: '2rem' }}>
 							<h3>{ __( 'No Items Found', 'notion2wp' ) }</h3>
-							<p style={ { color: '#757575' } }>
+							<p style={{ color: '#757575' }}>
 								{ __( 'No pages or databases found in your Notion workspace.', 'notion2wp' ) }
 								<br />
 								{ __( 'Make sure you\'re connected and have shared pages with your integration.', 'notion2wp' ) }
@@ -358,101 +398,18 @@ const NotionImport = () => {
 					</CardBody>
 				</Card>
 			) : (
-				<Card>
-					<CardHeader>
-						<Flex justify="space-between" align="center">
-							<FlexBlock>
-								<strong>
-									{ __( 'Available Items', 'notion2wp' ) } ({ items.length })
-								</strong>
-							</FlexBlock>
-							<FlexItem>
-								<Flex gap={ 2 }>
-									<Button
-										variant="link"
-										onClick={ handleSelectAll }
-										disabled={ visibleItems.length === 0 }
-									>
-										{ allVisibleSelected
-											? __( 'Deselect All', 'notion2wp' )
-											: __( 'Select All', 'notion2wp' ) }
-									</Button>
-									<Button
-										variant="primary"
-										onClick={ handleImport }
-										isBusy={ importing }
-										disabled={ importing || selectedItems.size === 0 }
-									>
-										{ importing
-											? __( 'Importing...', 'notion2wp' )
-											: selectedItems.size > 0
-												? __( 'Import Selected', 'notion2wp' ) + ` (${ selectedItems.size })`
-												: __( 'Import Selected', 'notion2wp' ) }
-									</Button>
-								</Flex>
-							</FlexItem>
-						</Flex>
-					</CardHeader>
-					<CardBody style={ { padding: 0 } }>
-						<TabPanel
-							className="notion2wp-import-tabs"
-							activeClass="is-active"
-							onSelect={ ( tabName ) => setActiveTab( tabName ) }
-							tabs={ [
-								{
-									name: 'all',
-									title: __( 'All', 'notion2wp' ) + ` (${ items.length })`,
-								},
-								{
-									name: 'pages',
-									title: __( 'Pages', 'notion2wp' ) + ` (${ pagesCount })`,
-								},
-								{
-									name: 'databases',
-									title: __( 'Databases', 'notion2wp' ) + ` (${ databasesCount })`,
-								},
-							] }
-						>
-							{ () => (
-								<div style={ { padding: '1rem' } }>
-									{ visibleItems.length === 0 ? (
-										<div style={ { textAlign: 'center', padding: '2rem', color: '#757575' } }>
-											{ __( 'No items in this category.', 'notion2wp' ) }
-										</div>
-									) : (
-										<table className="wp-list-table widefat fixed striped">
-											<thead>
-												<tr>
-													<th style={ { width: '50px' } }>
-														{ __( 'Select', 'notion2wp' ) }
-													</th>
-													<th>{ __( 'Title', 'notion2wp' ) }</th>
-													{ activeTab === 'databases' && (
-														<th style={ { width: '120px' } }>
-															{ __( 'Properties', 'notion2wp' ) }
-														</th>
-													) }
-													<th style={ { width: '180px' } }>
-														{ __( 'Last Edited', 'notion2wp' ) }
-													</th>
-													<th style={ { width: '150px' } }>
-														{ __( 'Actions', 'notion2wp' ) }
-													</th>
-												</tr>
-											</thead>
-											<tbody>
-												{ visibleItems.map( renderItemRow ) }
-											</tbody>
-										</table>
-									) }
-								</div>
-							) }
-						</TabPanel>
-					</CardBody>
-				</Card>
+				<DataViews
+					data={ items }
+					fields={ fields }
+					view={ view }
+					onChangeView={ onChangeView }
+					actions={ actions }
+					paginationInfo={ paginationInfo }
+					defaultLayouts={{ table: {}, grid: {}, list: {} }}
+				/>
 			) }
 		</div>
 	);
 };
 
-export default NotionImport;
+export default Import;

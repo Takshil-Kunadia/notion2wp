@@ -1,4 +1,6 @@
 const path = require('path');
+const DependencyExtractionWebpackPlugin = require('@wordpress/dependency-extraction-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
 	entry: './src/index.js',
@@ -21,19 +23,24 @@ module.exports = {
 						]
 					}
 				}
+			},
+			{
+				test: /\.(sc|sa|c)ss$/,
+				use: [
+					MiniCssExtractPlugin.loader,
+					'css-loader',
+					'sass-loader'
+				]
 			}
 		]
 	},
 	resolve: {
 		extensions: ['.js', '.jsx', '.json']
 	},
-	externals: {
-		'@wordpress/element': ['wp', 'element'],
-		'@wordpress/components': ['wp', 'components'],
-		'@wordpress/i18n': ['wp', 'i18n'],
-		'@wordpress/api-fetch': ['wp', 'apiFetch'],
-		'@wordpress/data': ['wp', 'data'],
-		'@wordpress/notices': ['wp', 'notices'],
-		'@wordpress/hooks': ['wp', 'hooks']
-	}
+	plugins: [
+		new DependencyExtractionWebpackPlugin(),
+		new MiniCssExtractPlugin({
+			filename: 'index.css'
+		})
+	]
 };
