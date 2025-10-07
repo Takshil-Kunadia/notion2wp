@@ -9,7 +9,7 @@ namespace Notion2WP\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use Notion2WP\Admin\Settings;
+use Notion2WP\Auth\Auth;
 
 /**
  * Admin class for handling WordPress admin interface.
@@ -64,24 +64,6 @@ class Admin {
 			'notion2wp-import',
 			[ self::class, 'render_import_page' ]
 		);
-
-		add_submenu_page(
-			self::PAGE_SLUG,
-			__( 'Sync History', 'notion2wp' ),
-			__( 'Sync History', 'notion2wp' ),
-			'manage_notion2wp',
-			'notion2wp-sync-history',
-			[ self::class, 'render_sync_history_page' ]
-		);
-
-		add_submenu_page(
-			self::PAGE_SLUG,
-			__( 'Connections', 'notion2wp' ),
-			__( 'Connections', 'notion2wp' ),
-			'manage_notion2wp',
-			'notion2wp-connections',
-			[ self::class, 'render_connections_page' ]
-		);
 	}
 
 	/**
@@ -128,9 +110,10 @@ class Admin {
 			'notion2wp-admin',
 			'notion2wpAdmin',
 			[
-				'apiUrl'   => home_url( '/wp-json/notion2wp/v1/' ),
-				'nonce'    => wp_create_nonce( 'wp_rest' ),
-				'adminUrl' => admin_url( 'admin.php?page=' . self::PAGE_SLUG ),
+				'apiUrl'      => home_url( '/wp-json/notion2wp/v1/' ),
+				'nonce'       => wp_create_nonce( 'wp_rest' ),
+				'adminUrl'    => admin_url( 'admin.php?page=' . self::PAGE_SLUG ),
+				'redirectUrl' => Auth::get_plugin_redirect_uri(),
 			]
 		);
 	}
@@ -154,30 +137,6 @@ class Admin {
 		?>
 		<div class="wrap">
 			<div id="notion2wp-import-root"></div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Render the sync history page.
-	 */
-	public static function render_sync_history_page() {
-		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Sync History', 'notion2wp' ); ?></h1>
-			<div id="notion2wp-sync-history-root"></div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Render the connections page.
-	 */
-	public static function render_connections_page() {
-		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Notion Connections', 'notion2wp' ); ?></h1>
-			<div id="notion2wp-connections-root"></div>
 		</div>
 		<?php
 	}

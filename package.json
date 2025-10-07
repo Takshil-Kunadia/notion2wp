@@ -44,5 +44,8 @@
 		"lint:php": "./vendor/bin/phpcs",
 		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
 		"fix:php": "./vendor/bin/phpcbf"
+	},
+	"dependencies": {
+		"@wordpress/icons": "^10.32.0"
 	}
 }

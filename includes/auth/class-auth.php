@@ -395,7 +395,7 @@ class Auth {
 	 *
 	 * @return string
 	 */
-	private static function get_plugin_redirect_uri() {
+	public static function get_plugin_redirect_uri() {
 		return admin_url( 'admin.php?notion2wp_oauth_callback=1' );
 	}
 
@@ -426,17 +426,21 @@ class Auth {
 
 		$status = [
 			'connected'       => false,
+			'workspace_id'    => '',
 			'workspace_name'  => '',
 			'workspace_icon'  => '',
 			'bot_id'          => '',
+			'owner'           => null,
 			'connection_date' => null,
 		];
 
 		if ( ! empty( $settings['access_token'] ) && ! empty( $settings['bot_id'] ) ) {
 			$status['connected']       = true;
+			$status['workspace_id']    = $settings['workspace_id'] ?? '';
 			$status['workspace_name']  = $settings['workspace_name'] ?? '';
 			$status['workspace_icon']  = $settings['workspace_icon'] ?? '';
 			$status['bot_id']          = $settings['bot_id'];
+			$status['owner']           = $settings['owner'] ?? null;
 			$status['connection_date'] = ! empty( $settings['token_obtained_at'] ) ?
 				date_i18n( get_option( 'date_format' ), $settings['token_obtained_at'] ) : null;
 		}

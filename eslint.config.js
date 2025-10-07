@@ -18,6 +18,7 @@ module.exports = [
 				console: 'readonly',
 				fetch: 'readonly',
 				wp: 'readonly',
+				setTimeout: 'readonly',
 			},
 			parserOptions: {
 				ecmaFeatures: {
