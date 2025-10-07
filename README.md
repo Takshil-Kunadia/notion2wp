@@ -13,7 +13,7 @@
 
 **Notion → WordPress Sync** bridges your Notion workspace and your WordPress site.
 
-It fetches structured content (pages, databases, and blocks) from Notion and translates them into **native Gutenberg blocks**, giving you the best of both worlds:
+It fetches structured content (pages, databases, and blocks) from Notion and translates them into **native Gutenberg blocks** and creates blog posts, giving you the best of both worlds:
 - The collaborative content creation of **Notion**.
 - The publishing power and SEO ecosystem of **WordPress**.
 
