@@ -33,7 +33,7 @@ class Page_Property_Handler {
 		}
 
 		// For databases.
-		if ( 'database' === $page['object'] && ! empty( $page['title'] ) ) {
+		if ( ( 'data_source' === $page['object'] || 'database' === $page['object'] ) && ! empty( $page['title'] ) ) {
 			return $this->extract_rich_text( $page['title'] );
 		}
 
