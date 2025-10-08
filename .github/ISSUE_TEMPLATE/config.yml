@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Question or Discussion
+    url: https://github.com/Takshil-Kunadia/notion2wp/discussions
+    about: Ask questions or discuss ideas with the community
+  - name: 📖 Documentation
+    url: https://github.com/Takshil-Kunadia/notion2wp/blob/master/README.md
+    about: Read the project documentation
+  - name: 🔒 Security Issue
+    url: https://github.com/Takshil-Kunadia/notion2wp/security/advisories/new
+    about: Report a security vulnerability privately
