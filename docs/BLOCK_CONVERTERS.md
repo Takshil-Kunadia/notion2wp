@@ -88,11 +88,11 @@ Nested blocks (children) are handled automatically:
 protected function process_children( $children, $context = [] ) {
     $registry = Block_Registry::get_instance();
     $html = '';
-    
+
     foreach ( $children as $child_block ) {
         $html .= $registry->convert_block( $child_block, $context );
     }
-    
+
     return $html;
 }
 ```
@@ -120,18 +120,18 @@ class My_Block_Converter extends Abstract_Block_Converter {
     public function convert( $block, $context = [] ) {
         $block_data = $block['my_block_type'] ?? [];
         $rich_text  = $block_data['rich_text'] ?? [];
-        
+
         // Convert rich text to HTML
         $content = $this->rich_text_to_html( $rich_text );
-        
+
         // Build HTML
         $html = '<div>' . $content . '</div>';
-        
+
         // Process children if present
         if ( ! empty( $block['children'] ) ) {
             $html .= $this->process_children( $block['children'], $context );
         }
-        
+
         // Wrap in Gutenberg block format
         return $this->wrap_gutenberg_block( 'core/my-block', $html );
     }
@@ -176,8 +176,8 @@ $wp_color =  $this->map_color( 'blue_background' );
 ### Gutenberg Block Wrapping
 
 ```php
-$html = $this->wrap_gutenberg_block( 
-    'core/paragraph', 
+$html = $this->wrap_gutenberg_block(
+    'core/paragraph',
     '<p>Content</p>',
     [ 'className' => 'my-class' ]
 );

@@ -7,7 +7,7 @@
 
 namespace Notion2WP\Adapter;
 
-use Notion2WP\Admin\Settings;
+use Notion2WP\Auth\Auth;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,23 +27,22 @@ class Notion_Client {
 	const API_VERSION = '2025-09-03';
 
 	/**
-	 * Access token.
+	 * Integration token.
 	 *
 	 * @var string
 	 */
-	private $access_token;
+	private $integration_token;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param string $access_token Optional access token. If not provided, will get from settings.
+	 * @param string $integration_token Optional integration token. If not provided, will get from Auth.
 	 */
-	public function __construct( $access_token = null ) {
-		if ( $access_token ) {
-			$this->access_token = $access_token;
+	public function __construct( $integration_token = null ) {
+		if ( $integration_token ) {
+			$this->integration_token = $integration_token;
 		} else {
-			$settings           = Settings::get_settings();
-			$this->access_token = $settings['access_token'] ?? '';
+			$this->integration_token = Auth::get_integration_token();
 		}
 	}
 
@@ -56,8 +55,8 @@ class Notion_Client {
 	 * @return array|\WP_Error
 	 */
 	private function make_request( $endpoint, $method = 'GET', $body = null ) {
-		if ( empty( $this->access_token ) ) {
-			return new \WP_Error( 'no_token', __( 'No access token available. Please authenticate with Notion first.', 'notion2wp' ) );
+		if ( empty( $this->integration_token ) ) {
+			return new \WP_Error( 'no_token', __( 'No integration token available. Please add your Notion integration token first.', 'notion2wp' ) );
 		}
 
 		$url = self::API_BASE_URL . $endpoint;
@@ -66,7 +65,7 @@ class Notion_Client {
 			'method'  => $method,
 			'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'headers' => [
-				'Authorization'  => 'Bearer ' . $this->access_token,
+				'Authorization'  => 'Bearer ' . $this->integration_token,
 				'Notion-Version' => self::API_VERSION,
 				'Content-Type'   => 'application/json',
 			],

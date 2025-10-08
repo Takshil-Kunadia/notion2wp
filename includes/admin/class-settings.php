@@ -25,17 +25,10 @@ class Settings {
 	 * @var array
 	 */
 	private static $default_settings = [
-		// OAuth & Connection Settings.
-		'client_id'              => '',
-		'client_secret'          => '',
-		'access_token'           => '',
-		'refresh_token'          => '',
+		// Internal Integration Settings.
+		'integration_token'      => '',
 		'bot_id'                 => '',
-		'workspace_id'           => '',
-		'workspace_name'         => '',
-		'workspace_icon'         => '',
 		'owner'                  => null,
-		'duplicated_template_id' => null,
 		'token_obtained_at'      => null,
 
 		// Sync Settings.
@@ -191,26 +184,29 @@ class Settings {
 	}
 
 	/**
-	 * Get OAuth related settings.
+	 * Get Internal Integration related settings.
 	 *
 	 * @return array
 	 */
-	public static function get_oauth_settings() {
+	public static function get_integration_settings() {
 		$settings = self::get_settings();
 
 		return [
-			'client_id'              => $settings['client_id'],
-			'client_secret'          => $settings['client_secret'],
-			'access_token'           => $settings['access_token'],
-			'refresh_token'          => $settings['refresh_token'],
-			'bot_id'                 => $settings['bot_id'],
-			'workspace_id'           => $settings['workspace_id'],
-			'workspace_name'         => $settings['workspace_name'],
-			'workspace_icon'         => $settings['workspace_icon'],
-			'owner'                  => $settings['owner'],
-			'duplicated_template_id' => $settings['duplicated_template_id'],
-			'token_obtained_at'      => $settings['token_obtained_at'],
+			'integration_token' => $settings['integration_token'],
+			'bot_id'            => $settings['bot_id'],
+			'owner'             => $settings['owner'],
+			'token_obtained_at' => $settings['token_obtained_at'],
 		];
+	}
+
+	/**
+	 * Get OAuth related settings (deprecated - kept for backward compatibility).
+	 *
+	 * @deprecated Use get_integration_settings() instead.
+	 * @return array
+	 */
+	public static function get_oauth_settings() {
+		return self::get_integration_settings();
 	}
 
 	/**
