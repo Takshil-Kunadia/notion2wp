@@ -15,12 +15,12 @@ import { useState, useEffect, useMemo } from '@wordpress/element';
 import {
 	Button,
 	Spinner,
-	Notice,
 	Card,
 	CardBody,
 	Flex,
 	FlexItem,
 	FlexBlock,
+	Snackbar,
 } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
@@ -320,9 +320,11 @@ const Import = () => {
 
 			{ /* Importing Notice */ }
 			{ importing && (
-				<Notice status="info">
-					{ __( 'Importing selected items. This may take a few moments...', 'notion2wp' ) }
-				</Notice>
+				<div style={{ marginBottom: '1.5rem' }}>
+					<Snackbar status="info">
+						{ __( 'Importing selected items. This may take a few moments...', 'notion2wp' ) }
+					</Snackbar>
+				</div>
 			) }
 
 			{ /* Import Results */ }
