@@ -53,15 +53,10 @@ class Rest_API {
 			'/auth/connect',
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => [ self::class, 'start_oauth_flow' ],
+				'callback'            => [ self::class, 'connect_integration' ],
 				'permission_callback' => [ self::class, 'check_permissions' ],
 				'args'                => [
-					'client_id'     => [
-						'required'          => true,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'client_secret' => [
+					'integration_token' => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
@@ -160,17 +155,16 @@ class Rest_API {
 	}
 
 	/**
-	 * Start OAuth flow.
+	 * Connect to Notion using integration token.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public static function start_oauth_flow( $request ) {
-		$client_id     = $request->get_param( 'client_id' );
-		$client_secret = $request->get_param( 'client_secret' );
+	public static function connect_integration( $request ) {
+		$integration_token = $request->get_param( 'integration_token' );
 
-		// Delegate to Auth class.
-		$result = Auth::start_oauth_flow( $client_id, $client_secret );
+		// Delegate to Auth class to save and verify token.
+		$result = Auth::save_integration_token( $integration_token );
 
 		// Handle result.
 		if ( is_wp_error( $result ) ) {
@@ -182,8 +176,8 @@ class Rest_API {
 
 		return new WP_REST_Response(
 			[
-				'auth_url' => $result['auth_url'],
-				'message'  => __( 'Redirect to Notion for authorization.', 'notion2wp' ),
+				'success' => true,
+				'message' => __( 'Successfully connected to Notion!', 'notion2wp' ),
 			],
 			200
 		);
@@ -241,13 +235,8 @@ class Rest_API {
 
 		// Merge with current settings, preserving auth data.
 		$auth_keys = [
-			'client_secret',
-			'access_token', 
-			'refresh_token',
+			'integration_token',
 			'bot_id',
-			'workspace_id',
-			'workspace_name',
-			'workspace_icon',
 			'owner',
 			'duplicated_template_id',
 			'token_obtained_at',

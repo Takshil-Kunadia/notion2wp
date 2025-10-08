@@ -225,8 +225,8 @@ const Import = () => {
 			},
 			enableSorting: true,
 			render: ( { item } ) => {
-				return item.type === 'page' 
-					? __( 'Page', 'notion2wp' ) 
+				return item.type === 'page'
+					? __( 'Page', 'notion2wp' )
 					: __( 'Database', 'notion2wp' );
 			},
 		},

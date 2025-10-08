@@ -1,45 +1,38 @@
 /**
  * Notion Authentication Component
- * 
- * Handles OAuth connection to Notion workspace.
+ *
+ * Handles Internal integration token setup for Notion workspace.
  * Displays connection status and provides connect/disconnect functionality.
- * 
- * @param {Object} props - Component props
- * @param {Function} props.onStatusChange - Callback when auth status changes
  */
 
 import { useEffect, useState } from '@wordpress/element';
-import { 
-	Button, 
-	Card, 
-	CardBody, 
+import {
+	Button,
+	Card,
+	CardBody,
 	CardHeader,
 	TextControl,
-	Notice,
 	Spinner,
 	Flex,
 	FlexItem,
-	FlexBlock,
-	ClipboardButton,
+	Snackbar,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { copy } from '@wordpress/icons';
 
-const Auth = ( { onStatusChange } ) => {
+const MESSAGE_TIMEOUT = 5000;
+
+const Auth = () => {
 	// Get localized data from WordPress
 	const apiUrl = window.notion2wpAdmin?.apiUrl || '/wp-json/notion2wp/v1/';
 	const nonce = window.notion2wpAdmin?.nonce || '';
-	const redirectUrl = window.notion2wpAdmin?.redirectUrl || '';
 
 	// Component state
 	const [ status, setStatus ] = useState( null );
-	const [ clientId, setClientId ] = useState( '' );
-	const [ clientSecret, setClientSecret ] = useState( '' );
+	const [ integrationToken, setIntegrationToken ] = useState( '' );
 	const [ loading, setLoading ] = useState( false );
 	const [ initialLoading, setInitialLoading ] = useState( true );
 	const [ message, setMessage ] = useState( '' );
 	const [ error, setError ] = useState( '' );
-	const [ urlCopied, setUrlCopied ] = useState( false );
 
 	/**
 	 * Fetch current connection status from API
@@ -54,9 +47,6 @@ const Auth = ( { onStatusChange } ) => {
 
 			if ( res.ok ) {
 				setStatus( data );
-				if ( onStatusChange ) {
-					onStatusChange( data );
-				}
 			} else {
 				setStatus( null );
 			}
@@ -75,8 +65,8 @@ const Auth = ( { onStatusChange } ) => {
 	}, [] );
 
 	/**
-	 * Handle OAuth connection initiation
-	 * 
+	 * Handle integration connection
+	 *
 	 * @param {Event} e - Form submit event
 	 */
 	const handleConnect = async ( e ) => {
@@ -92,25 +82,27 @@ const Auth = ( { onStatusChange } ) => {
 					'Content-Type': 'application/json',
 					'X-WP-Nonce': nonce,
 				},
-				body: JSON.stringify( { 
-					client_id: clientId, 
-					client_secret: clientSecret, 
+				body: JSON.stringify( {
+					integration_token: integrationToken,
 				} ),
 			} );
 
 			const data = await res.json();
 
-			if ( res.ok && data.auth_url ) {
-				setMessage( __( 'Redirecting to Notion for authorization...', 'notion2wp' ) );
-				// Redirect to Notion OAuth page
-				window.location.href = data.auth_url;
+			if ( res.ok && data.success ) {
+				setMessage( data.message || __( 'Successfully connected to Notion!', 'notion2wp' ) );
+				setIntegrationToken( '' );
+
+				// Refresh status
+				await fetchStatus();
 			} else {
-				setError( data.message || __( 'Failed to start OAuth flow.', 'notion2wp' ) );
+				setError( data.message || __( 'Failed to connect to Notion.', 'notion2wp' ) );
 			}
 		} catch ( err ) {
 			setError( __( 'Connection error: ', 'notion2wp' ) + err.message );
 		} finally {
 			setLoading( false );
+			clearMessages();
 		}
 	};
 
@@ -137,12 +129,7 @@ const Auth = ( { onStatusChange } ) => {
 			if ( res.ok ) {
 				setMessage( __( 'Successfully disconnected from Notion.', 'notion2wp' ) );
 				setStatus( null );
-				setClientId( '' );
-				setClientSecret( '' );
-				
-				if ( onStatusChange ) {
-					onStatusChange( null );
-				}
+				setIntegrationToken( '' );
 			} else {
 				setError( data.message || __( 'Failed to disconnect.', 'notion2wp' ) );
 			}
@@ -150,15 +137,15 @@ const Auth = ( { onStatusChange } ) => {
 			setError( __( 'Disconnect error: ', 'notion2wp' ) + err.message );
 		} finally {
 			setLoading( false );
+			clearMessages();
 		}
 	};
 
-	/**
-	 * Handle clipboard copy success
-	 */
-	const handleCopySuccess = () => {
-		setUrlCopied( true );
-		setTimeout( () => setUrlCopied( false ), 2000 );
+	const clearMessages = () => {
+		setTimeout( () => {
+			setMessage( '' );
+			setError( '' );
+		}, MESSAGE_TIMEOUT );
 	};
 
 	// Show loading state
@@ -180,37 +167,29 @@ const Auth = ( { onStatusChange } ) => {
 	return (
 		<div>
 			{ /* Success/Error Messages */ }
-			{ message && (
-				<Notice 
-					status="success" 
-					isDismissible 
-					onRemove={ () => setMessage( '' ) }
-				>
-					{ message }
-				</Notice>
-			) }
+			<div style={ { marginBottom: '1rem' } }>
+				{ message && (
+					<Snackbar
+						status="success"
+						isDismissible
+						onRemove={ () => setMessage( '' ) }
+					>
+						{ message }
+					</Snackbar>
+				) }
 
-			{ /* URL Copied Notice */ }
-			{ urlCopied && (
-				<Notice 
-					status="info" 
-					isDismissible 
-					onRemove={ () => setUrlCopied( false ) }
-				>
-					{ __( 'URL copied to clipboard!', 'notion2wp' ) }
-				</Notice>
-			) }
+				{ error && (
+					<Snackbar
+						status="error"
+						isDismissible
+						onRemove={ () => setError( '' ) }
+					>
+						{ error }
+					</Snackbar>
+				) }
+			</div>
 
-			{ error && (
-				<Notice 
-					status="error" 
-					isDismissible 
-					onRemove={ () => setError( '' ) }
-				>
-					{ error }
-				</Notice>
-			) }
-
+			{ /* Main Card  */ }
 			{ /* Connected State */ }
 			{ status && status.connected ? (
 				<Card>
@@ -224,46 +203,15 @@ const Auth = ( { onStatusChange } ) => {
 					<CardBody>
 						<div style={ { marginBottom: '1.5rem' } }>
 							<Flex direction="column" gap={ 3 }>
-								{ status.workspace_name && (
-									<FlexItem>
-										<strong>{ __( 'Workspace:', 'notion2wp' ) }</strong>
-										<div style={ { marginTop: '0.25rem', color: '#50575e' } }>
-											{ status.workspace_name }
-										</div>
-									</FlexItem>
-								) }
-
-								{ status.workspace_icon && (
-									<FlexItem>
-										<strong>{ __( 'Icon:', 'notion2wp' ) }</strong>
-										<div style={ { marginTop: '0.25rem', fontSize: '2rem' } }>
-											{ status.workspace_icon }
-										</div>
-									</FlexItem>
-								) }
 
 								{ status.owner && (
 									<FlexItem>
 										<strong>{ __( 'Owner:', 'notion2wp' ) }</strong>
 										<div style={ { marginTop: '0.25rem', color: '#50575e' } }>
-											{ status.owner.type === 'user' 
-												? status.owner.user?.name || status.owner.user?.id 
+											{ status.owner.type === 'user'
+												? status.owner.user?.name || status.owner.user?.id
 												: __( 'Workspace', 'notion2wp' )
 											}
-										</div>
-									</FlexItem>
-								) }
-
-								{ status.bot_id && (
-									<FlexItem>
-										<strong>{ __( 'Bot ID:', 'notion2wp' ) }</strong>
-										<div style={ { 
-											marginTop: '0.25rem', 
-											fontFamily: 'monospace',
-											fontSize: '0.9rem',
-											color: '#50575e',
-										} }>
-											{ status.bot_id }
 										</div>
 									</FlexItem>
 								) }
@@ -286,15 +234,15 @@ const Auth = ( { onStatusChange } ) => {
 							isBusy={ loading }
 							disabled={ loading }
 						>
-							{ loading 
-								? __( 'Disconnecting...', 'notion2wp' ) 
+							{ loading
+								? __( 'Disconnecting...', 'notion2wp' )
 								: __( 'Disconnect from Notion', 'notion2wp' )
 							}
 						</Button>
 					</CardBody>
 				</Card>
 			) : (
-				/* Disconnected State - Show Connection Form */
+				/* Disconnected State - Show Internal Integration Setup */
 				<>
 					<Card>
 						<CardHeader>
@@ -306,15 +254,12 @@ const Auth = ( { onStatusChange } ) => {
 						</CardHeader>
 						<CardBody>
 							<p style={ { marginTop: 0, color: '#50575e' } }>
-								{ __( 
-									'Connect your Notion workspace to start importing content. You\'ll need to create an integration in Notion first.', 
-									'notion2wp', 
-								) }
+								{ __( 'Connect your Notion workspace using an Internal Integration. This allows the plugin to access pages you share with it.', 'notion2wp' ) }
 							</p>
 
 							{ /* Instructions */ }
-							<div style={ { 
-								background: '#f0f6fc', 
+							<div style={ {
+								background: '#f0f6fc',
 								border: '1px solid #c3d8ec',
 								borderRadius: '4px',
 								padding: '1rem',
@@ -326,88 +271,61 @@ const Auth = ( { onStatusChange } ) => {
 								<ol style={ { marginBottom: 0, paddingLeft: '1.5rem' } }>
 									<li>
 										{ __( 'Go to ', 'notion2wp' ) }
-										<a 
-											href="https://www.notion.so/my-integrations" 
-											target="_blank" 
+										<a
+											href="https://www.notion.so/my-integrations"
+											target="_blank"
 											rel="noopener noreferrer"
 										>
-											{ __( 'Notion Integrations', 'notion2wp' ) }
+											{ __( 'Notion > My Integrations', 'notion2wp' ) }
 										</a>
 									</li>
-									<li>{ __( 'Click "New integration" and fill in the details', 'notion2wp' ) }</li>
+									<li>{ __( 'Click "+ New integration"', 'notion2wp' ) }</li>
+									<li>{ __( 'Choose "Internal integration" as the type', 'notion2wp' ) }</li>
+									<li>{ __( 'Give your integration a name (e.g., "WordPress Import")', 'notion2wp' ) }</li>
 									<li>
-										{ __( 'Set the Redirect URL to:', 'notion2wp' ) }
-										<div style={ { 
-											marginTop: '0.5rem',
-											background: '#fff',
-											border: '1px solid #ddd',
-											borderRadius: '4px',
-											padding: '0.75rem',
-											fontFamily: 'monospace',
-											fontSize: '0.9rem',
-											wordBreak: 'break-all',
-										} }>
-											<Flex align="center" justify="space-between">
-												<FlexBlock>
-													{ redirectUrl }
-												</FlexBlock>
-												<FlexItem>
-													<ClipboardButton
-														text={ redirectUrl }
-														onCopy={ handleCopySuccess }
-														icon={ copy }
-													/>
-												</FlexItem>
-											</Flex>
-										</div>
-									</li>
-									<li>
-										{ __( 'Under "Capabilities", select:', 'notion2wp' ) }
-										<ul>
-											<li>{ __( 'Read content', 'notion2wp' ) }</li>
-											<li>{ __( 'Read comments', 'notion2wp' ) }</li>
-											<li>{ __( 'Read user information (optional)', 'notion2wp' ) }</li>
+										{ __( 'Under "Capabilities", enable:', 'notion2wp' ) }
+										<ul style={ { marginTop: '0.5rem' } }>
+											<li>{ __( '✓ Read content', 'notion2wp' ) }</li>
+											<li>{ __( '✓ Read comments (optional)', 'notion2wp' ) }</li>
+											<li>{ __( '✓ Read user information without email (optional)', 'notion2wp' ) }</li>
 										</ul>
 									</li>
-									<li>{ __( 'Save and copy your Client ID and Client Secret', 'notion2wp' ) }</li>
+									<li>{ __( 'Click "Submit" to create the integration', 'notion2wp' ) }</li>
+									<li>
+										{ __( 'Copy the "Internal Integration Token" (starts with "secret_")', 'notion2wp' ) }
+									</li>
+									<li>
+										{ __( 'In Notion, share the pages/databases you want to import with your integration', 'notion2wp' ) }
+									</li>
 								</ol>
 							</div>
 
 							{ /* Connection Form */ }
-							<form onSubmit={ handleConnect }>
-								<TextControl
-									label={ __( 'Notion Client ID', 'notion2wp' ) }
-									value={ clientId }
-									onChange={ ( value ) => setClientId( value ) }
-									placeholder={ __( 'Enter your Notion Client ID', 'notion2wp' ) }
-									required
-									help={ __( 'Found in your Notion integration settings', 'notion2wp' ) }
-								/>
+							<TextControl
+								label={ __( 'Integration Token', 'notion2wp' ) }
+								type="password"
+								value={ integrationToken }
+								onChange={ ( value ) => setIntegrationToken( value ) }
+								placeholder={ __( 'Paste your Notion Internal Integration Token here', 'notion2wp' ) }
+								required
+								help={ __( 'Paste your Internal Integration Token from Notion. Keep this secret!', 'notion2wp' ) }
+								style={ { fontFamily: 'monospace' } }
+							/>
 
-								<TextControl
-									label={ __( 'Notion Client Secret', 'notion2wp' ) }
-									type="password"
-									value={ clientSecret }
-									onChange={ ( value ) => setClientSecret( value ) }
-									placeholder={ __( 'Enter your Notion Client Secret', 'notion2wp' ) }
-									required
-									help={ __( 'Keep this secret and never share it publicly', 'notion2wp' ) }
-								/>
-
-								<div style={ { marginTop: '1.5rem' } }>
-									<Button
-										type="submit"
-										variant="primary"
-										isBusy={ loading }
-										disabled={ loading || ! clientId || ! clientSecret }
-									>
-										{ loading 
-											? __( 'Connecting...', 'notion2wp' ) 
-											: __( 'Connect to Notion', 'notion2wp' )
-										}
-									</Button>
-								</div>
-							</form>
+							<div style={ { marginTop: '1.5rem' } }>
+								<Button
+									type="submit"
+									variant="primary"
+									isBusy={ loading }
+									disabled={ loading || ! integrationToken }
+									onClick={ handleConnect }
+								>
+									{ loading
+										? __( 'Connecting...', 'notion2wp' )
+										: __( 'Connect to Notion', 'notion2wp' )
+									}
+								</Button>
+							</div>
 						</CardBody>
 					</Card>
 
@@ -419,22 +337,22 @@ const Auth = ( { onStatusChange } ) => {
 							</h4>
 							<p style={ { marginBottom: 0, color: '#50575e' } }>
 								{ __( 'Learn more about ', 'notion2wp' ) }
-								<a 
-									href="https://developers.notion.com/docs/authorization" 
-									target="_blank" 
+								<a
+									href="https://developers.notion.com/docs/authorization#internal-integration-auth-flow-set-up"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
-									{ __( 'Notion OAuth', 'notion2wp' ) }
+									{ __( 'Notion Internal Integrations', 'notion2wp' ) }
 								</a>
-								{ __( ' or check our ', 'notion2wp' ) }
-								<a 
-									href="#" 
-									target="_blank" 
+								{ __( ' and how to ', 'notion2wp' ) }
+								<a
+									href="https://www.notion.so/help/add-and-manage-connections-with-the-api#add-connections-to-pages"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
-									{ __( 'documentation', 'notion2wp' ) }
+									{ __( 'share pages with your integration', 'notion2wp' ) }
 								</a>
-								{ __( ' for troubleshooting tips.', 'notion2wp' ) }
+								{ __( '.', 'notion2wp' ) }
 							</p>
 						</CardBody>
 					</Card>
