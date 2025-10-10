@@ -22,7 +22,7 @@ import {
 	FlexBlock,
 	Snackbar,
 } from '@wordpress/components';
-import { DataViews } from '@wordpress/dataviews/wp';
+import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 
@@ -46,7 +46,7 @@ const Import = () => {
 		search: '',
 		filters: [],
 		page: 1,
-		perPage: 20,
+		perPage: 10,
 		sort: {
 			field: 'last_edited_time',
 			direction: 'desc',
@@ -92,6 +92,7 @@ const Import = () => {
 			setError( __( 'Error fetching items: ', 'notion2wp' ) + err.message );
 		}
 
+		setView( prevView => ( { ...prevView } ) );
 		setLoading( false );
 	};
 
@@ -156,14 +157,6 @@ const Import = () => {
 			setError( '' );
 			setSuccess( '' );
 		}, 5000);
-	};
-
-	/**
-	 * Handle view change
-	 */
-	const onChangeView = ( newView ) => {
-		// TODO: Update items as per the new view.
-		setView( newView );
 	};
 
 	/**
@@ -293,15 +286,9 @@ const Import = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	], [] );
 
-	/**
-	 * Calculate pagination info
-	 */
-	const paginationInfo = useMemo( () => {
-		return {
-			totalItems: items.length,
-			totalPages: Math.ceil( items.length / view.perPage ),
-		};
-	}, [ items.length, view.perPage ] );
+	const { data: processedData, paginationInfo } = useMemo( () => {
+		return filterSortAndPaginate( items, view, fields );
+	}, [ view ] );
 
 	return (
 		<div style={{ maxWidth: '1400px' }}>
@@ -410,10 +397,10 @@ const Import = () => {
 				</Card>
 			) : (
 				<DataViews
-					data={ items }
+					data={ processedData }
 					fields={ fields }
 					view={ view }
-					onChangeView={ onChangeView }
+					onChangeView={ setView }
 					actions={ actions }
 					paginationInfo={ paginationInfo }
 					defaultLayouts={{ table: {}, grid: {}, list: {} }}
