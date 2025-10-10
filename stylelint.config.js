@@ -4,10 +4,13 @@ module.exports = {
 		'stylelint-config-standard-scss',
 		'stylelint-config-prettier-scss',
 	],
+	plugins: [
+		'@stylistic/stylelint-plugin',
+	],
 	rules: {
 		'selector-class-pattern': null,
 		'at-rule-no-unknown': null,
-		'indentation': 'tab',
+		'@stylistic/indentation': 'tab',
 		'no-empty-source': null,
 	},
 	ignoreFiles: [
