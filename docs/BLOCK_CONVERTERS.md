@@ -204,13 +204,18 @@ Always check for `$block['children']` and process them recursively.
 
 ### Special Case: List Grouping
 
-**Problem:** Notion returns each list item as a separate block, but Gutenberg expects consecutive list items to be grouped in a single list block.
+**Problem:** Notion returns each list item (bulleted, numbered, to-do) as a separate block, but Gutenberg expects consecutive list items to be grouped in a single list block.
 
-**Solution:** The `Block_Registry::group_list_items()` method automatically groups consecutive list items before conversion.
+**Solution:** The `Block_Registry::group_associated_items()` method automatically groups consecutive list items before conversion.
+
+#### Supported List Types
+- **Bulleted lists** (`bulleted_list_item`)
+- **Numbered lists** (`numbered_list_item`) 
+- **To-do lists** (`to_do`)
 
 #### How List Grouping Works
 
-1. **Detection Phase** - `Block_Registry::convert_blocks()` calls `group_list_items()` to scan for consecutive list items
+1. **Detection Phase** - `Block_Registry::convert_blocks()` calls `group_associated_items()` to scan for consecutive list items
 
 2. **Grouping Phase** - Consecutive items of the same type are collected:
    ```php
@@ -265,7 +270,9 @@ Always check for `$block['children']` and process them recursively.
     { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{"text": {"content": "Item 3"}}] } },
     { "type": "paragraph", "paragraph": { "rich_text": [...] } },
     { "type": "numbered_list_item", "numbered_list_item": { "rich_text": [{"text": {"content": "Numbered 1"}}] } },
-    { "type": "numbered_list_item", "numbered_list_item": { "rich_text": [{"text": {"content": "Numbered 2"}}] } }
+    { "type": "numbered_list_item", "numbered_list_item": { "rich_text": [{"text": {"content": "Numbered 2"}}] } },
+    { "type": "to_do", "to_do": { "rich_text": [{"text": {"content": "Task 1"}}], "checked": false } },
+    { "type": "to_do", "to_do": { "rich_text": [{"text": {"content": "Task 2"}}], "checked": true } }
 ]
 ```
 
@@ -288,6 +295,16 @@ Always check for `$block['children']` and process them recursively.
 <!-- core/list (numbered) -->
 <ol>
     <li>Numbered 1</li>
+    <li>Numbered 2</li>
+</ol>
+<!-- /core/list -->
+
+<!-- core/list (to-do) -->
+<ul>
+    <li>☐ Task 1</li>
+    <li>☑ Task 2</li>
+</ul>
+<!-- /core/list -->
     <li>Numbered 2</li>
 </ol>
 <!-- /core/list -->

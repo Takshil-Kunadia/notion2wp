@@ -148,6 +148,9 @@ class Block_Registry {
 	/**
 	 * Group consecutive associated items together.
 	 *
+	 * Groups consecutive list items (bulleted, numbered, to-do) of the same type
+	 * so they render as a single list in Gutenberg instead of multiple separate lists.
+	 *
 	 * @param array $blocks Array of Notion blocks.
 	 * @return array Grouped blocks.
 	 */
@@ -160,8 +163,8 @@ class Block_Registry {
 			$block = $blocks[ $i ];
 			$type  = $block['type'] ?? '';
 
-			// Check if this is a list item.
-			if ( in_array( $type, [ 'bulleted_list_item', 'numbered_list_item' ], true ) ) {
+			// Check if this is a groupable list item.
+			if ( in_array( $type, [ 'bulleted_list_item', 'numbered_list_item', 'to_do' ], true ) ) {
 				// Collect consecutive list items of the same type.
 				$list_items = [ $block ];
 				$i++;

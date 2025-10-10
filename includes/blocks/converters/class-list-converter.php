@@ -25,7 +25,7 @@ class List_Converter extends Abstract_Block_Converter {
 	public function supports( $block ) {
 		$type = $block['type'] ?? '';
 		// Support both individual list items and grouped lists.
-		return in_array( $type, [ 'bulleted_list_item', 'numbered_list_item' ], true ) ||
+		return in_array( $type, [ 'bulleted_list_item', 'numbered_list_item' ], true ) &&
 			( isset( $block['is_grouped'] ) && $block['is_grouped'] );
 	}
 
