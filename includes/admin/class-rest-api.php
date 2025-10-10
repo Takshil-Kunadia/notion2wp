@@ -113,17 +113,36 @@ class Rest_API {
 			'/import/pages',
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => [ self::class, 'import_pages' ],
+				'callback'            => [ self::class, 'import_items' ],
 				'permission_callback' => [ self::class, 'check_permissions' ],
 				'args'                => [
-					'page_ids' => [
+					'items' => [
 						'required'          => true,
 						'type'              => 'array',
 						'items'             => [
-							'type' => 'string',
+							'type'       => 'object',
+							'properties' => [
+								'id'   => [
+									'type'     => 'string',
+									'required' => true,
+								],
+								'type' => [
+									'type'     => 'string',
+									'required' => true,
+									'enum'     => [ 'page', 'database' ],
+								],
+							],
 						],
-						'sanitize_callback' => function( $page_ids ) {
-							return array_map( 'sanitize_text_field', $page_ids );
+						'sanitize_callback' => function( $items ) {
+							return array_map(
+								function( $item ) {
+									return [
+										'id'   => sanitize_text_field( $item['id'] ?? '' ),
+										'type' => sanitize_text_field( $item['type'] ?? '' ),
+									];
+								},
+								$items
+							);
 						},
 					],
 				],
@@ -295,11 +314,11 @@ class Rest_API {
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public static function import_pages( $request ) {
-		$page_ids = $request->get_param( 'page_ids' );
+	public static function import_items( $request ) {
+		$items = $request->get_param( 'items' );
 
 		$importer = new Importer_Controller();
-		$results  = $importer->import_pages( $page_ids );
+		$results  = $importer->import_items( $items );
 
 		if ( is_wp_error( $results ) ) {
 			return new WP_REST_Response(

@@ -128,14 +128,14 @@ class Importer_Controller {
 	}
 
 	/**
-	 * Import selected Notion pages.
+	 * Import selected Notion items (pages and/or databases).
 	 *
-	 * @param array $page_ids Array of Notion page IDs to import.
-	 * @return array Import results with success/error status for each page.
+	 * @param array $items Array of items with 'id' and 'type' keys.
+	 * @return array Import results with success/error status for each item.
 	 */
-	public function import_pages( $page_ids ) {
-		if ( ! is_array( $page_ids ) || empty( $page_ids ) ) {
-			return new \WP_Error( 'invalid_input', __( 'No pages selected for import.', 'notion2wp' ) );
+	public function import_items( $items ) {
+		if ( ! is_array( $items ) || empty( $items ) ) {
+			return new \WP_Error( 'invalid_input', __( 'No items selected for import.', 'notion2wp' ) );
 		}
 
 		$results = [
@@ -143,16 +143,148 @@ class Importer_Controller {
 			'errors'  => [],
 		];
 
-		foreach ( $page_ids as $page_id ) {
-			$result = $this->import_single_page( $page_id );
+		foreach ( $items as $item ) {
+			$item_id   = $item['id'] ?? '';
+			$item_type = $item['type'] ?? '';
+
+			if ( empty( $item_id ) || empty( $item_type ) ) {
+				$results['errors'][] = [
+					'page_id' => $item_id,
+					'message' => __( 'Invalid item: missing ID or type.', 'notion2wp' ),
+				];
+				continue;
+			}
+
+			// Handle based on type provided from frontend.
+			if ( 'database' === $item_type ) {
+				$result = $this->import_database( $item_id );
+			} elseif ( 'data_source' === $item_type ) {
+				$result = $this->import_data_source( $item_id );
+			} else {
+				$result = $this->import_page( $item_id );
+			}
 
 			if ( is_wp_error( $result ) ) {
 				$results['errors'][] = [
-					'page_id' => $page_id,
+					'page_id' => $item_id,
 					'message' => $result->get_error_message(),
 				];
+			} elseif ( is_array( $result ) ) {
+				// For databases, $result is an array of imported pages.
+				foreach ( $result as $page_result ) {
+					if ( is_wp_error( $page_result ) ) {
+						$results['errors'][] = [
+							'page_id' => $page_result->get_error_data( 'page_id' ) ?? $item_id,
+							'message' => $page_result->get_error_message(),
+						];
+					} else {
+						$results['success'][] = $page_result;
+					}
+				}
 			} else {
 				$results['success'][] = [
+					'page_id' => $item_id,
+					'post_id' => $result,
+				];
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Import a Notion database by querying all its pages.
+	 *
+	 * @param string $database_id Notion database ID.
+	 * @return array Array of import results for each page in the database.
+	 */
+	private function import_database( $database_id ) {
+		// Query the database for all pages.
+		$pages = $this->notion_client->query_database( $database_id );
+
+		if ( is_wp_error( $pages ) ) {
+			return $pages;
+		}
+
+		if ( empty( $pages ) || ! isset( $pages['results'] ) ) {
+			return new \WP_Error(
+				'empty_database',
+				sprintf(
+					/* translators: %s: Database ID */
+					__( 'No pages found in database %s or database is not shared with the integration.', 'notion2wp' ),
+					$database_id
+				)
+			);
+		}
+
+		$results = [];
+
+		// Import each page from the database.
+		foreach ( $pages['results'] as $page ) {
+			$page_id = $page['id'] ?? '';
+
+			if ( empty( $page_id ) ) {
+				continue;
+			}
+
+			$result = $this->import_page( $page_id );
+
+			if ( is_wp_error( $result ) ) {
+				$result->add_data( $page_id, 'page_id' );
+				$results[] = $result;
+			} else {
+				$results[] = [
+					'page_id' => $page_id,
+					'post_id' => $result,
+				];
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Import all pages from a Notion data source (workspace).
+	 *
+	 * @param string $data_source_id Notion data source ID (usually 'workspace').
+	 * @return array Array of import results for each page in the data source.
+	 */
+	private function import_data_source( $data_source_id ) {
+		// Query the datasource for all pages.
+		$pages = $this->notion_client->query_datasource( $data_source_id );
+
+		if ( is_wp_error( $pages ) ) {
+			return $pages;
+		}
+
+		if ( empty( $pages ) || ! isset( $pages['results'] ) ) {
+			return new \WP_Error(
+				'empty_datasource',
+				sprintf(
+					/* translators: %s: Data source ID */
+					__( 'No pages found in data source %s or data source is not shared with the integration.', 'notion2wp' ),
+					$data_source_id
+				)
+			);
+		}
+
+		$results = [];
+
+		// Import each page from the data source.
+		foreach ( $pages['results'] as $page ) {
+			$page_id = $page['id'] ?? '';
+
+			if ( empty( $page_id ) ) {
+				continue;
+			}
+
+			$result = $this->import_page( $page_id );
+
+			if ( is_wp_error( $result ) ) {
+				$result->add_data( $page_id, 'page_id' );
+				$results[] = $result;
+			} else {
+				$results[] = [
 					'page_id' => $page_id,
 					'post_id' => $result,
 				];
@@ -168,7 +300,7 @@ class Importer_Controller {
 	 * @param string $page_id Notion page ID.
 	 * @return int|\WP_Error WordPress post ID on success, WP_Error on failure.
 	 */
-	private function import_single_page( $page_id ) {
+	private function import_page( $page_id ) {
 		// Fetch page metadata.
 		$page = $this->notion_client->get_page( $page_id );
 

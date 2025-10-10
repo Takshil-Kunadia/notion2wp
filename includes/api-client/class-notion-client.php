@@ -169,7 +169,37 @@ class Notion_Client {
 			$body['start_cursor'] = $start_cursor;
 		}
 
-		return $this->make_request( '/databases/' . $database_id . '/query', 'POST', $body );
+		return $this->make_request( '/databases/' . $database_id . '/query', 'GET', $body );
+	}
+
+	/**
+	 * Query a data source.
+	 *
+	 * @param string $datasource_id Data source ID.
+	 * @param array  $filter Optional filter criteria.
+	 * @param array  $sorts Optional sort criteria.
+	 * @param int    $page_size Number of results per page (max 100).
+	 * @param string $start_cursor Pagination cursor.
+	 * @return array|\WP_Error
+	 */
+	public function query_datasource( $datasource_id, $filter = [], $sorts = [], $page_size = 100, $start_cursor = null ) {
+		$body = [
+			'page_size' => min( $page_size, 100 ),
+		];
+
+		if ( ! empty( $filter ) ) {
+			$body['filter'] = $filter;
+		}
+
+		if ( ! empty( $sorts ) ) {
+			$body['sorts'] = $sorts;
+		}
+
+		if ( $start_cursor ) {
+			$body['start_cursor'] = $start_cursor;
+		}
+
+		return $this->make_request( '/data_sources/' . $datasource_id . '/query', 'POST', $body );
 	}
 
 	/**

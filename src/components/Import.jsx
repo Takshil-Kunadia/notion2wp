@@ -1,11 +1,11 @@
 /**
  * Notion Import Component
  *
- * Displays a list of available Notion pages and databases for import.
+ * Displays a list of available Notion pages, databases and Data Sources for import.
  * Allows users to select items and import them as WordPress posts.
  *
  * Features:
- * - Fetches pages/databases from Notion API
+ * - Fetches pages/databases/datasources from Notion API
  * - Multi-select with bulk actions
  * - Import progress tracking
  * - Detailed success/error reporting
@@ -112,7 +112,10 @@ const Import = () => {
 		setImportResults( null );
 
 		try {
-			const pageIds = selectedItems.map( item => item.id );
+			const items = selectedItems.map( item => ( {
+				id: item.id,
+				type: item.type,
+			} ) );
 
 			const res = await fetch( `${ apiUrl }import/pages`, {
 				method: 'POST',
@@ -121,15 +124,18 @@ const Import = () => {
 					'X-WP-Nonce': nonce,
 				},
 				body: JSON.stringify( {
-					page_ids: pageIds,
+					items: items,
 				} ),
 			} );
 
 			const data = await res.json();
 
-			if ( res.ok ) {
+			if ( data.success.length > 0 ) {
 				setSuccess( data.message || __( 'Import completed successfully!', 'notion2wp' ) );
 				setImportResults( data );
+			} else if ( data.errors && data.errors.length > 0 ) {
+				setImportResults( data );
+				setError( data.errors[0].message || __( 'Import failed.', 'notion2wp' ) );
 			} else {
 				setError( data.message || __( 'Import failed.', 'notion2wp' ) );
 			}
@@ -218,6 +224,7 @@ const Import = () => {
 			elements: [
 				{ value: 'page', label: __( 'Page', 'notion2wp' ) },
 				{ value: 'database', label: __( 'Database', 'notion2wp' ) },
+				{ value: 'data_source', label: __( 'Data Source', 'notion2wp' ) },
 			],
 			isVisible: false,
 			filterBy: {
@@ -227,7 +234,9 @@ const Import = () => {
 			render: ( { item } ) => {
 				return item.type === 'page'
 					? __( 'Page', 'notion2wp' )
-					: __( 'Database', 'notion2wp' );
+					: item.type === 'database'
+						? __( 'Database', 'notion2wp' )
+						: __( 'Data Source', 'notion2wp' );
 			},
 		},
 		{
@@ -302,7 +311,7 @@ const Import = () => {
 						{ __( 'Import from Notion', 'notion2wp' ) }
 					</h1>
 					<p style={{ marginTop: '0.5rem', color: '#50575e' }}>
-						{ __( 'Select pages or databases from your Notion workspace to import as WordPress posts.', 'notion2wp' ) }
+						{ __( 'Select pages, databases or data sources from your Notion workspace to import as WordPress posts.', 'notion2wp' ) }
 					</p>
 				</FlexBlock>
 				<FlexItem>
@@ -392,7 +401,7 @@ const Import = () => {
 						<div style={{ textAlign: 'center', padding: '2rem' }}>
 							<h3>{ __( 'No Items Found', 'notion2wp' ) }</h3>
 							<p style={{ color: '#757575' }}>
-								{ __( 'No pages or databases found in your Notion workspace.', 'notion2wp' ) }
+								{ __( 'No pages, databases or data sources found in your Notion workspace.', 'notion2wp' ) }
 								<br />
 								{ __( 'Make sure you\'re connected and have shared pages with your integration.', 'notion2wp' ) }
 							</p>
