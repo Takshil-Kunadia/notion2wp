@@ -56,12 +56,12 @@ class File_Converter extends Abstract_Block_Converter {
 			esc_html( $name )
 		);
 		$html .= sprintf(
-			'<a href="%s" class="wp-block-file__button wp-element-button" download="">%s</a>',
+			'<a href="%s" class="wp-block-file__button wp-element-button" download>%s</a>',
 			rawurlencode( $url ),
 			__( 'Download', 'notion2wp' )
 		);
 		$html .= '</div>';
 
-		return $this->wrap_gutenberg_block( 'core/file', $html, [ 'href' => $url ] );
+		return $this->wrap_gutenberg_block( 'core/file', $html, [ 'href' => rawurlencode( $url ) ] );
 	}
 }
