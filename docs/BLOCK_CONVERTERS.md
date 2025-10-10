@@ -202,6 +202,97 @@ The following Notion block types support child blocks:
 
 Always check for `$block['children']` and process them recursively.
 
+### Special Case: List Grouping
+
+**Problem:** Notion returns each list item as a separate block, but Gutenberg expects consecutive list items to be grouped in a single list block.
+
+**Solution:** The `Block_Registry::group_list_items()` method automatically groups consecutive list items before conversion.
+
+#### How List Grouping Works
+
+1. **Detection Phase** - `Block_Registry::convert_blocks()` calls `group_list_items()` to scan for consecutive list items
+
+2. **Grouping Phase** - Consecutive items of the same type are collected:
+   ```php
+   // Input: Individual Notion blocks
+   [
+       { "type": "bulleted_list_item", "bulleted_list_item": {...} },
+       { "type": "bulleted_list_item", "bulleted_list_item": {...} },
+       { "type": "bulleted_list_item", "bulleted_list_item": {...} }
+   ]
+   
+   // Output: Grouped list block
+   {
+       "type": "bulleted_list_item",
+       "is_grouped": true,
+       "list_items": [
+           { "type": "bulleted_list_item", ... },
+           { "type": "bulleted_list_item", ... },
+           { "type": "bulleted_list_item", ... }
+       ]
+   }
+   ```
+
+3. **Conversion Phase** - `List_Converter` detects grouped lists and creates a single `<ul>` or `<ol>` with multiple `<li>` elements:
+   ```html
+   <!-- Gutenberg: core/list -->
+   <ul>
+       <li>First item</li>
+       <li>Second item</li>
+       <li>Third item</li>
+   </ul>
+   ```
+
+4. **Nested Lists** - Individual list items with children are handled separately (not grouped), allowing for proper nesting:
+   ```html
+   <ul>
+       <li>Parent item
+           <ul>
+               <li>Nested item 1</li>
+               <li>Nested item 2</li>
+           </ul>
+       </li>
+   </ul>
+   ```
+
+#### Example: Complex List Structure
+
+**Notion API Response:**
+```json
+[
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{"text": {"content": "Item 1"}}] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{"text": {"content": "Item 2"}}], "children": [...] } },
+    { "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{"text": {"content": "Item 3"}}] } },
+    { "type": "paragraph", "paragraph": { "rich_text": [...] } },
+    { "type": "numbered_list_item", "numbered_list_item": { "rich_text": [{"text": {"content": "Numbered 1"}}] } },
+    { "type": "numbered_list_item", "numbered_list_item": { "rich_text": [{"text": {"content": "Numbered 2"}}] } }
+]
+```
+
+**Converted Output:**
+```html
+<!-- core/list (bulleted) -->
+<ul>
+    <li>Item 1</li>
+    <li>Item 2
+        <!-- Nested children here -->
+    </li>
+    <li>Item 3</li>
+</ul>
+<!-- /core/list -->
+
+<!-- core/paragraph -->
+<p>Paragraph text</p>
+<!-- /core/paragraph -->
+
+<!-- core/list (numbered) -->
+<ol>
+    <li>Numbered 1</li>
+    <li>Numbered 2</li>
+</ol>
+<!-- /core/list -->
+```
+
 ## Testing a Converter
 
 1. Create a test Notion page with the specific block type

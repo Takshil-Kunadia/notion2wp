@@ -135,12 +135,55 @@ class Block_Registry {
 	 * @return string Combined Gutenberg HTML.
 	 */
 	public function convert_blocks( $blocks, $context = [] ) {
-		$html = '';
+		$html           = '';
+		$grouped_blocks = $this->group_associated_items( $blocks );
 
-		foreach ( $blocks as $block ) {
+		foreach ( $grouped_blocks as $block ) {
 			$html .= $this->convert_block( $block, $context );
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Group consecutive associated items together.
+	 *
+	 * @param array $blocks Array of Notion blocks.
+	 * @return array Grouped blocks.
+	 */
+	private function group_associated_items( $blocks ) {
+		$grouped = [];
+		$i       = 0;
+		$count   = count( $blocks );
+
+		while ( $i < $count ) {
+			$block = $blocks[ $i ];
+			$type  = $block['type'] ?? '';
+
+			// Check if this is a list item.
+			if ( in_array( $type, [ 'bulleted_list_item', 'numbered_list_item' ], true ) ) {
+				// Collect consecutive list items of the same type.
+				$list_items = [ $block ];
+				$i++;
+
+				while ( $i < $count && isset( $blocks[ $i ]['type'] ) && $blocks[ $i ]['type'] === $type ) {
+					$list_items[] = $blocks[ $i ];
+					$i++;
+				}
+
+				// Create a grouped list block.
+				$grouped[] = [
+					'type'       => $type,
+					'list_items' => $list_items,
+					'is_grouped' => true,
+				];
+			} else {
+				// Not a list item, add as-is.
+				$grouped[] = $block;
+				$i++;
+			}
+		}
+
+		return $grouped;
 	}
 }
