@@ -291,13 +291,10 @@ const Import = () => {
 	}, [ view ] );
 
 	return (
-		<div style={{ maxWidth: '1400px' }}>
+		<div className="notion2wp-import">
 			<Flex justify="space-between" align="flex-start" style={{ marginBottom: '1.5rem' }}>
 				<FlexBlock>
-					<h1 style={{ margin: 0 }}>
-						{ __( 'Import from Notion', 'notion2wp' ) }
-					</h1>
-					<p style={{ marginTop: '0.5rem', color: '#50575e' }}>
+					<p style={{ margin: 0, color: '#50575e', fontSize: '14px' }}>
 						{ __( 'Select pages, databases or data sources from your Notion workspace to import as WordPress posts.', 'notion2wp' ) }
 					</p>
 				</FlexBlock>
@@ -391,6 +388,8 @@ const Import = () => {
 								{ __( 'No pages, databases or data sources found in your Notion workspace.', 'notion2wp' ) }
 								<br />
 								{ __( 'Make sure you\'re connected and have shared pages with your integration.', 'notion2wp' ) }
+								<br />
+								{ __( 'Switch to the settings tab above to establish a connection.', 'notion2wp' ) }
 							</p>
 						</div>
 					</CardBody>

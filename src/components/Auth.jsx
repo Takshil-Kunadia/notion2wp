@@ -15,6 +15,7 @@ import {
 	Spinner,
 	Flex,
 	FlexItem,
+	FlexBlock,
 	Snackbar,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -165,7 +166,14 @@ const Auth = () => {
 	}
 
 	return (
-		<div>
+		<div className="notion2wp-auth">
+			<Flex justify="space-between" align="flex-start" style={{ marginBottom: '1.5rem' }}>
+				<FlexBlock>
+					<p style={{ margin: 0, color: '#50575e', fontSize: '14px' }}>
+						{ __( 'Manage your connection to Notion.', 'notion2wp' ) }
+					</p>
+				</FlexBlock>
+			</Flex>
 			{ /* Success/Error Messages */ }
 			<div style={ { marginBottom: '1rem' } }>
 				{ message && (
