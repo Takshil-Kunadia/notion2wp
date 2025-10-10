@@ -1,20 +1,13 @@
 import { createRoot } from '@wordpress/element';
-import Auth from './components/Auth';
-import Import from './components/Import';
+import App from './app/App';
 
 /**
  * Import Style.
  */
 import './style.scss';
 
-// Settings page root
-const settingsRoot = document.getElementById( 'notion2wp-admin-root' );
-if ( settingsRoot ) {
-	createRoot( settingsRoot ).render( <Auth /> );
-}
-
-// Import page root
-const importRoot = document.getElementById( 'notion2wp-import-root' );
-if ( importRoot ) {
-	createRoot( importRoot ).render( <Import /> );
+// Admin app root - renders tabbed interface
+const adminRoot = document.getElementById( 'notion2wp-admin-root' );
+if ( adminRoot ) {
+	createRoot( adminRoot ).render( <App /> );
 }

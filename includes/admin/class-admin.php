@@ -37,32 +37,13 @@ class Admin {
 	 */
 	public static function add_admin_menu() {
 		add_menu_page(
-			__( 'Notion2WP Settings', 'notion2wp' ),
+			__( 'Notion2WP', 'notion2wp' ),
 			__( 'Notion2WP', 'notion2wp' ),
 			'manage_notion2wp',
 			self::PAGE_SLUG,
-			[ self::class, 'render_settings_page' ],
+			[ self::class, 'render_admin_page' ],
 			'dashicons-database-import',
 			30
-		);
-
-		// Add submenu pages.
-		add_submenu_page(
-			self::PAGE_SLUG,
-			__( 'Settings', 'notion2wp' ),
-			__( 'Settings', 'notion2wp' ),
-			'manage_notion2wp',
-			self::PAGE_SLUG,
-			[ self::class, 'render_settings_page' ]
-		);
-
-		add_submenu_page(
-			self::PAGE_SLUG,
-			__( 'Import', 'notion2wp' ),
-			__( 'Import', 'notion2wp' ),
-			'manage_notion2wp',
-			'notion2wp-import',
-			[ self::class, 'render_import_page' ]
 		);
 	}
 
@@ -120,24 +101,12 @@ class Admin {
 	}
 
 	/**
-	 * Render the main settings page.
+	 * Render the main admin page with tabbed interface.
 	 */
-	public static function render_settings_page() {
+	public static function render_admin_page() {
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Notion2WP Settings', 'notion2wp' ); ?></h1>
 			<div id="notion2wp-admin-root"></div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Render the import page.
-	 */
-	public static function render_import_page() {
-		?>
-		<div class="wrap">
-			<div id="notion2wp-import-root"></div>
 		</div>
 		<?php
 	}
