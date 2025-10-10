@@ -27,7 +27,7 @@ class File_Converter extends Abstract_Block_Converter {
 	}
 
 	/**
-	 * Convert Notion paragraph block to Gutenberg paragraph.
+	 * Convert Notion file block to Gutenberg file block.
 	 *
 	 * @param array $block Notion block object.
 	 * @param array $context Additional context.
@@ -50,7 +50,16 @@ class File_Converter extends Abstract_Block_Converter {
 		}
 
 		$html = '<div class="wp-block-file">';
-		$html .= '<a href="' . esc_url( $url ) . '" download>' . esc_html( $name ) . '</a>';
+		$html .= sprintf(
+			'<a href="%s">%s</a>',
+			$url,
+			esc_html( $name )
+		);
+		$html .= sprintf(
+			'<a href="%s" class="wp-block-file__button wp-element-button" download="">%s</a>',
+			rawurlencode( $url ),
+			__( 'Download', 'notion2wp' )
+		);
 		$html .= '</div>';
 
 		return $this->wrap_gutenberg_block( 'core/file', $html, [ 'href' => $url ] );
