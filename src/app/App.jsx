@@ -15,7 +15,7 @@ import { settings, download } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import Auth from '../components/Auth';
+import Settings from '../components/Settings';
 import Import from '../components/Import';
 
 const App = () => {
@@ -34,7 +34,7 @@ const App = () => {
 				name: 'settings',
 				title: __( 'Settings', 'notion2wp' ),
 				icon: settings,
-				component: Auth,
+				component: Settings,
 			},
 		] : [] ),
 	];

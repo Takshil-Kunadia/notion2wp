@@ -1,5 +1,5 @@
 /**
- * Notion Authentication Component
+ * Notion Connection Component
  *
  * Handles Internal integration token setup for Notion workspace.
  * Displays connection status and provides connect/disconnect functionality.
@@ -15,15 +15,13 @@ import {
 	Spinner,
 	Flex,
 	FlexItem,
-	FlexBlock,
 	Snackbar,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import RoleManagement from './RoleManagement';
 
 const MESSAGE_TIMEOUT = 5000;
 
-const Auth = () => {
+const Connection = () => {
 	// Get localized data from WordPress
 	const apiUrl = window.notion2wpAdmin?.apiUrl || '/wp-json/notion2wp/v1/';
 	const nonce = window.notion2wpAdmin?.nonce || '';
@@ -167,38 +165,32 @@ const Auth = () => {
 	}
 
 	return (
-		<div className="notion2wp-auth">
-			<Flex justify="space-between" align="flex-start" style={{ marginBottom: '1.5rem' }}>
-				<FlexBlock>
-					<p style={{ margin: 0, color: '#50575e', fontSize: '14px' }}>
-						{ __( 'Manage your connection to Notion.', 'notion2wp' ) }
-					</p>
-				</FlexBlock>
-			</Flex>
+		<div className="notion2wp-connection">
 			{ /* Success/Error Messages */ }
-			<div style={ { marginBottom: '1rem' } }>
-				{ message && (
-					<Snackbar
-						status="success"
-						isDismissible
-						onRemove={ () => setMessage( '' ) }
-					>
-						{ message }
-					</Snackbar>
-				) }
+			{ ( message || error ) && (
+				<div style={ { marginBottom: '1rem' } }>
+					{ message && (
+						<Snackbar
+							status="success"
+							isDismissible
+							onRemove={ () => setMessage( '' ) }
+						>
+							{ message }
+						</Snackbar>
+					) }
 
-				{ error && (
-					<Snackbar
-						status="error"
-						isDismissible
-						onRemove={ () => setError( '' ) }
-					>
-						{ error }
-					</Snackbar>
-				) }
-			</div>
+					{ error && (
+						<Snackbar
+							status="error"
+							isDismissible
+							onRemove={ () => setError( '' ) }
+						>
+							{ error }
+						</Snackbar>
+					) }
+				</div>
+			) }
 
-			{ /* Main Card  */ }
 			{ /* Connected State */ }
 			{ status && status.connected ? (
 				<Card>
@@ -212,7 +204,6 @@ const Auth = () => {
 					<CardBody>
 						<div style={ { marginBottom: '1.5rem' } }>
 							<Flex direction="column" gap={ 3 }>
-
 								{ status.owner && (
 									<FlexItem>
 										<strong>{ __( 'Owner:', 'notion2wp' ) }</strong>
@@ -367,13 +358,8 @@ const Auth = () => {
 					</Card>
 				</>
 			) }
-
-			{ /* Role Management - Separate Component */ }
-			<div style={ { marginTop: '1rem' } }>
-				<RoleManagement />
-			</div>
 		</div>
 	);
 };
 
-export default Auth;
+export default Connection;

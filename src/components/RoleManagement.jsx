@@ -169,7 +169,7 @@ const RoleManagement = () => {
 				) }
 
 				<p style={ { marginTop: message || error ? '1rem' : 0, color: '#50575e' } }>
-					{ __( 'Select which user roles can access the Notion2WP menu and import pages. Administrators always have access.', 'notion2wp' ) }
+					{ __( 'Select which user roles can access and import pages.', 'notion2wp' ) }
 				</p>
 
 				{ /* Role Checkboxes */ }
