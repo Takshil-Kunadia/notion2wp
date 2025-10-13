@@ -54,6 +54,7 @@ class Notion_Client {
 	public static function get_api_version() {
 		/**
 		 * Filters the Notion API version.
+		 * WARNING: Changing this may break compatibility with Notion API. Use with caution.
 		 *
 		 * @since 1.0.0
 		 *
