@@ -99,7 +99,6 @@ class Admin {
 				'apiUrl'   => home_url( '/wp-json/notion2wp/v1/' ),
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'adminUrl' => admin_url( 'admin.php?page=' . self::PAGE_SLUG ),
-				'siteLogo' => get_site_icon_url(),
 			]
 		);
 	}

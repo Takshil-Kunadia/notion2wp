@@ -25,12 +25,15 @@ import {
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
+import notionLogo from '../assets/notion2wp-logo.svg';
 
 const Import = () => {
 	// Get localized data from WordPress
 	const apiUrl = window.notion2wpAdmin?.apiUrl || '/wp-json/notion2wp/v1/';
 	const nonce = window.notion2wpAdmin?.nonce || '';
-	const siteLogo = window.notion2wpAdmin?.siteLogo || '';
+
+	// Placeholder image
+	const placeholderImage = notionLogo;
 
 	// Component state
 	const [ items, setItems ] = useState( [] );
@@ -207,7 +210,7 @@ const Import = () => {
 				return item.media ? (
 					<img src={ item.media } alt={ __( 'Media', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
 				) : (
-					<img src={ siteLogo } alt={ __( 'Site Logo', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
+					<img src={ placeholderImage } alt={ __( 'Site Logo', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
 				);
 			},
 		},
