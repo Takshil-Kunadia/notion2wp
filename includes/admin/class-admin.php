@@ -37,7 +37,7 @@ class Admin {
 	 */
 	public static function add_admin_menu() {
 		// Load SVG icon from file.
-		$icon_path = NOTION2WP_PLUGIN_DIR . 'src/assets/notion-icon.svg';
+		$icon_path = NOTION2WP_PLUGIN_DIR . 'src/assets/notion2wp-logo.svg';
 		$icon_svg  = file_exists( $icon_path ) ? file_get_contents( $icon_path ) : '';
 
 		add_menu_page(
