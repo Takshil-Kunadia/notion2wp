@@ -5,7 +5,7 @@
  * @package           Notion2WP
  * @author            Takshil Kunadia
  * @copyright         2025 Takshil Kunadia
- * @license           GPL-2.0-or-later
+ * @license           GPL2
  *
  * @wordpress-plugin
  * Plugin Name:       Notion2WP
@@ -17,7 +17,7 @@
  * Author:            Takshil Kunadia
  * Author URI:        https://takshil.dev
  * Text Domain:       notion2wp
- * License:           GPL v2 or later
+ * License:           GPL2
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
