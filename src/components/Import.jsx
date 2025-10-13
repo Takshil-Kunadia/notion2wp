@@ -291,6 +291,7 @@ const Import = () => {
 
 	const { data: processedData, paginationInfo } = useMemo( () => {
 		return filterSortAndPaginate( items, view, fields );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ view ] );
 
 	return (
