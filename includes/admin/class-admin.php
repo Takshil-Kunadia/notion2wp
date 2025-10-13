@@ -37,13 +37,13 @@ class Admin {
 	 */
 	public static function add_admin_menu() {
 		// Load SVG icon from file.
-		$icon_path = NOTION2WP_PLUGIN_DIR . 'src/assets/notion-icon.svg';
+		$icon_path = NOTION2WP_PLUGIN_DIR . 'src/assets/notion2wp-logo.svg';
 		$icon_svg  = file_exists( $icon_path ) ? file_get_contents( $icon_path ) : '';
 
 		add_menu_page(
 			__( 'Notion2WP', 'notion2wp' ),
 			__( 'Notion2WP', 'notion2wp' ),
-			'manage_notion2wp',
+			Capabilities::CAPABILITY,
 			self::PAGE_SLUG,
 			[ self::class, 'render_admin_page' ],
 			'data:image/svg+xml;base64,' . base64_encode( $icon_svg ),
@@ -99,7 +99,7 @@ class Admin {
 				'apiUrl'   => home_url( '/wp-json/notion2wp/v1/' ),
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'adminUrl' => admin_url( 'admin.php?page=' . self::PAGE_SLUG ),
-				'siteLogo' => get_site_icon_url(),
+				'isAdmin'  => current_user_can( 'manage_options' ),
 			]
 		);
 	}

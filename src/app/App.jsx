@@ -15,23 +15,28 @@ import { settings, download } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import Auth from '../components/Auth';
+import Settings from '../components/Settings';
 import Import from '../components/Import';
 
 const App = () => {
+	const isAdmin = window.notion2wpAdmin?.isAdmin || false;
+
 	const tabs = [
 		{
 			name: 'import',
-			title:'Import',
+			title: __( 'Import', 'notion2wp' ),
 			icon: download,
 			component: Import,
 		},
-		{
-			name: 'settings',
-			title: __( 'Settings', 'notion2wp' ),
-			icon: settings,
-			component: Auth,
-		},
+		// Only show settings tab to administrators
+		...( isAdmin ? [
+			{
+				name: 'settings',
+				title: __( 'Settings', 'notion2wp' ),
+				icon: settings,
+				component: Settings,
+			},
+		] : [] ),
 	];
 
 	return (

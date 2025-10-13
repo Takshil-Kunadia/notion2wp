@@ -19,7 +19,7 @@ module.exports = {
 					options: {
 						presets: [
 							'@babel/preset-env',
-							'@babel/preset-react'  // <-- enables JSX
+							'@babel/preset-react'
 						]
 					}
 				}
@@ -31,6 +31,13 @@ module.exports = {
 					'css-loader',
 					'sass-loader'
 				]
+			},
+			{
+				test: /\.(png|jpe?g|gif|svg)$/i,
+				type: 'asset/resource',
+				generator: {
+					filename: 'images/[name][ext]'
+				}
 			}
 		]
 	},
