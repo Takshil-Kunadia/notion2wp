@@ -246,7 +246,7 @@ const Connection = () => {
 						>
 							{ loading
 								? __( 'Disconnecting...', 'notion2wp' )
-								: __( 'Disconnect from Notion', 'notion2wp' )
+								: __( 'Disconnect', 'notion2wp' )
 							}
 						</Button>
 					</CardBody>
