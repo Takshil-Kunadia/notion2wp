@@ -118,13 +118,36 @@ class Block_Registry {
 	public function convert_block( $block, $context = [] ) {
 		foreach ( $this->converters as $converter ) {
 			if ( $converter->supports( $block ) ) {
-				return $converter->convert( $block, $context );
+				$html = $converter->convert( $block, $context );
+
+				/**
+				 * Filters the converted block HTML.
+				 *
+				 * @since 1.0.0
+				 *
+				 * @param string                    $html      Converted HTML.
+				 * @param array                     $block     Notion block data.
+				 * @param Block_Converter_Interface $converter The converter used.
+				 * @param array                     $context   Conversion context.
+				 */
+				return apply_filters( 'notion2wp_converted_block', $html, $block, $converter, $context );
 			}
 		}
 
 		// Fallback: return HTML comment.
 		$type = $block['type'] ?? 'unknown';
-		return '<!-- Unsupported Notion block type: ' . esc_html( $type ) . ' -->' . "\n";
+
+		/**
+		 * Filters the unsupported block output.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $output The output HTML.
+		 * @param array  $block  The Notion block data.
+		 * @param string $type   The block type.
+		 * @param array  $context The conversion context.
+		 */
+		return apply_filters( 'notion2wp_unsupported_block_output', '<!-- Unsupported Notion block type: ' . esc_html( $type ) . ' -->' . "\n", $block, $type, $context );
 	}
 
 	/**
@@ -163,8 +186,17 @@ class Block_Registry {
 			$block = $blocks[ $i ];
 			$type  = $block['type'] ?? '';
 
+			/**
+			 * Filters the groupable list item types.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param array $groupable_items Array of groupable item types.
+			 */
+			$groupable_items = apply_filters( 'notion2wp_groupable_list_items', [ 'bulleted_list_item', 'numbered_list_item', 'to_do' ] );
+
 			// Check if this is a groupable list item.
-			if ( in_array( $type, [ 'bulleted_list_item', 'numbered_list_item', 'to_do' ], true ) ) {
+			if ( in_array( $type, $groupable_items, true ) ) {
 				// Collect consecutive list items of the same type.
 				$list_items = [ $block ];
 				$i++;

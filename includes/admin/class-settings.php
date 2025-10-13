@@ -31,14 +31,14 @@ class Settings {
 		'owner'                  => null,
 		'token_obtained_at'      => null,
 
-		// Sync Settings.
+		// TODO: Sync Settings.
 		'sync_enabled'           => false,
 		'sync_frequency'         => 'hourly', // hourly, daily, weekly.
 		'auto_sync'              => false,
 		'sync_on_save'           => false,
 		'sync_direction'         => 'notion_to_wp', // notion_to_wp, wp_to_notion, bidirectional.
 
-		// Content Settings.
+		// TODO: Content Settings.
 		'default_post_type'      => 'post',
 		'default_post_status'    => 'draft',
 		'import_featured_images' => true,
@@ -46,22 +46,17 @@ class Settings {
 		'convert_notion_blocks'  => true,
 		'preserve_notion_ids'    => true,
 
-		// Field Mapping.
+		// TODO: Field Mapping.
 		'field_mappings'         => [],
 		'custom_field_prefix'    => 'notion_',
 		'map_properties_to_meta' => true,
 
-		// Advanced Settings.
+		// TODO: Advanced Settings.
 		'enable_debug_logging'   => false,
 		'api_request_timeout'    => 30,
 		'batch_size'             => 50,
 		'enable_webhooks'        => false,
 		'webhook_secret'         => '',
-
-		// UI Settings.
-		'show_admin_bar_menu'    => true,
-		'show_dashboard_widget'  => true,
-		'admin_menu_position'    => 'tools',
 	];
 
 	/**

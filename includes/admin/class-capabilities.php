@@ -93,6 +93,15 @@ class Capabilities {
 			$new_roles[] = 'administrator';
 		}
 
+		/**
+		 * Filters the roles before updating capabilities.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array $new_roles Array of role names that should have the capability.
+		 */
+		$new_roles = apply_filters( 'notion2wp_update_role_capabilities', $new_roles );
+
 		// Get current roles with capability.
 		$current_roles = get_option( self::ROLES_OPTION, [ 'administrator' ] );
 
