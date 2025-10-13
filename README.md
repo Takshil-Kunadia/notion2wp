@@ -2,7 +2,7 @@
 
 **Transform your Notion workspace into WordPress content seamlessly.**
 
-[![WordPress](https://img.shields.io/badge/WordPress-6.6+-blue.svg)](https://wordpress.org/)
+[![WordPress](https://img.shields.io/badge/WordPress-6.5+-blue.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-7.4+-purple.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/License-GPL--2.0-orange.svg)](LICENSE)
 
@@ -52,7 +52,7 @@ Notion2WP bridges the gap between Notion's collaborative content creation and Wo
 Before installing Notion2WP, ensure your environment meets these requirements:
 
 ### WordPress Requirements
-- **WordPress Version:** 6.6 or higher
+- **WordPress Version:** 6.5 or higher
 - **PHP Version:** 7.4 or higher
 - **WordPress Permissions:** User must have administrator access to configure the plugin
 
