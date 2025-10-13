@@ -8,7 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TK_NOTION_TO_WP', '0.0.0' );
+define( 'NOTION2WP_VERSION', '1.0.0' );
 
 // Define plugin constants.
 if ( ! defined( 'NOTION2WP_PLUGIN_FILE' ) ) {
