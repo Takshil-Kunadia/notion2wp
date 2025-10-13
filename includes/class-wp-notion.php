@@ -7,6 +7,8 @@
 
 namespace Notion2WP;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class to handle the plugin initialization
  */
