@@ -16,6 +16,7 @@ import {
 	Flex,
 	FlexItem,
 	Snackbar,
+	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -33,6 +34,7 @@ const Connection = () => {
 	const [ initialLoading, setInitialLoading ] = useState( true );
 	const [ message, setMessage ] = useState( '' );
 	const [ error, setError ] = useState( '' );
+	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
 
 	/**
 	 * Fetch current connection status from API
@@ -110,10 +112,7 @@ const Connection = () => {
 	 * Handle disconnection from Notion
 	 */
 	const handleDisconnect = async () => {
-		if ( ! window.confirm( __( 'Are you sure you want to disconnect from Notion?', 'notion2wp' ) ) ) {
-			return;
-		}
-
+		setShowDisconnectConfirm( false );
 		setLoading( true );
 		setError( '' );
 		setMessage( '' );
@@ -166,6 +165,17 @@ const Connection = () => {
 
 	return (
 		<div className="notion2wp-connection">
+			{ /* Disconnect Confirmation Dialog */ }
+			<ConfirmDialog
+				isOpen={ showDisconnectConfirm }
+				onConfirm={ handleDisconnect }
+				onCancel={ () => setShowDisconnectConfirm( false ) }
+				confirmButtonText={ __( 'Disconnect', 'notion2wp' ) }
+				cancelButtonText={ __( 'Cancel', 'notion2wp' ) }
+			>
+				{ __( 'Are you sure you want to disconnect from Notion? You will need to reconnect to import more content.', 'notion2wp' ) }
+			</ConfirmDialog>
+
 			{ /* Success/Error Messages */ }
 			{ ( message || error ) && (
 				<div style={ { marginBottom: '1rem' } }>
@@ -230,7 +240,7 @@ const Connection = () => {
 						<Button
 							variant="secondary"
 							isDestructive
-							onClick={ handleDisconnect }
+							onClick={ () => setShowDisconnectConfirm( true ) }
 							isBusy={ loading }
 							disabled={ loading }
 						>
