@@ -47,6 +47,22 @@ class Notion_Client {
 	}
 
 	/**
+	 * Function to return API version.
+	 *
+	 * @return string API version.
+	 */
+	public static function get_api_version() {
+		/**
+		 * Filters the Notion API version.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $version The Notion API version.
+		 */
+		return apply_filters( 'notion2wp_notion_api_version', self::API_VERSION );
+	}
+
+	/**
 	 * Make API request to Notion.
 	 *
 	 * @param string $endpoint API endpoint.
@@ -66,7 +82,7 @@ class Notion_Client {
 			'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'headers' => [
 				'Authorization'  => 'Bearer ' . $this->integration_token,
-				'Notion-Version' => self::API_VERSION,
+				'Notion-Version' => self::get_api_version(),
 				'Content-Type'   => 'application/json',
 			],
 		];

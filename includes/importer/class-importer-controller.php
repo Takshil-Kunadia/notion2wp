@@ -308,12 +308,33 @@ class Importer_Controller {
 			return $page;
 		}
 
+		/**
+		 * Filters the Notion page data before processing.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array  $page    Notion page data.
+		 * @param string $page_id Notion page ID.
+		 */
+		$page = apply_filters( 'notion2wp_page_data', $page, $page_id );
+
 		// Fetch page content (blocks).
 		$blocks = $this->notion_client->get_all_block_children( $page_id );
 
 		if ( is_wp_error( $blocks ) ) {
 			return $blocks;
 		}
+
+		/**
+		 * Filters the Notion blocks before conversion.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array  $blocks  Notion blocks array.
+		 * @param string $page_id Notion page ID.
+		 * @param array  $page    Notion page data.
+		 */
+		$blocks = apply_filters( 'notion2wp_page_blocks', $blocks, $page_id, $page );
 
 		// Convert to WordPress post format.
 		$post_data = $this->convert_to_wordpress_post( $page, $blocks );
@@ -341,6 +362,18 @@ class Importer_Controller {
 
 		// Store mapping between Notion page and WordPress post.
 		$this->store_notion_mapping( $page_id, $post_id );
+
+		/**
+		 * Fires after successfully importing a Notion page.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param int    $post_id WordPress post ID.
+		 * @param string $page_id Notion page ID.
+		 * @param array  $page    Notion page data.
+		 * @param array  $blocks  Notion blocks array.
+		 */
+		do_action( 'notion2wp_after_import_page', $post_id, $page_id, $page, $blocks );
 
 		return $post_id;
 	}
