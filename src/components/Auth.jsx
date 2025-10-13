@@ -19,6 +19,7 @@ import {
 	Snackbar,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import RoleManagement from './RoleManagement';
 
 const MESSAGE_TIMEOUT = 5000;
 
@@ -366,6 +367,11 @@ const Auth = () => {
 					</Card>
 				</>
 			) }
+
+			{ /* Role Management - Separate Component */ }
+			<div style={ { marginTop: '1rem' } }>
+				<RoleManagement />
+			</div>
 		</div>
 	);
 };

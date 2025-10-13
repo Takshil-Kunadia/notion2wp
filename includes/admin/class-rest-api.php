@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 use Notion2WP\Admin\Settings;
 use Notion2WP\Auth\Auth;
 use Notion2WP\Importer\Importer_Controller;
+use Notion2WP\Admin\Capabilities;
 use WP_REST_Response;
 use WP_REST_Server;
 use WP_REST_Request;
@@ -37,14 +38,14 @@ class Rest_API {
 	 * Register REST API routes.
 	 */
 	public static function register_routes() {
-		// Auth endpoints.
+		// Auth endpoints - Admin only.
 		register_rest_route(
 			self::NAMESPACE,
 			'/auth/status',
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ self::class, 'get_auth_status' ],
-				'permission_callback' => [ self::class, 'check_permissions' ],
+				'permission_callback' => [ self::class, 'check_admin_permissions' ],
 			]
 		);
 
@@ -54,7 +55,7 @@ class Rest_API {
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ self::class, 'connect_integration' ],
-				'permission_callback' => [ self::class, 'check_permissions' ],
+				'permission_callback' => [ self::class, 'check_admin_permissions' ],
 				'args'                => [
 					'integration_token' => [
 						'required'          => true,
@@ -71,18 +72,18 @@ class Rest_API {
 			[
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => [ self::class, 'disconnect_oauth' ],
-				'permission_callback' => [ self::class, 'check_permissions' ],
+				'permission_callback' => [ self::class, 'check_admin_permissions' ],
 			]
 		);
 
-		// Settings endpoints.
+		// Settings endpoints - Admin only.
 		register_rest_route(
 			self::NAMESPACE,
 			'/settings',
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ self::class, 'get_settings' ],
-				'permission_callback' => [ self::class, 'check_permissions' ],
+				'permission_callback' => [ self::class, 'check_admin_permissions' ],
 			]
 		);
 
@@ -92,19 +93,52 @@ class Rest_API {
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ self::class, 'update_settings' ],
-				'permission_callback' => [ self::class, 'check_permissions' ],
+				'permission_callback' => [ self::class, 'check_admin_permissions' ],
 				'args'                => self::get_settings_schema(),
 			]
 		);
 
-		// Import endpoints.
+		// Capabilities endpoints - Admin only.
+		register_rest_route(
+			self::NAMESPACE,
+			'/capabilities/roles',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ self::class, 'get_role_capabilities' ],
+				'permission_callback' => [ self::class, 'check_admin_permissions' ],
+			]
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/capabilities/roles',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ self::class, 'update_role_capabilities' ],
+				'permission_callback' => [ self::class, 'check_admin_permissions' ],
+				'args'                => [
+					'roles' => [
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => [
+							'type' => 'string',
+						],
+						'sanitize_callback' => function ( $roles ) {
+							return array_map( 'sanitize_text_field', $roles );
+						},
+					],
+				],
+			]
+		);
+
+		// Import endpoints - Any user with manage_notion2wp capability.
 		register_rest_route(
 			self::NAMESPACE,
 			'/import/items',
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ self::class, 'get_importable_items' ],
-				'permission_callback' => [ self::class, 'check_permissions' ],
+				'permission_callback' => [ Capabilities::class, 'current_user_can_manage' ],
 			]
 		);
 
@@ -114,7 +148,7 @@ class Rest_API {
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ self::class, 'import_items' ],
-				'permission_callback' => [ self::class, 'check_permissions' ],
+				'permission_callback' => [ Capabilities::class, 'current_user_can_manage' ],
 				'args'                => [
 					'items' => [
 						'required'          => true,
@@ -151,13 +185,12 @@ class Rest_API {
 	}
 
 	/**
-	 * Check user permissions.
+	 * Check if current user has admin permissions.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return bool
+	 * @return bool True if user can manage options (is admin).
 	 */
-	public static function check_permissions( $request ) {
-		return current_user_can( 'manage_notion2wp' ) && current_user_can( 'manage_options' );
+	public static function check_admin_permissions() {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -403,5 +436,49 @@ class Rest_API {
 				'type' => 'object',
 			],
 		];
+	}
+
+	/**
+	 * Get role capabilities.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public static function get_role_capabilities( $request ) {
+		return new WP_REST_Response(
+			[
+				'available_roles' => Capabilities::get_available_roles(),
+				'allowed_roles'   => Capabilities::get_roles_with_capability(),
+			],
+			200
+		);
+	}
+
+	/**
+	 * Update role capabilities.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public static function update_role_capabilities( $request ) {
+		$roles = $request->get_param( 'roles' );
+
+		$result = Capabilities::update_role_capabilities( $roles );
+
+		if ( $result ) {
+			return new WP_REST_Response(
+				[
+					'success'       => true,
+					'message'       => __( 'Role capabilities updated successfully.', 'notion2wp' ),
+					'allowed_roles' => Capabilities::get_roles_with_capability(),
+				],
+				200
+			);
+		}
+
+		return new WP_REST_Response(
+			[ 'message' => __( 'Failed to update role capabilities.', 'notion2wp' ) ],
+			500
+		);
 	}
 }

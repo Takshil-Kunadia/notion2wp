@@ -43,7 +43,7 @@ class Admin {
 		add_menu_page(
 			__( 'Notion2WP', 'notion2wp' ),
 			__( 'Notion2WP', 'notion2wp' ),
-			'manage_notion2wp',
+			Capabilities::CAPABILITY,
 			self::PAGE_SLUG,
 			[ self::class, 'render_admin_page' ],
 			'data:image/svg+xml;base64,' . base64_encode( $icon_svg ),
@@ -99,6 +99,7 @@ class Admin {
 				'apiUrl'   => home_url( '/wp-json/notion2wp/v1/' ),
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'adminUrl' => admin_url( 'admin.php?page=' . self::PAGE_SLUG ),
+				'isAdmin'  => current_user_can( 'manage_options' ),
 			]
 		);
 	}
