@@ -1,5 +1,7 @@
 # Notion → WordPress Plugin
 
+<img width="1544" height="500" alt="banner-1544x500" src="https://github.com/user-attachments/assets/5c51e9c3-11d3-4d14-b838-763b1f1e02e1" />
+
 **Transform your Notion workspace into WordPress content seamlessly.**
 
 [![WordPress](https://img.shields.io/badge/WordPress-6.5+-blue.svg)](https://wordpress.org/)
