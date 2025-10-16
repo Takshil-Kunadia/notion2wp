@@ -80,7 +80,7 @@ Follow these steps to connect Notion2WP to your Notion workspace:
    - ✅ Read comments (optional)
    - ✅ Read user information without email (optional)
 7. Click **Submit** to create the integration
-8. Copy the **Internal Integration Token** (starts with `secret_`)
+8. Copy the **Internal Integration Token**
 
 > **⚠️ Important:** Keep your integration token secure. Never share it publicly or commit it to version control.
 
