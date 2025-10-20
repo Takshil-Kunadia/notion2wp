@@ -19,6 +19,14 @@ import {
 	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { help } from '@wordpress/icons';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+
+/**
+ * Internal dependencies
+ */
+import SetupGuide from './SetupGuide';
 
 const MESSAGE_TIMEOUT = 5000;
 
@@ -26,6 +34,14 @@ const Connection = () => {
 	// Get localized data from WordPress
 	const apiUrl = window.notion2wpAdmin?.apiUrl || '/wp-json/notion2wp/v1/';
 	const nonce = window.notion2wpAdmin?.nonce || '';
+
+	// Get setup guide status from WordPress options via core-data
+	const setupGuideShown = useSelect( ( select ) => {
+		const option = select( coreStore ).getEntityRecord( 'root', 'site' );
+		return option?.notion2wp_setup_guide_shown;
+	}, [] );
+
+	const { saveEntityRecord } = useDispatch( coreStore );
 
 	// Component state
 	const [ status, setStatus ] = useState( null );
@@ -35,6 +51,7 @@ const Connection = () => {
 	const [ message, setMessage ] = useState( '' );
 	const [ error, setError ] = useState( '' );
 	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
+	const [ showSetupGuide, setShowSetupGuide ] = useState( false );
 
 	/**
 	 * Fetch current connection status from API
@@ -60,11 +77,34 @@ const Connection = () => {
 		}
 	};
 
+	/**
+	 * Handle setup guide finish
+	 */
+	const handleGuideFinish = async () => {
+		setShowSetupGuide( false );
+		
+		// Save the option using core-data
+		try {
+			await saveEntityRecord( 'root', 'site', {
+				notion2wp_setup_guide_shown: true,
+			} );
+		} catch ( err ) {
+			setError( 'Failed to mark setup guide as shown:' + err );
+		}
+	};
+
 	// Fetch status on component mount
 	useEffect( () => {
 		fetchStatus();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
+
+	// Show setup guide automatically if it hasn't been shown before
+	useEffect( () => {
+		if ( false === setupGuideShown ) {
+			setShowSetupGuide( true );
+		}
+	}, [ setupGuideShown ] );
 
 	/**
 	 * Handle integration connection
@@ -165,6 +205,11 @@ const Connection = () => {
 
 	return (
 		<div className="notion2wp-connection">
+			{ /* Setup Guide Modal */ }
+			{ showSetupGuide && (
+				<SetupGuide onFinish={ handleGuideFinish } />
+			) }
+
 			{ /* Disconnect Confirmation Dialog */ }
 			<ConfirmDialog
 				isOpen={ showDisconnectConfirm }
@@ -256,59 +301,28 @@ const Connection = () => {
 				<>
 					<Card>
 						<CardHeader>
-							<Flex align="center">
+							<Flex align="center" justify='space-between'>
 								<strong style={ { marginLeft: '0.5rem' } }>
 									{ __( 'Connect to Notion', 'notion2wp' ) }
 								</strong>
+
+								{ /* Help Button for Setup Guide */ }
+								{ setupGuideShown && (
+									<Button
+										variant="link"
+										icon={ help }
+										size='small'
+										onClick={ () => setShowSetupGuide( true ) }
+									>
+										{ __( 'Setup Guide', 'notion2wp' ) }
+									</Button>
+								) }
 							</Flex>
 						</CardHeader>
 						<CardBody>
 							<p style={ { marginTop: 0, color: '#50575e' } }>
 								{ __( 'Connect your Notion workspace using an Internal Integration. This allows the plugin to access pages you share with it.', 'notion2wp' ) }
 							</p>
-
-							{ /* Instructions */ }
-							<div style={ {
-								background: '#f0f6fc',
-								border: '1px solid #c3d8ec',
-								borderRadius: '4px',
-								padding: '1rem',
-								marginBottom: '1.5rem',
-							} }>
-								<h4 style={ { marginTop: 0 } }>
-									{ __( 'Setup Instructions:', 'notion2wp' ) }
-								</h4>
-								<ol style={ { marginBottom: 0, paddingLeft: '1.5rem' } }>
-									<li>
-										{ __( 'Go to ', 'notion2wp' ) }
-										<a
-											href="https://www.notion.so/my-integrations"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											{ __( 'Notion > My Integrations', 'notion2wp' ) }
-										</a>
-									</li>
-									<li>{ __( 'Click "+ New integration"', 'notion2wp' ) }</li>
-									<li>{ __( 'Choose "Internal integration" as the type', 'notion2wp' ) }</li>
-									<li>{ __( 'Give your integration a name (e.g., "WordPress Import")', 'notion2wp' ) }</li>
-									<li>
-										{ __( 'Under "Capabilities", enable:', 'notion2wp' ) }
-										<ul style={ { marginTop: '0.5rem' } }>
-											<li>{ __( '✓ Read content', 'notion2wp' ) }</li>
-											<li>{ __( '✓ Read comments (optional)', 'notion2wp' ) }</li>
-											<li>{ __( '✓ Read user information without email (optional)', 'notion2wp' ) }</li>
-										</ul>
-									</li>
-									<li>{ __( 'Click "Submit" to create the integration', 'notion2wp' ) }</li>
-									<li>
-										{ __( 'Copy the "Internal Integration Token" (starts with "secret_")', 'notion2wp' ) }
-									</li>
-									<li>
-										{ __( 'In Notion, share the pages/databases you want to import with your integration', 'notion2wp' ) }
-									</li>
-								</ol>
-							</div>
 
 							{ /* Connection Form */ }
 							<TextControl

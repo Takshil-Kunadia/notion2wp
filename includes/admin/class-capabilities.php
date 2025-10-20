@@ -27,17 +27,6 @@ class Capabilities {
 	const ROLES_OPTION = 'notion2wp_allowed_roles';
 
 	/**
-	 * Initialize capabilities.
-	 */
-	public static function init() {
-		// Add capabilities on plugin activation.
-		register_activation_hook( NOTION2WP_PLUGIN_FILE, [ self::class, 'add_capabilities' ] );
-
-		// Remove capabilities on plugin deactivation.
-		register_deactivation_hook( NOTION2WP_PLUGIN_FILE, [ self::class, 'remove_capabilities' ] );
-	}
-
-	/**
 	 * Add custom capability to default roles.
 	 *
 	 * Called on plugin activation.
@@ -74,6 +63,8 @@ class Capabilities {
 				$role->remove_cap( self::CAPABILITY );
 			}
 		}
+
+		delete_option( self::ROLES_OPTION );
 	}
 
 	/**
@@ -169,6 +160,3 @@ class Capabilities {
 		return current_user_can( self::CAPABILITY );
 	}
 }
-
-// Initialize capabilities.
-Capabilities::init();

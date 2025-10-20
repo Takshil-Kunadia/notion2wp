@@ -20,6 +20,11 @@ class Settings {
 	const SETTINGS_OPTION = 'notion2wp_settings';
 
 	/**
+	 * Setup guide shown option name.
+	 */
+	const SETUP_GUIDE_OPTION = 'notion2wp_setup_guide_shown';
+
+	/**
 	 * Default settings.
 	 *
 	 * @var array
@@ -65,6 +70,7 @@ class Settings {
 	public static function init() {
 		// Register settings for sanitization.
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_settings' ] );
 	}
 
 	/**
@@ -75,6 +81,18 @@ class Settings {
 			'notion2wp_settings_group',
 			self::SETTINGS_OPTION,
 			[ __CLASS__, 'sanitize_settings' ]
+		);
+
+		// Register setup guide option in REST API.
+		register_setting(
+			'notion2wp_settings_group',
+			self::SETUP_GUIDE_OPTION,
+			[
+				'type'         => 'boolean',
+				'show_in_rest' => true,
+				'default'      => false,
+				'description'  => __( 'Whether the setup guide has been shown to the user.', 'notion2wp' ),
+			]
 		);
 	}
 
@@ -252,6 +270,19 @@ class Settings {
 			'custom_field_prefix'    => $settings['custom_field_prefix'],
 			'map_properties_to_meta' => $settings['map_properties_to_meta'],
 		];
+	}
+
+	/**
+	 * Reset all settings options.
+	 *
+	 * @return void
+	 */
+	public static function reset_options() {
+		unregister_setting( 'notion2wp_settings_group', self::SETTINGS_OPTION );
+		unregister_setting( 'notion2wp_settings_group', self::SETUP_GUIDE_OPTION );
+
+		delete_option( self::SETTINGS_OPTION );
+		delete_option( self::SETUP_GUIDE_OPTION );
 	}
 }
 

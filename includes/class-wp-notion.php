@@ -7,6 +7,9 @@
 
 namespace Notion2WP;
 
+use Notion2WP\Admin\Capabilities;
+use Notion2WP\Admin\Settings;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -27,5 +30,32 @@ class WP_Notion {
 		require_once NOTION2WP_ABSPATH . 'includes/api-client/class-notion-client.php';
 		require_once NOTION2WP_ABSPATH . 'includes/importer/class-importer-controller.php';
 		require_once NOTION2WP_ABSPATH . 'includes/importer/class-page-property-handler.php';
+
+		// Register activation and deactivation hooks.
+		register_activation_hook( NOTION2WP_PLUGIN_FILE, [ __CLASS__, 'activate' ] );
+		register_deactivation_hook( NOTION2WP_PLUGIN_FILE, [ __CLASS__, 'deactivate' ] );
+	}
+
+	/**
+	 * Plugin activation hook.
+	 *
+	 * Called when the plugin is activated.
+	 */
+	public static function activate() {
+		// Add custom capabilities to roles.
+		Capabilities::add_capabilities();
+	}
+
+	/**
+	 * Plugin deactivation hook.
+	 *
+	 * Called when the plugin is deactivated.
+	 */
+	public static function deactivate() {
+		// Reset all settings options.
+		Settings::reset_options();
+
+		// Remove custom capabilities from all roles.
+		Capabilities::remove_capabilities();
 	}
 }
