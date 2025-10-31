@@ -80,7 +80,8 @@ Follow these steps to connect Notion2WP to your Notion workspace:
    - ✅ Read comments (optional)
    - ✅ Read user information without email (optional)
 7. Click **Submit** to create the integration
-8. Copy the **Internal Integration Token**
+8. Click Access > Select Workspace/Pages you want to be able to import.
+9. Copy the **Internal Integration Token**
 
 > **⚠️ Important:** Keep your integration token secure. Never share it publicly or commit it to version control.
 
@@ -91,7 +92,7 @@ Follow these steps to connect Notion2WP to your Notion workspace:
 3. Click **Connect to Notion**
 4. You should see a success message with connection details
 
-### Step 3: Share Pages with Your Integration
+### Step 3: Import Pages with Your Integration
 
 For Notion2WP to access your pages:
 
