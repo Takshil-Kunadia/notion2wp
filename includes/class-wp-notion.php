@@ -1,11 +1,11 @@
 <?php
 /**
- * Notion2WP plugin initialization.
+ * Sync Content From Notion plugin initialization.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP;
+namespace SyncContentFromNotion;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,13 +19,13 @@ class WP_Notion {
 	 */
 	public static function init() {
 		// Include required files.
-		require_once NOTION2WP_ABSPATH . 'includes/admin/class-admin.php';
-		require_once NOTION2WP_ABSPATH . 'includes/admin/class-rest-api.php';
-		require_once NOTION2WP_ABSPATH . 'includes/admin/class-settings.php';
-		require_once NOTION2WP_ABSPATH . 'includes/admin/class-capabilities.php';
-		require_once NOTION2WP_ABSPATH . 'includes/auth/class-auth.php';
-		require_once NOTION2WP_ABSPATH . 'includes/api-client/class-notion-client.php';
-		require_once NOTION2WP_ABSPATH . 'includes/importer/class-importer-controller.php';
-		require_once NOTION2WP_ABSPATH . 'includes/importer/class-page-property-handler.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/admin/class-admin.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/admin/class-rest-api.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/admin/class-settings.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/admin/class-capabilities.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/auth/class-auth.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/api-client/class-notion-client.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/importer/class-importer-controller.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/importer/class-page-property-handler.php';
 	}
 }

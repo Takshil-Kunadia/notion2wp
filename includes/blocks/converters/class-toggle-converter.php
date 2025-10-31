@@ -2,12 +2,12 @@
 /**
  * Toggle Block Converter.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Blocks\Converters;
+namespace SyncContentFromNotion\Blocks\Converters;
 
-use Notion2WP\Blocks\Abstract_Block_Converter;
+use SyncContentFromNotion\Blocks\Abstract_Block_Converter;
 
 defined( 'ABSPATH' ) || exit;
 

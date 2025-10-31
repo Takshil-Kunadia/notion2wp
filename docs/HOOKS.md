@@ -1,6 +1,7 @@
 # Filters and Actions Reference
 
-This document provides a comprehensive reference for all WordPress filters and actions available in the Notion2WP plugin. These hooks allow developers to extend and customize the plugin's functionality.
+This document provides a comprehensive reference for all WordPress filters and actions available in the Sync Content From Notion.
+These hooks allow developers to extend and customize the plugin's functionality.
 
 ## Table of Contents
 
@@ -19,7 +20,7 @@ This document provides a comprehensive reference for all WordPress filters and a
 
 ### Capabilities Filters
 
-#### `notion2wp_update_role_capabilities`
+#### `sync_content_from_notion_update_role_capabilities`
 
 Filters the roles before updating capabilities.
 
@@ -32,7 +33,7 @@ Filters the roles before updating capabilities.
 
 **Example:**
 ```php
-add_filter( 'notion2wp_update_role_capabilities', function( $new_roles ) {
+add_filter( 'sync_content_from_notion_update_role_capabilities', function( $new_roles ) {
     // Always include 'editor' role
     if ( ! in_array( 'editor', $new_roles, true ) ) {
         $new_roles[] = 'editor';
@@ -45,7 +46,7 @@ add_filter( 'notion2wp_update_role_capabilities', function( $new_roles ) {
 
 ### API Client Filters
 
-#### `notion2wp_notion_api_version`
+#### `sync_content_from_notion_notion_api_version`
 
 Filters the Notion API version used for requests.
 
@@ -58,7 +59,7 @@ Filters the Notion API version used for requests.
 
 **Example:**
 ```php
-add_filter( 'notion2wp_notion_api_version', function( $version ) {
+add_filter( 'sync_content_from_notion_notion_api_version', function( $version ) {
     // Use a different API version
     return '2023-01-15';
 } );
@@ -68,7 +69,7 @@ add_filter( 'notion2wp_notion_api_version', function( $version ) {
 
 ### Block Conversion Filters
 
-#### `notion2wp_converted_block`
+#### `sync_content_from_notion_converted_block`
 
 Filters the converted block HTML output.
 
@@ -84,7 +85,7 @@ Filters the converted block HTML output.
 
 **Example:**
 ```php
-add_filter( 'notion2wp_converted_block', function( $html, $block, $converter, $context ) {
+add_filter( 'sync_content_from_notion_converted_block', function( $html, $block, $converter, $context ) {
     // Add custom wrapper to all paragraph blocks
     if ( $block['type'] === 'paragraph' ) {
         $html = '<div class="custom-paragraph">' . $html . '</div>';
@@ -95,7 +96,7 @@ add_filter( 'notion2wp_converted_block', function( $html, $block, $converter, $c
 
 ---
 
-#### `notion2wp_unsupported_block_output`
+#### `sync_content_from_notion_unsupported_block_output`
 
 Filters the output for unsupported Notion block types.
 
@@ -111,7 +112,7 @@ Filters the output for unsupported Notion block types.
 
 **Example:**
 ```php
-add_filter( 'notion2wp_unsupported_block_output', function( $output, $block, $type, $context ) {
+add_filter( 'sync_content_from_notion_unsupported_block_output', function( $output, $block, $type, $context ) {
     // Provide custom fallback for unsupported blocks
     return sprintf(
         '<div class="notion-unsupported-block" data-type="%s">
@@ -125,7 +126,7 @@ add_filter( 'notion2wp_unsupported_block_output', function( $output, $block, $ty
 
 ---
 
-#### `notion2wp_groupable_list_items`
+#### `sync_content_from_notion_groupable_list_items`
 
 Filters the list of groupable block types for list consolidation.
 
@@ -138,7 +139,7 @@ Filters the list of groupable block types for list consolidation.
 
 **Example:**
 ```php
-add_filter( 'notion2wp_groupable_list_items', function( $groupable_items ) {
+add_filter( 'sync_content_from_notion_groupable_list_items', function( $groupable_items ) {
     // Add custom list type to grouping logic
     $groupable_items[] = 'custom_list_item';
     return $groupable_items;
@@ -149,7 +150,7 @@ add_filter( 'notion2wp_groupable_list_items', function( $groupable_items ) {
 
 ### Import Process Filters
 
-#### `notion2wp_page_data`
+#### `sync_content_from_notion_page_data`
 
 Filters the Notion page data before processing.
 
@@ -163,7 +164,7 @@ Filters the Notion page data before processing.
 
 **Example:**
 ```php
-add_filter( 'notion2wp_page_data', function( $page, $page_id ) {
+add_filter( 'sync_content_from_notion_page_data', function( $page, $page_id ) {
     // Modify page properties before import
     if ( isset( $page['properties']['Status'] ) ) {
         // Convert status to custom format
@@ -175,7 +176,7 @@ add_filter( 'notion2wp_page_data', function( $page, $page_id ) {
 
 ---
 
-#### `notion2wp_page_blocks`
+#### `sync_content_from_notion_page_blocks`
 
 Filters the Notion blocks before conversion to WordPress content.
 
@@ -190,7 +191,7 @@ Filters the Notion blocks before conversion to WordPress content.
 
 **Example:**
 ```php
-add_filter( 'notion2wp_page_blocks', function( $blocks, $page_id, $page ) {
+add_filter( 'sync_content_from_notion_page_blocks', function( $blocks, $page_id, $page ) {
     // Filter out certain block types
     return array_filter( $blocks, function( $block ) {
         return $block['type'] !== 'divider';
@@ -204,7 +205,7 @@ add_filter( 'notion2wp_page_blocks', function( $blocks, $page_id, $page ) {
 
 ### Import Hooks
 
-#### `notion2wp_after_import_page`
+#### `sync_content_from_notion_after_import_page`
 
 Fires after successfully importing a Notion page.
 
@@ -220,7 +221,7 @@ Fires after successfully importing a Notion page.
 
 **Example:**
 ```php
-add_action( 'notion2wp_after_import_page', function( $post_id, $page_id, $page, $blocks ) {
+add_action( 'sync_content_from_notion_after_import_page', function( $post_id, $page_id, $page, $blocks ) {
     // Send notification after import
     wp_mail(
         get_option( 'admin_email' ),

@@ -2,14 +2,14 @@
 /**
  * Notion Importer Controller.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Importer;
+namespace SyncContentFromNotion\Importer;
 
-use Notion2WP\Adapter\Notion_Client;
-use Notion2WP\Admin\Settings;
-use Notion2WP\Blocks\Block_Registry;
+use SyncContentFromNotion\Adapter\Notion_Client;
+use SyncContentFromNotion\Admin\Settings;
+use SyncContentFromNotion\Blocks\Block_Registry;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -135,7 +135,7 @@ class Importer_Controller {
 	 */
 	public function import_items( $items ) {
 		if ( ! is_array( $items ) || empty( $items ) ) {
-			return new \WP_Error( 'invalid_input', __( 'No items selected for import.', 'notion2wp' ) );
+			return new \WP_Error( 'invalid_input', __( 'No items selected for import.', 'sync-content-from-notion' ) );
 		}
 
 		$results = [
@@ -150,7 +150,7 @@ class Importer_Controller {
 			if ( empty( $item_id ) || empty( $item_type ) ) {
 				$results['errors'][] = [
 					'page_id' => $item_id,
-					'message' => __( 'Invalid item: missing ID or type.', 'notion2wp' ),
+					'message' => __( 'Invalid item: missing ID or type.', 'sync-content-from-notion' ),
 				];
 				continue;
 			}
@@ -211,7 +211,7 @@ class Importer_Controller {
 				'empty_database',
 				sprintf(
 					/* translators: %s: Database ID */
-					__( 'No pages found in database %s or database is not shared with the integration.', 'notion2wp' ),
+					__( 'No pages found in database %s or database is not shared with the integration.', 'sync-content-from-notion' ),
 					$database_id
 				)
 			);
@@ -262,7 +262,7 @@ class Importer_Controller {
 				'empty_datasource',
 				sprintf(
 					/* translators: %s: Data source ID */
-					__( 'No pages found in data source %s or data source is not shared with the integration.', 'notion2wp' ),
+					__( 'No pages found in data source %s or data source is not shared with the integration.', 'sync-content-from-notion' ),
 					$data_source_id
 				)
 			);
@@ -316,7 +316,7 @@ class Importer_Controller {
 		 * @param array  $page    Notion page data.
 		 * @param string $page_id Notion page ID.
 		 */
-		$page = apply_filters( 'notion2wp_page_data', $page, $page_id );
+		$page = apply_filters( 'sync_content_from_notion_page_data', $page, $page_id );
 
 		// Fetch page content (blocks).
 		$blocks = $this->notion_client->get_all_block_children( $page_id );
@@ -334,7 +334,7 @@ class Importer_Controller {
 		 * @param string $page_id Notion page ID.
 		 * @param array  $page    Notion page data.
 		 */
-		$blocks = apply_filters( 'notion2wp_page_blocks', $blocks, $page_id, $page );
+		$blocks = apply_filters( 'sync_content_from_notion_page_blocks', $blocks, $page_id, $page );
 
 		// Convert to WordPress post format.
 		$post_data = $this->convert_to_wordpress_post( $page, $blocks );
@@ -373,7 +373,7 @@ class Importer_Controller {
 		 * @param array  $page    Notion page data.
 		 * @param array  $blocks  Notion blocks array.
 		 */
-		do_action( 'notion2wp_after_import_page', $post_id, $page_id, $page, $blocks );
+		do_action( 'sync_content_from_notion_after_import_page', $post_id, $page_id, $page, $blocks );
 
 		return $post_id;
 	}
@@ -420,9 +420,9 @@ class Importer_Controller {
 	 */
 	private function blocks_to_html( $blocks ) {
 		// Load block system.
-		require_once NOTION2WP_ABSPATH . 'includes/blocks/interface-block-converter.php';
-		require_once NOTION2WP_ABSPATH . 'includes/blocks/class-abstract-block-converter.php';
-		require_once NOTION2WP_ABSPATH . 'includes/blocks/class-block-registry.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/blocks/interface-block-converter.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/blocks/class-abstract-block-converter.php';
+		require_once SYNC_CONTENT_FROM_NOTION_ABSPATH . 'includes/blocks/class-block-registry.php';
 
 		// Get the block registry instance.
 		$registry = Block_Registry::get_instance();

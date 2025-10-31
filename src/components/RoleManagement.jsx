@@ -1,7 +1,7 @@
 /**
  * Role Management Component
  *
- * Allows administrators to manage which user roles can access Notion2WP.
+ * Allows administrators to manage which user roles can access Sync Content from Notion features.
  * Fetches available roles and current permissions from REST API.
  */
 
@@ -18,8 +18,8 @@ import { __ } from '@wordpress/i18n';
 
 const RoleManagement = () => {
 	// Get localized data from WordPress
-	const apiUrl = window.notion2wpAdmin?.apiUrl || '/wp-json/notion2wp/v1/';
-	const nonce = window.notion2wpAdmin?.nonce || '';
+	const apiUrl = window.syncContentFromNotionAdmin?.apiUrl || '/wp-json/sync-content-from-notion/v1/';
+	const nonce = window.syncContentFromNotionAdmin?.nonce || '';
 
 	// Component state
 	const [ availableRoles, setAvailableRoles ] = useState( [] );
@@ -47,10 +47,10 @@ const RoleManagement = () => {
 				setAvailableRoles( data.available_roles || [] );
 				setAllowedRoles( data.allowed_roles || [] );
 			} else {
-				setError( data.message || __( 'Failed to fetch role capabilities.', 'notion2wp' ) );
+				setError( data.message || __( 'Failed to fetch role capabilities.', 'sync-content-from-notion' ) );
 			}
 		} catch ( err ) {
-			setError( __( 'Error fetching role capabilities: ', 'notion2wp' ) + err.message );
+			setError( __( 'Error fetching role capabilities: ', 'sync-content-from-notion' ) + err.message );
 		} finally {
 			setLoading( false );
 		}
@@ -101,7 +101,7 @@ const RoleManagement = () => {
 
 			if ( res.ok && data.success ) {
 				setMessage( {
-					text: data.message || __( 'Roles updated successfully!', 'notion2wp' ),
+					text: data.message || __( 'Roles updated successfully!', 'sync-content-from-notion' ),
 					type: 'success',
 				} );
 				// Update with server response to ensure consistency
@@ -111,12 +111,12 @@ const RoleManagement = () => {
 			} else {
 				// Revert on error
 				setAllowedRoles( previousRoles );
-				setError( data.message || __( 'Failed to update roles.', 'notion2wp' ) );
+				setError( data.message || __( 'Failed to update roles.', 'sync-content-from-notion' ) );
 			}
 		} catch ( err ) {
 			// Revert on error
 			setAllowedRoles( previousRoles );
-			setError( __( 'Error updating roles: ', 'notion2wp' ) + err.message );
+			setError( __( 'Error updating roles: ', 'sync-content-from-notion' ) + err.message );
 		} finally {
 			setSaving( false );
 			// Clear messages after 5 seconds
@@ -134,7 +134,7 @@ const RoleManagement = () => {
 				<CardBody>
 					<div style={ { display: 'flex', alignItems: 'center', gap: '0.5rem' } }>
 						<Spinner />
-						<span>{ __( 'Loading role permissions...', 'notion2wp' ) }</span>
+						<span>{ __( 'Loading role permissions...', 'sync-content-from-notion' ) }</span>
 					</div>
 				</CardBody>
 			</Card>
@@ -144,7 +144,7 @@ const RoleManagement = () => {
 	return (
 		<Card>
 			<CardHeader>
-				<strong>{ __( 'Role Permissions', 'notion2wp' ) }</strong>
+				<strong>{ __( 'Role Permissions', 'sync-content-from-notion' ) }</strong>
 			</CardHeader>
 			<CardBody>
 				{ /* Success/Error Messages */ }
@@ -169,7 +169,7 @@ const RoleManagement = () => {
 				) }
 
 				<p style={ { marginTop: message || error ? '1rem' : 0, color: '#50575e' } }>
-					{ __( 'Select which user roles can access and import pages.', 'notion2wp' ) }
+					{ __( 'Select which user roles can access and import pages.', 'sync-content-from-notion' ) }
 				</p>
 
 				{ /* Role Checkboxes */ }
@@ -182,12 +182,12 @@ const RoleManagement = () => {
 								checked={ allowedRoles.includes( role.name ) }
 								onChange={ () => handleRoleToggle( role.name ) }
 								disabled={ saving || role.name === 'administrator' }
-								help={ role.name === 'administrator' ? __( 'Administrators always have access', 'notion2wp' ) : '' }
+								help={ role.name === 'administrator' ? __( 'Administrators always have access', 'sync-content-from-notion' ) : '' }
 							/>
 						) )
 					) : (
 						<p style={ { color: '#757575', fontStyle: 'italic' } }>
-							{ __( 'No roles available.', 'notion2wp' ) }
+							{ __( 'No roles available.', 'sync-content-from-notion' ) }
 						</p>
 					) }
 				</div>
@@ -197,7 +197,7 @@ const RoleManagement = () => {
 					<div style={ { marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' } }>
 						<Spinner />
 						<span style={ { color: '#757575' } }>
-							{ __( 'Updating roles...', 'notion2wp' ) }
+							{ __( 'Updating roles...', 'sync-content-from-notion' ) }
 						</span>
 					</div>
 				) }

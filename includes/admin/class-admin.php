@@ -1,15 +1,15 @@
 <?php
 /**
- * Notion2WP Admin functionality.
+ * Sync Content From Notion Admin functionality.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Admin;
+namespace SyncContentFromNotion\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use Notion2WP\Auth\Auth;
+use SyncContentFromNotion\Auth\Auth;
 
 /**
  * Admin class for handling WordPress admin interface.
@@ -19,7 +19,7 @@ class Admin {
 	/**
 	 * Admin page slug.
 	 */
-	const PAGE_SLUG = 'notion2wp-settings';
+	const PAGE_SLUG = 'sync-content-from-notion-settings';
 
 	/**
 	 * Initialize admin functionality.
@@ -37,12 +37,12 @@ class Admin {
 	 */
 	public static function add_admin_menu() {
 		// Load SVG icon from file.
-		$icon_path = NOTION2WP_PLUGIN_DIR . 'src/assets/notion2wp-logo.svg';
+		$icon_path = SYNC_CONTENT_FROM_NOTION_PLUGIN_DIR . 'src/assets/sync-content-from-notion-logo.svg';
 		$icon_svg  = file_exists( $icon_path ) ? file_get_contents( $icon_path ) : '';
 
 		add_menu_page(
-			__( 'Notion2WP', 'notion2wp' ),
-			__( 'Notion2WP', 'notion2wp' ),
+			__( 'Sync Content From Notion', 'sync-content-from-notion' ),
+			__( 'Sync Content From Notion', 'sync-content-from-notion' ),
 			Capabilities::CAPABILITY,
 			self::PAGE_SLUG,
 			[ self::class, 'render_admin_page' ],
@@ -70,33 +70,33 @@ class Admin {
 		];
 
 		// Build script.
-		$script_asset_file = NOTION2WP_PLUGIN_DIR . 'dist/index.asset.php';
+		$script_asset_file = SYNC_CONTENT_FROM_NOTION_PLUGIN_DIR . 'dist/index.asset.php';
 		$script_asset      = file_exists( $script_asset_file ) ? require $script_asset_file : [
 			'dependencies' => $dependencies,
-			'version'      => filemtime( NOTION2WP_PLUGIN_DIR . 'dist/index.js' ), // phpcs:ignore WordPressVIPMinimum.Files.IncludingNonPHPFile.IncludingNonPHPFile
+			'version'      => filemtime( SYNC_CONTENT_FROM_NOTION_PLUGIN_DIR . 'dist/index.js' ), // phpcs:ignore WordPressVIPMinimum.Files.IncludingNonPHPFile.IncludingNonPHPFile
 		];
 
 		wp_enqueue_script(
-			'notion2wp-admin',
-			NOTION2WP_PLUGIN_URL . 'dist/index.js',
+			'sync-content-from-notion-admin',
+			SYNC_CONTENT_FROM_NOTION_PLUGIN_URL . 'dist/index.js',
 			$script_asset['dependencies'],
 			$script_asset['version'],
 			true
 		);
 
 		wp_enqueue_style(
-			'notion2wp-admin',
-			NOTION2WP_PLUGIN_URL . 'dist/index.css',
+			'sync-content-from-notion-admin',
+			SYNC_CONTENT_FROM_NOTION_PLUGIN_URL . 'dist/index.css',
 			[ 'wp-components' ],
 			$script_asset['version']
 		);
 
 		// Localize script with data.
 		wp_localize_script(
-			'notion2wp-admin',
-			'notion2wpAdmin',
+			'sync-content-from-notion-admin',
+			'syncContentFromNotionAdmin',
 			[
-				'apiUrl'   => home_url( '/wp-json/notion2wp/v1/' ),
+				'apiUrl'   => home_url( '/wp-json/sync-content-from-notion/v1/' ),
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'adminUrl' => admin_url( 'admin.php?page=' . self::PAGE_SLUG ),
 				'isAdmin'  => current_user_can( 'manage_options' ),
@@ -110,7 +110,7 @@ class Admin {
 	public static function render_admin_page() {
 		?>
 		<div class="wrap">
-			<div id="notion2wp-admin-root"></div>
+			<div id="sync-content-from-notion-admin-root"></div>
 		</div>
 		<?php
 	}

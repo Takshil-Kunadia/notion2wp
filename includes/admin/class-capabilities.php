@@ -1,13 +1,13 @@
 <?php
 /**
- * Notion2WP Capabilities Management.
+ * Sync Content From Notion Capabilities Management.
  *
  * Handles custom capabilities for the plugin.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Admin;
+namespace SyncContentFromNotion\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,22 +19,22 @@ class Capabilities {
 	/**
 	 * Custom capability name.
 	 */
-	const CAPABILITY = 'manage_notion2wp';
+	const CAPABILITY = 'manage_sync_content_from_notion';
 
 	/**
 	 * Option name for storing allowed roles.
 	 */
-	const ROLES_OPTION = 'notion2wp_allowed_roles';
+	const ROLES_OPTION = 'sync_content_from_notion_allowed_roles';
 
 	/**
 	 * Initialize capabilities.
 	 */
 	public static function init() {
 		// Add capabilities on plugin activation.
-		register_activation_hook( NOTION2WP_PLUGIN_FILE, [ self::class, 'add_capabilities' ] );
+		register_activation_hook( SYNC_CONTENT_FROM_NOTION_PLUGIN_FILE, [ self::class, 'add_capabilities' ] );
 
 		// Remove capabilities on plugin deactivation.
-		register_deactivation_hook( NOTION2WP_PLUGIN_FILE, [ self::class, 'remove_capabilities' ] );
+		register_deactivation_hook( SYNC_CONTENT_FROM_NOTION_PLUGIN_FILE, [ self::class, 'remove_capabilities' ] );
 	}
 
 	/**
@@ -100,7 +100,7 @@ class Capabilities {
 		 *
 		 * @param array $new_roles Array of role names that should have the capability.
 		 */
-		$new_roles = apply_filters( 'notion2wp_update_role_capabilities', $new_roles );
+		$new_roles = apply_filters( 'sync_content_from_notion_update_role_capabilities', $new_roles );
 
 		// Get current roles with capability.
 		$current_roles = get_option( self::ROLES_OPTION, [ 'administrator' ] );
@@ -161,7 +161,7 @@ class Capabilities {
 	}
 
 	/**
-	 * Check if current user can manage Notion2WP.
+	 * Check if current user can manage Sync Content From Notion.
 	 *
 	 * @return bool True if user has capability, false otherwise.
 	 */

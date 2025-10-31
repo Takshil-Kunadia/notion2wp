@@ -1,11 +1,11 @@
 <?php
 /**
- * Notion2WP Settings Management.
+ * Sync Content From Notion Settings Management.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Admin;
+namespace SyncContentFromNotion\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,7 +17,7 @@ class Settings {
 	/**
 	 * Plugin settings option name.
 	 */
-	const SETTINGS_OPTION = 'notion2wp_settings';
+	const SETTINGS_OPTION = 'sync_content_from_notion_settings';
 
 	/**
 	 * Default settings.
@@ -72,7 +72,7 @@ class Settings {
 	 */
 	public static function register_settings() {
 		register_setting(
-			'notion2wp_settings_group',
+			'sync_content_from_notion_settings_group',
 			self::SETTINGS_OPTION,
 			[ __CLASS__, 'sanitize_settings' ]
 		);

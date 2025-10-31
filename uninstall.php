@@ -1,10 +1,10 @@
 <?php
 /**
- * Uninstall Notion2WP.
+ * Uninstall Sync Content From Notion.
  *
  * Fired when the plugin is uninstalled.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
@@ -16,10 +16,10 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
  * - Plugin options
  * - Custom capabilities from all roles
  */
-function notion2wp_uninstall() {
+function sync_content_from_notion_uninstall() {
 	// Remove plugin options.
-	delete_option( 'notion2wp_settings' );
-	delete_option( 'notion2wp_allowed_roles' );
+	delete_option( 'sync_content_from_notion_settings' );
+	delete_option( 'sync_content_from_notion_allowed_roles' );
 
 	// Remove custom capability from all roles.
 	$roles = wp_roles();
@@ -27,7 +27,7 @@ function notion2wp_uninstall() {
 		foreach ( array_keys( $roles->roles ) as $role_name ) {
 			$role = get_role( $role_name );
 			if ( $role ) {
-				$role->remove_cap( 'manage_notion2wp' );
+				$role->remove_cap( 'manage_sync_content_from_notion' );
 			}
 		}
 	}
@@ -37,4 +37,4 @@ function notion2wp_uninstall() {
 }
 
 // Run uninstall cleanup.
-notion2wp_uninstall();
+sync_content_from_notion_uninstall();

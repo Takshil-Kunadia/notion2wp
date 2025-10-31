@@ -2,12 +2,12 @@
 /**
  * Notion API Client.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Adapter;
+namespace SyncContentFromNotion\Adapter;
 
-use Notion2WP\Auth\Auth;
+use SyncContentFromNotion\Auth\Auth;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -60,7 +60,7 @@ class Notion_Client {
 		 *
 		 * @param string $version The Notion API version.
 		 */
-		return apply_filters( 'notion2wp_notion_api_version', self::API_VERSION );
+		return apply_filters( 'sync_content_from_notion_notion_api_version', self::API_VERSION );
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Notion_Client {
 	 */
 	private function make_request( $endpoint, $method = 'GET', $body = null ) {
 		if ( empty( $this->integration_token ) ) {
-			return new \WP_Error( 'no_token', __( 'No integration token available. Please add your Notion integration token first.', 'notion2wp' ) );
+			return new \WP_Error( 'no_token', __( 'No integration token available. Please add your Notion integration token first.', 'sync-content-from-notion' ) );
 		}
 
 		$url = self::API_BASE_URL . $endpoint;
@@ -103,7 +103,7 @@ class Notion_Client {
 		$data        = json_decode( $body, true );
 
 		if ( $status_code >= 400 ) {
-			$error_message = $data['message'] ?? __( 'Unknown error occurred.', 'notion2wp' );
+			$error_message = $data['message'] ?? __( 'Unknown error occurred.', 'sync-content-from-notion' );
 			return new \WP_Error( 'notion_api_error', $error_message, [ 'status' => $status_code ] );
 		}
 

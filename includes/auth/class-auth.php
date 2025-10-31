@@ -2,12 +2,12 @@
 /**
  * Notion authentication for Internal integrations.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Auth;
+namespace SyncContentFromNotion\Auth;
 
-use Notion2WP\Admin\Settings;
+use SyncContentFromNotion\Admin\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -43,7 +43,7 @@ class Auth {
 		if ( empty( $integration_token ) ) {
 			return new \WP_Error(
 				'invalid_token',
-				__( 'Integration token is required.', 'notion2wp' )
+				__( 'Integration token is required.', 'sync-content-from-notion' )
 			);
 		}
 
@@ -89,7 +89,7 @@ class Auth {
 
 		if ( is_wp_error( $response ) ) {
 			return new \WP_Error(
-				'notion2wp_api_error',
+				'sync_content_from_notion_api_error',
 				$response->get_error_message()
 			);
 		}
@@ -100,8 +100,8 @@ class Auth {
 
 		if ( $code >= 400 ) {
 			return new \WP_Error(
-				'notion2wp_invalid_token',
-				isset( $data['message'] ) ? $data['message'] : __( 'Invalid integration token.', 'notion2wp' ),
+				'sync_content_from_notion_invalid_token',
+				isset( $data['message'] ) ? $data['message'] : __( 'Invalid integration token.', 'sync-content-from-notion' ),
 				[
 					'status'   => $code,
 					'response' => $data,

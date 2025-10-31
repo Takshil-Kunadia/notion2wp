@@ -11,7 +11,7 @@ We release patches for security vulnerabilities for the following versions:
 
 ## Reporting a Vulnerability
 
-We take the security of Notion2WP seriously. If you have discovered a security vulnerability, please report it to us as described below.
+We take the security of Sync Content From Notion seriously. If you have discovered a security vulnerability, please report it to us as described below.
 
 ### Please Do Not
 
@@ -70,7 +70,7 @@ We take the security of Notion2WP seriously. If you have discovered a security v
 
 ### WordPress Security
 - Keep WordPress core updated
-- Keep Notion2WP plugin updated
+- Keep Sync Content From Notion plugin updated
 - Use strong admin passwords
 - Enable two-factor authentication
 - Use HTTPS for your WordPress site
@@ -88,7 +88,7 @@ We take the security of Notion2WP seriously. If you have discovered a security v
 - Restrict file permissions appropriately
 - Use secure hosting environment
 
-## Security Features in Notion2WP
+## Security Features in Sync Content From Notion
 
 ### Current Security Measures
 
@@ -147,9 +147,9 @@ For security concerns that don't qualify as vulnerabilities, you can:
 
 ## Recognition
 
-We appreciate security researchers who help keep Notion2WP secure. With your permission, we will:
+We appreciate security researchers who help keep Sync Content From Notion secure. With your permission, we will:
 - Credit you in the security advisory
 - List you in our security acknowledgments
 - Thank you in the release notes
 
-Thank you for helping keep Notion2WP and our users safe!
+Thank you for helping keep Sync Content From Notion and our users safe!

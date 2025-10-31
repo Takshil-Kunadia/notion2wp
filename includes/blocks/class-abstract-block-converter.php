@@ -2,10 +2,10 @@
 /**
  * Abstract Block Converter Base Class.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Blocks;
+namespace SyncContentFromNotion\Blocks;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -208,7 +208,7 @@ abstract class Abstract_Block_Converter implements Block_Converter_Interface {
 		 *
 		 * @param array $colors Associative array of Notion colors to WordPress colors.
 		 */
-		$colors = apply_filters( 'notion2wp_color_mappings', $default_colours );
+		$colors = apply_filters( 'sync_content_from_notion_color_mappings', $default_colours );
 
 		return $colors[ $color ] ?? $color;
 	}

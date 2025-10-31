@@ -6,7 +6,7 @@
 [![PHP](https://img.shields.io/badge/PHP-7.4+-purple.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/License-GPL--2.0-orange.svg)](LICENSE)
 
-Notion2WP connects your Notion workspace with WordPress, allowing you to import pages and databases as WordPress posts with automatic conversion to Gutenberg blocks.
+Sync Content From Notion connects your Notion workspace with WordPress, allowing you to import pages and databases as WordPress posts with automatic conversion to Gutenberg blocks.
 
 ---
 
@@ -30,9 +30,9 @@ Notion2WP connects your Notion workspace with WordPress, allowing you to import 
 
 ## Description
 
-Notion2WP bridges the gap between Notion's collaborative content creation and WordPress's powerful publishing platform. Content teams can now draft, review, and organize content in Notion, then import it directly into WordPress with a single click.
+Sync Content From Notion bridges the gap between Notion's collaborative content creation and WordPress's powerful publishing platform. Content teams can now draft, review, and organize content in Notion, then import it directly into WordPress with a single click.
 
-**What makes Notion2WP special:**
+**What makes Sync Content From Notion special:**
 
 - **No manual copying** - Import entire pages and databases directly from your Notion workspace
 - **Smart conversion** - Notion blocks are automatically converted to equivalent Gutenberg blocks
@@ -49,7 +49,7 @@ Notion2WP bridges the gap between Notion's collaborative content creation and Wo
 
 ## Requirements
 
-Before installing Notion2WP, ensure your environment meets these requirements:
+Before installing Sync Content From Notion, ensure your environment meets these requirements:
 
 ### WordPress Requirements
 - **WordPress Version:** 6.5 or higher
@@ -64,7 +64,7 @@ Before installing Notion2WP, ensure your environment meets these requirements:
 
 ## Getting Started
 
-Follow these steps to connect Notion2WP to your Notion workspace:
+Follow these steps to connect Sync Content From Notion to your Notion workspace:
 
 ### Step 1: Create a Notion Internal Integration
 
@@ -82,16 +82,16 @@ Follow these steps to connect Notion2WP to your Notion workspace:
 
 > **⚠️ Important:** Keep your integration token secure. Never share it publicly or commit it to version control.
 
-### Step 2: Connect Notion2WP
+### Step 2: Connect Sync Content From Notion
 
-1. In WordPress, navigate to **Notion2WP → Settings Tab**
+1. In WordPress, navigate to **Sync Content From Notion → Settings Tab**
 2. Paste your Integration Token
 3. Click **Connect to Notion**
 4. You should see a success message with connection details
 
 ### Step 3: Share Pages with Your Integration
 
-For Notion2WP to access your pages:
+For Sync Content From Notion to access your pages:
 
 1. Select the Notion page or database you want to import
 2. Click **Import** in right corner of that item's row.
@@ -124,7 +124,7 @@ Notion blocks are automatically converted to WordPress Gutenberg blocks:
 
 ### 👥 Role Management
 Administrators can control which user roles have access to:
-- View the Notion2WP menu
+- View the Sync Content From Notion menu
 - Import content from Notion
 
 ### 🔧 Developer Features
@@ -138,7 +138,7 @@ Administrators can control which user roles have access to:
 
 ### Notion API
 
-Notion2WP communicates with the Notion API to fetch your workspace content.
+Sync Content From Notion communicates with the Notion API to fetch your workspace content.
 
 **Service Details:**
 - **Service Name:** Notion API
@@ -167,7 +167,7 @@ Notion2WP communicates with the Notion API to fetch your workspace content.
 
 ## User Roles & Permissions
 
-### Custom Capability: `manage_notion2wp`
+### Custom Capability: `manage_sync_content_from_notion`
 
 The plugin introduces a custom capability that controls access to import functionality.
 
@@ -177,7 +177,7 @@ The plugin introduces a custom capability that controls access to import functio
 
 **Managing Permissions:**
 
-Administrators can grant access to additional roles via **Notion2WP → Settings → Role Permissions**:
+Administrators can grant access to additional roles via **Sync Content From Notion → Settings → Role Permissions**:
 
 1. View all available WordPress roles(including custom roles)
 2. Check/uncheck roles to grant/revoke access
@@ -186,14 +186,14 @@ Administrators can grant access to additional roles via **Notion2WP → Settings
 
 **Technical Details:**
 - Settings and authentication remain admin-only (`manage_options` capability)
-- Import functionality uses `manage_notion2wp` capability
+- Import functionality uses `manage_sync_content_from_notion` capability
 - Capabilities are removed on plugin deactivation
 
 ---
 
 ## Supported Notion Blocks
 
-Notion2WP supports the following Notion block types with automatic conversion:
+Sync Content From Notion supports the following Notion block types with automatic conversion:
 
 | Notion Block Type | WordPress Block | Notes |
 |-------------------|-----------------|-------|
@@ -221,7 +221,7 @@ Notion2WP supports the following Notion block types with automatic conversion:
 
 ### Hooks & Filters
 
-Notion2WP provides extensive hooks for customization. See [`docs/HOOKS.md`](docs/HOOKS.md) for complete documentation.
+Sync Content From Notion provides extensive hooks for customization. See [`docs/HOOKS.md`](docs/HOOKS.md) for complete documentation.
 
 ---
 
@@ -263,7 +263,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 
-Notion2WP is licensed under the GPL v2 or later.
+Sync Content From Notion is licensed under the GPL v2 or later.
 
 ```
 This program is free software; you can redistribute it and/or modify

@@ -4,10 +4,10 @@
  *
  * Handles extraction and conversion of Notion page properties to WordPress format.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Importer;
+namespace SyncContentFromNotion\Importer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -37,7 +37,7 @@ class Page_Property_Handler {
 			return $this->extract_rich_text( $page['title'] );
 		}
 
-		return __( '(Untitled)', 'notion2wp' );
+		return __( '(Untitled)', 'sync-content-from-notion' );
 	}
 
 	/**

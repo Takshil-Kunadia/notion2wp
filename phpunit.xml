@@ -11,7 +11,7 @@
 		</exclude>
 	</coverage>
 	<testsuites>
-		<testsuite name="Notion2WP Test Suite">
+		<testsuite name="Sync Content From Notion Test Suite">
 			<directory suffix=".php">./tests/unit-tests</directory>
 		</testsuite>
 	</testsuites>

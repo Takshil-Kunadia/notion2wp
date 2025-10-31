@@ -24,8 +24,8 @@ const MESSAGE_TIMEOUT = 5000;
 
 const Connection = () => {
 	// Get localized data from WordPress
-	const apiUrl = window.notion2wpAdmin?.apiUrl || '/wp-json/notion2wp/v1/';
-	const nonce = window.notion2wpAdmin?.nonce || '';
+	const apiUrl = window.syncContentFromNotionAdmin?.apiUrl || '/wp-json/sync-content-from-notion/v1/';
+	const nonce = window.syncContentFromNotionAdmin?.nonce || '';
 
 	// Component state
 	const [ status, setStatus ] = useState( null );
@@ -92,16 +92,16 @@ const Connection = () => {
 			const data = await res.json();
 
 			if ( res.ok && data.success ) {
-				setMessage( data.message || __( 'Successfully connected to Notion!', 'notion2wp' ) );
+				setMessage( data.message || __( 'Successfully connected to Notion!', 'sync-content-from-notion' ) );
 				setIntegrationToken( '' );
 
 				// Refresh status
 				await fetchStatus();
 			} else {
-				setError( data.message || __( 'Failed to connect to Notion.', 'notion2wp' ) );
+				setError( data.message || __( 'Failed to connect to Notion.', 'sync-content-from-notion' ) );
 			}
 		} catch ( err ) {
-			setError( __( 'Connection error: ', 'notion2wp' ) + err.message );
+			setError( __( 'Connection error: ', 'sync-content-from-notion' ) + err.message );
 		} finally {
 			setLoading( false );
 			clearMessages();
@@ -126,14 +126,14 @@ const Connection = () => {
 			const data = await res.json();
 
 			if ( res.ok ) {
-				setMessage( __( 'Successfully disconnected from Notion.', 'notion2wp' ) );
+				setMessage( __( 'Successfully disconnected from Notion.', 'sync-content-from-notion' ) );
 				setStatus( null );
 				setIntegrationToken( '' );
 			} else {
-				setError( data.message || __( 'Failed to disconnect.', 'notion2wp' ) );
+				setError( data.message || __( 'Failed to disconnect.', 'sync-content-from-notion' ) );
 			}
 		} catch ( err ) {
-			setError( __( 'Disconnect error: ', 'notion2wp' ) + err.message );
+			setError( __( 'Disconnect error: ', 'sync-content-from-notion' ) + err.message );
 		} finally {
 			setLoading( false );
 			clearMessages();
@@ -155,7 +155,7 @@ const Connection = () => {
 					<Flex align="center" justify="center" style={ { padding: '2rem' } }>
 						<Spinner />
 						<span style={ { marginLeft: '1rem' } }>
-							{ __( 'Loading authentication status...', 'notion2wp' ) }
+							{ __( 'Loading authentication status...', 'sync-content-from-notion' ) }
 						</span>
 					</Flex>
 				</CardBody>
@@ -164,16 +164,16 @@ const Connection = () => {
 	}
 
 	return (
-		<div className="notion2wp-connection">
+		<div className="sync-content-from-notion-connection">
 			{ /* Disconnect Confirmation Dialog */ }
 			<ConfirmDialog
 				isOpen={ showDisconnectConfirm }
 				onConfirm={ handleDisconnect }
 				onCancel={ () => setShowDisconnectConfirm( false ) }
-				confirmButtonText={ __( 'Disconnect', 'notion2wp' ) }
-				cancelButtonText={ __( 'Cancel', 'notion2wp' ) }
+				confirmButtonText={ __( 'Disconnect', 'sync-content-from-notion' ) }
+				cancelButtonText={ __( 'Cancel', 'sync-content-from-notion' ) }
 			>
-				{ __( 'Are you sure you want to disconnect from Notion? You will need to reconnect to import more content.', 'notion2wp' ) }
+				{ __( 'Are you sure you want to disconnect from Notion? You will need to reconnect to import more content.', 'sync-content-from-notion' ) }
 			</ConfirmDialog>
 
 			{ /* Success/Error Messages */ }
@@ -207,7 +207,7 @@ const Connection = () => {
 					<CardHeader>
 						<Flex align="center">
 							<strong style={ { marginLeft: '0.5rem', color: '#46b450' } }>
-								{ __( 'Connected to Notion', 'notion2wp' ) }
+								{ __( 'Connected to Notion', 'sync-content-from-notion' ) }
 							</strong>
 						</Flex>
 					</CardHeader>
@@ -216,11 +216,11 @@ const Connection = () => {
 							<Flex direction="column" gap={ 3 }>
 								{ status.owner && (
 									<FlexItem>
-										<strong>{ __( 'Owner:', 'notion2wp' ) }</strong>
+										<strong>{ __( 'Owner:', 'sync-content-from-notion' ) }</strong>
 										<div style={ { marginTop: '0.25rem', color: '#50575e' } }>
 											{ status.owner.type === 'user'
 												? status.owner.user?.name || status.owner.user?.id
-												: __( 'Workspace', 'notion2wp' )
+												: __( 'Workspace', 'sync-content-from-notion' )
 											}
 										</div>
 									</FlexItem>
@@ -228,7 +228,7 @@ const Connection = () => {
 
 								{ status.connection_date && (
 									<FlexItem>
-										<strong>{ __( 'Connected:', 'notion2wp' ) }</strong>
+										<strong>{ __( 'Connected:', 'sync-content-from-notion' ) }</strong>
 										<div style={ { marginTop: '0.25rem', color: '#50575e' } }>
 											{ status.connection_date }
 										</div>
@@ -245,8 +245,8 @@ const Connection = () => {
 							disabled={ loading }
 						>
 							{ loading
-								? __( 'Disconnecting...', 'notion2wp' )
-								: __( 'Disconnect', 'notion2wp' )
+								? __( 'Disconnecting...', 'sync-content-from-notion' )
+								: __( 'Disconnect', 'sync-content-from-notion' )
 							}
 						</Button>
 					</CardBody>
@@ -258,13 +258,13 @@ const Connection = () => {
 						<CardHeader>
 							<Flex align="center">
 								<strong style={ { marginLeft: '0.5rem' } }>
-									{ __( 'Connect to Notion', 'notion2wp' ) }
+									{ __( 'Connect to Notion', 'sync-content-from-notion' ) }
 								</strong>
 							</Flex>
 						</CardHeader>
 						<CardBody>
 							<p style={ { marginTop: 0, color: '#50575e' } }>
-								{ __( 'Connect your Notion workspace using an Internal Integration. This allows the plugin to access pages you share with it.', 'notion2wp' ) }
+								{ __( 'Connect your Notion workspace using an Internal Integration. This allows the plugin to access pages you share with it.', 'sync-content-from-notion' ) }
 							</p>
 
 							{ /* Instructions */ }
@@ -276,49 +276,49 @@ const Connection = () => {
 								marginBottom: '1.5rem',
 							} }>
 								<h4 style={ { marginTop: 0 } }>
-									{ __( 'Setup Instructions:', 'notion2wp' ) }
+									{ __( 'Setup Instructions:', 'sync-content-from-notion' ) }
 								</h4>
 								<ol style={ { marginBottom: 0, paddingLeft: '1.5rem' } }>
 									<li>
-										{ __( 'Go to ', 'notion2wp' ) }
+										{ __( 'Go to ', 'sync-content-from-notion' ) }
 										<a
 											href="https://www.notion.so/my-integrations"
 											target="_blank"
 											rel="noopener noreferrer"
 										>
-											{ __( 'Notion > My Integrations', 'notion2wp' ) }
+											{ __( 'Notion > My Integrations', 'sync-content-from-notion' ) }
 										</a>
 									</li>
-									<li>{ __( 'Click "+ New integration"', 'notion2wp' ) }</li>
-									<li>{ __( 'Choose "Internal integration" as the type', 'notion2wp' ) }</li>
-									<li>{ __( 'Give your integration a name (e.g., "WordPress Import")', 'notion2wp' ) }</li>
+									<li>{ __( 'Click "+ New integration"', 'sync-content-from-notion' ) }</li>
+									<li>{ __( 'Choose "Internal integration" as the type', 'sync-content-from-notion' ) }</li>
+									<li>{ __( 'Give your integration a name (e.g., "WordPress Import")', 'sync-content-from-notion' ) }</li>
 									<li>
-										{ __( 'Under "Capabilities", enable:', 'notion2wp' ) }
+										{ __( 'Under "Capabilities", enable:', 'sync-content-from-notion' ) }
 										<ul style={ { marginTop: '0.5rem' } }>
-											<li>{ __( '✓ Read content', 'notion2wp' ) }</li>
-											<li>{ __( '✓ Read comments (optional)', 'notion2wp' ) }</li>
-											<li>{ __( '✓ Read user information without email (optional)', 'notion2wp' ) }</li>
+											<li>{ __( '✓ Read content', 'sync-content-from-notion' ) }</li>
+											<li>{ __( '✓ Read comments (optional)', 'sync-content-from-notion' ) }</li>
+											<li>{ __( '✓ Read user information without email (optional)', 'sync-content-from-notion' ) }</li>
 										</ul>
 									</li>
-									<li>{ __( 'Click "Submit" to create the integration', 'notion2wp' ) }</li>
+									<li>{ __( 'Click "Submit" to create the integration', 'sync-content-from-notion' ) }</li>
 									<li>
-										{ __( 'Copy the "Internal Integration Token" (starts with "secret_")', 'notion2wp' ) }
+										{ __( 'Copy the "Internal Integration Token" (starts with "secret_")', 'sync-content-from-notion' ) }
 									</li>
 									<li>
-										{ __( 'In Notion, share the pages/databases you want to import with your integration', 'notion2wp' ) }
+										{ __( 'In Notion, share the pages/databases you want to import with your integration', 'sync-content-from-notion' ) }
 									</li>
 								</ol>
 							</div>
 
 							{ /* Connection Form */ }
 							<TextControl
-								label={ __( 'Integration Token', 'notion2wp' ) }
+								label={ __( 'Integration Token', 'sync-content-from-notion' ) }
 								type="password"
 								value={ integrationToken }
 								onChange={ ( value ) => setIntegrationToken( value ) }
-								placeholder={ __( 'Paste your Notion Internal Integration Token here', 'notion2wp' ) }
+								placeholder={ __( 'Paste your Notion Internal Integration Token here', 'sync-content-from-notion' ) }
 								required
-								help={ __( 'Paste your Internal Integration Token from Notion. Keep this secret!', 'notion2wp' ) }
+								help={ __( 'Paste your Internal Integration Token from Notion. Keep this secret!', 'sync-content-from-notion' ) }
 								style={ { fontFamily: 'monospace' } }
 							/>
 
@@ -331,8 +331,8 @@ const Connection = () => {
 									onClick={ handleConnect }
 								>
 									{ loading
-										? __( 'Connecting...', 'notion2wp' )
-										: __( 'Connect to Notion', 'notion2wp' )
+										? __( 'Connecting...', 'sync-content-from-notion' )
+										: __( 'Connect to Notion', 'sync-content-from-notion' )
 									}
 								</Button>
 							</div>
@@ -343,26 +343,26 @@ const Connection = () => {
 					<Card style={ { marginTop: '1rem' } }>
 						<CardBody>
 							<h4 style={ { marginTop: 0 } }>
-								{ __( 'Need Help?', 'notion2wp' ) }
+								{ __( 'Need Help?', 'sync-content-from-notion' ) }
 							</h4>
 							<p style={ { marginBottom: 0, color: '#50575e' } }>
-								{ __( 'Learn more about ', 'notion2wp' ) }
+								{ __( 'Learn more about ', 'sync-content-from-notion' ) }
 								<a
 									href="https://developers.notion.com/docs/authorization#internal-integration-auth-flow-set-up"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									{ __( 'Notion Internal Integrations', 'notion2wp' ) }
+									{ __( 'Notion Internal Integrations', 'sync-content-from-notion' ) }
 								</a>
-								{ __( ' and how to ', 'notion2wp' ) }
+								{ __( ' and how to ', 'sync-content-from-notion' ) }
 								<a
 									href="https://www.notion.so/help/add-and-manage-connections-with-the-api#add-connections-to-pages"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									{ __( 'share pages with your integration', 'notion2wp' ) }
+									{ __( 'share pages with your integration', 'sync-content-from-notion' ) }
 								</a>
-								{ __( '.', 'notion2wp' ) }
+								{ __( '.', 'sync-content-from-notion' ) }
 							</p>
 						</CardBody>
 					</Card>

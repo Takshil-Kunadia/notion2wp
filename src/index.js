@@ -7,7 +7,7 @@ import App from './app/App';
 import './style.scss';
 
 // Admin app root - renders tabbed interface
-const adminRoot = document.getElementById( 'notion2wp-admin-root' );
+const adminRoot = document.getElementById( 'sync-content-from-notion-admin-root' );
 if ( adminRoot ) {
 	createRoot( adminRoot ).render( <App /> );
 }

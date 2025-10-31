@@ -2,10 +2,10 @@
 /**
  * Block Registry - Manages block converters.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Blocks;
+namespace SyncContentFromNotion\Blocks;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -130,7 +130,7 @@ class Block_Registry {
 				 * @param Block_Converter_Interface $converter The converter used.
 				 * @param array                     $context   Conversion context.
 				 */
-				return apply_filters( 'notion2wp_converted_block', $html, $block, $converter, $context );
+				return apply_filters( 'sync_content_from_notion_converted_block', $html, $block, $converter, $context );
 			}
 		}
 
@@ -147,7 +147,7 @@ class Block_Registry {
 		 * @param string $type   The block type.
 		 * @param array  $context The conversion context.
 		 */
-		return apply_filters( 'notion2wp_unsupported_block_output', '<!-- Unsupported Notion block type: ' . esc_html( $type ) . ' -->' . "\n", $block, $type, $context );
+		return apply_filters( 'sync_content_from_notion_unsupported_block_output', '<!-- Unsupported Notion block type: ' . esc_html( $type ) . ' -->' . "\n", $block, $type, $context );
 	}
 
 	/**
@@ -193,7 +193,7 @@ class Block_Registry {
 			 *
 			 * @param array $groupable_items Array of groupable item types.
 			 */
-			$groupable_items = apply_filters( 'notion2wp_groupable_list_items', [ 'bulleted_list_item', 'numbered_list_item', 'to_do' ] );
+			$groupable_items = apply_filters( 'sync_content_from_notion_groupable_list_items', [ 'bulleted_list_item', 'numbered_list_item', 'to_do' ] );
 
 			// Check if this is a groupable list item.
 			if ( in_array( $type, $groupable_items, true ) ) {

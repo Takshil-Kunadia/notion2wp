@@ -1,5 +1,5 @@
 {
-	"name": "takshil-kunadia/notion2wp",
+	"name": "takshil-kunadia/sync-content-from-notion",
 	"description": "Publish content directly from Notion to WordPress",
 	"type": "wordpress-plugin",
 	"authors": [

@@ -2,10 +2,10 @@
 /**
  * Block Converter Interface.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Blocks;
+namespace SyncContentFromNotion\Blocks;
 
 defined( 'ABSPATH' ) || exit;
 

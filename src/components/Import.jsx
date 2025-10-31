@@ -25,12 +25,12 @@ import {
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-import notionLogo from '../assets/notion2wp-logo.svg';
+import notionLogo from '../assets/sync-content-from-notion-logo.svg';
 
 const Import = () => {
 	// Get localized data from WordPress
-	const apiUrl = window.notion2wpAdmin?.apiUrl || '/wp-json/notion2wp/v1/';
-	const nonce = window.notion2wpAdmin?.nonce || '';
+	const apiUrl = window.syncContentFromNotionAdmin?.apiUrl || '/wp-json/sync-content-from-notion/v1/';
+	const nonce = window.syncContentFromNotionAdmin?.nonce || '';
 
 	// Placeholder image
 	const placeholderImage = notionLogo;
@@ -89,10 +89,10 @@ const Import = () => {
 			if ( res.ok ) {
 				setItems( data.items || [] );
 			} else {
-				setError( data.message || __( 'Failed to fetch items from Notion.', 'notion2wp' ) );
+				setError( data.message || __( 'Failed to fetch items from Notion.', 'sync-content-from-notion' ) );
 			}
 		} catch ( err ) {
-			setError( __( 'Error fetching items: ', 'notion2wp' ) + err.message );
+			setError( __( 'Error fetching items: ', 'sync-content-from-notion' ) + err.message );
 		}
 
 		setView( prevView => ( { ...prevView } ) );
@@ -106,7 +106,7 @@ const Import = () => {
 	 */
 	const handleImport = async ( selectedItems ) => {
 		if ( ! selectedItems || selectedItems.length === 0 ) {
-			setError( __( 'Please select at least one item to import.', 'notion2wp' ) );
+			setError( __( 'Please select at least one item to import.', 'sync-content-from-notion' ) );
 			return;
 		}
 
@@ -135,16 +135,16 @@ const Import = () => {
 			const data = await res.json();
 
 			if ( data.success.length > 0 ) {
-				setSuccess( data.message || __( 'Import completed successfully!', 'notion2wp' ) );
+				setSuccess( data.message || __( 'Import completed successfully!', 'sync-content-from-notion' ) );
 				setImportResults( data );
 			} else if ( data.errors && data.errors.length > 0 ) {
 				setImportResults( data );
-				setError( data.errors[0].message || __( 'Import failed.', 'notion2wp' ) );
+				setError( data.errors[0].message || __( 'Import failed.', 'sync-content-from-notion' ) );
 			} else {
-				setError( data.message || __( 'Import failed.', 'notion2wp' ) );
+				setError( data.message || __( 'Import failed.', 'sync-content-from-notion' ) );
 			}
 		} catch ( err ) {
-			setError( __( 'Import error: ', 'notion2wp' ) + err.message );
+			setError( __( 'Import error: ', 'sync-content-from-notion' ) + err.message );
 		}
 
 		setImporting( false );
@@ -168,7 +168,7 @@ const Import = () => {
 	const fields = useMemo( () => [
 		{
 			id: 'title',
-			label: __( 'Title', 'notion2wp' ),
+			label: __( 'Title', 'sync-content-from-notion' ),
 			enableGlobalSearch: true,
 			enableSorting: false,
 			isVisible: true,
@@ -176,7 +176,7 @@ const Import = () => {
 				return (
 					<Flex gap={ 2 } align="flex-start">
 						<FlexBlock>
-							<strong>{ item.title || __( 'Untitled', 'notion2wp' ) }</strong>
+							<strong>{ item.title || __( 'Untitled', 'sync-content-from-notion' ) }</strong>
 							{ item.archived && (
 								<span style={{
 									marginLeft: '8px',
@@ -184,7 +184,7 @@ const Import = () => {
 									fontSize: '12px',
 									fontStyle: 'italic',
 								}}>
-									({ __( 'Archived', 'notion2wp' ) })
+									({ __( 'Archived', 'sync-content-from-notion' ) })
 								</span>
 							) }
 							{ item.type === 'database' && item.description && (
@@ -203,24 +203,24 @@ const Import = () => {
 		},
 		{
 			id: 'media',
-			label: __( 'Media', 'notion2wp' ),
+			label: __( 'Media', 'sync-content-from-notion' ),
 			isVisible: false,
 			type: 'media',
 			render: ( { item } ) => {
 				return item.media ? (
-					<img src={ item.media } alt={ __( 'Media', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
+					<img src={ item.media } alt={ __( 'Media', 'sync-content-from-notion' ) } style={{ maxWidth: '100px' }} />
 				) : (
-					<img src={ placeholderImage } alt={ __( 'Site Logo', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
+					<img src={ placeholderImage } alt={ __( 'Site Logo', 'sync-content-from-notion' ) } style={{ maxWidth: '100px' }} />
 				);
 			},
 		},
 		{
 			id: 'type',
-			label: __( 'Type', 'notion2wp' ),
+			label: __( 'Type', 'sync-content-from-notion' ),
 			elements: [
-				{ value: 'page', label: __( 'Page', 'notion2wp' ) },
-				{ value: 'database', label: __( 'Database', 'notion2wp' ) },
-				{ value: 'data_source', label: __( 'Data Source', 'notion2wp' ) },
+				{ value: 'page', label: __( 'Page', 'sync-content-from-notion' ) },
+				{ value: 'database', label: __( 'Database', 'sync-content-from-notion' ) },
+				{ value: 'data_source', label: __( 'Data Source', 'sync-content-from-notion' ) },
 			],
 			isVisible: false,
 			filterBy: {
@@ -229,27 +229,27 @@ const Import = () => {
 			enableSorting: true,
 			render: ( { item } ) => {
 				return item.type === 'page'
-					? __( 'Page', 'notion2wp' )
+					? __( 'Page', 'sync-content-from-notion' )
 					: item.type === 'database'
-						? __( 'Database', 'notion2wp' )
-						: __( 'Data Source', 'notion2wp' );
+						? __( 'Database', 'sync-content-from-notion' )
+						: __( 'Data Source', 'sync-content-from-notion' );
 			},
 		},
 		{
 			id: 'properties',
-			label: __( 'Properties', 'notion2wp' ),
+			label: __( 'Properties', 'sync-content-from-notion' ),
 			isVisible: true,
 			enableSorting: false,
 			render: ( { item } ) => {
 				if ( item.type !== 'database' || ! item.properties ) {
 					return '-';
 				}
-				return `${ item.properties.length } ${ __( 'properties', 'notion2wp' ) }`;
+				return `${ item.properties.length } ${ __( 'properties', 'sync-content-from-notion' ) }`;
 			},
 		},
 		{
 			id: 'last_edited_time',
-			label: __( 'Last Edited', 'notion2wp' ),
+			label: __( 'Last Edited', 'sync-content-from-notion' ),
 			isVisible: true,
 			enableSorting: true,
 			render: ( { item } ) => {
@@ -265,7 +265,7 @@ const Import = () => {
 	const actions = useMemo( () => [
 		{
 			id: 'import',
-			label: __( 'Import to WordPress', 'notion2wp' ),
+			label: __( 'Import to WordPress', 'sync-content-from-notion' ),
 			isPrimary: true,
 			icon: 'download',
 			supportsBulk: true,
@@ -275,7 +275,7 @@ const Import = () => {
 		},
 		{
 			id: 'view_notion',
-			label: __( 'View in Notion', 'notion2wp' ),
+			label: __( 'View in Notion', 'sync-content-from-notion' ),
 			variant: 'secondary',
 			icon: external,
 			supportsBulk: false,
@@ -295,11 +295,11 @@ const Import = () => {
 	}, [ view ] );
 
 	return (
-		<div className="notion2wp-import">
+		<div className="sync-content-from-notion-import">
 			<Flex justify="space-between" align="flex-start" style={{ marginBottom: '1.5rem' }}>
 				<FlexBlock>
 					<p style={{ margin: 0, color: '#50575e', fontSize: '14px' }}>
-						{ __( 'Select pages, databases or data sources from your Notion workspace to import as WordPress posts.', 'notion2wp' ) }
+						{ __( 'Select pages, databases or data sources from your Notion workspace to import as WordPress posts.', 'sync-content-from-notion' ) }
 					</p>
 				</FlexBlock>
 				<FlexItem>
@@ -310,7 +310,7 @@ const Import = () => {
 						disabled={ loading }
 						icon={ loading ? undefined : 'update' }
 					>
-						{ loading ? __( 'Refreshing...', 'notion2wp' ) : __( 'Refresh List', 'notion2wp' ) }
+						{ loading ? __( 'Refreshing...', 'sync-content-from-notion' ) : __( 'Refresh List', 'sync-content-from-notion' ) }
 					</Button>
 				</FlexItem>
 			</Flex>
@@ -319,7 +319,7 @@ const Import = () => {
 			{ importing && (
 				<div style={{ marginBottom: '1.5rem' }}>
 					<Snackbar status="info">
-						{ __( 'Importing selected items. This may take a few moments...', 'notion2wp' ) }
+						{ __( 'Importing selected items. This may take a few moments...', 'sync-content-from-notion' ) }
 					</Snackbar>
 				</div>
 			) }
@@ -331,7 +331,7 @@ const Import = () => {
 						{ success && importResults.success && importResults.success.length > 0 && (
 							<div style={{ marginBottom: importResults.errors?.length > 0 ? '1.5rem' : 0 }}>
 								<h4 style={{ color: '#00a32a', marginTop: 0 }}>
-									✓ { __( 'Successfully Imported', 'notion2wp' ) } ({ importResults.success.length })
+									✓ { __( 'Successfully Imported', 'sync-content-from-notion' ) } ({ importResults.success.length })
 								</h4>
 								<ul style={{ marginBottom: 0 }}>
 									{ importResults.success.map( ( result ) => (
@@ -341,7 +341,7 @@ const Import = () => {
 												target="_blank"
 												rel="noreferrer"
 											>
-												{ __( 'Post ID:', 'notion2wp' ) } { result.post_id }
+												{ __( 'Post ID:', 'sync-content-from-notion' ) } { result.post_id }
 											</a>
 											{ ' ' }
 											<span style={{ color: '#757575', fontSize: '12px' }}>
@@ -356,7 +356,7 @@ const Import = () => {
 						{ error && importResults.errors && importResults.errors.length > 0 && (
 							<div>
 								<h4 style={{ color: '#d63638', marginTop: 0 }}>
-									✗ { __( 'Failed', 'notion2wp' ) } ({ importResults.errors.length })
+									✗ { __( 'Failed', 'sync-content-from-notion' ) } ({ importResults.errors.length })
 								</h4>
 								<ul style={{ marginBottom: 0 }}>
 									{ importResults.errors.map( ( result, idx ) => (
@@ -378,7 +378,7 @@ const Import = () => {
 						<Flex align="center" justify="center" style={{ padding: '3rem' }}>
 							<Spinner />
 							<span style={{ marginLeft: '1rem' }}>
-								{ __( 'Loading items from Notion...', 'notion2wp' ) }
+								{ __( 'Loading items from Notion...', 'sync-content-from-notion' ) }
 							</span>
 						</Flex>
 					</CardBody>
@@ -387,13 +387,13 @@ const Import = () => {
 				<Card>
 					<CardBody>
 						<div style={{ textAlign: 'center', padding: '2rem' }}>
-							<h3>{ __( 'No Items Found', 'notion2wp' ) }</h3>
+							<h3>{ __( 'No Items Found', 'sync-content-from-notion' ) }</h3>
 							<p style={{ color: '#757575' }}>
-								{ __( 'No pages, databases or data sources found in your Notion workspace.', 'notion2wp' ) }
+								{ __( 'No pages, databases or data sources found in your Notion workspace.', 'sync-content-from-notion' ) }
 								<br />
-								{ __( 'Make sure you\'re connected and have shared pages with your integration.', 'notion2wp' ) }
+								{ __( 'Make sure you\'re connected and have shared pages with your integration.', 'sync-content-from-notion' ) }
 								<br />
-								{ __( 'Switch to the settings tab above to establish a connection.', 'notion2wp' ) }
+								{ __( 'Switch to the settings tab above to establish a connection.', 'sync-content-from-notion' ) }
 							</p>
 						</div>
 					</CardBody>

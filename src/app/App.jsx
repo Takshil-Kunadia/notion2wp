@@ -1,5 +1,5 @@
 /**
- * Notion2WP Admin Application
+ * Sync Content From Notion Admin Application
  *
  * Main admin interface with tabbed navigation for Settings and Import.
  * Uses WordPress TabPanel for seamless navigation between Auth and Import components.
@@ -19,12 +19,12 @@ import Settings from '../components/Settings';
 import Import from '../components/Import';
 
 const App = () => {
-	const isAdmin = window.notion2wpAdmin?.isAdmin || false;
+	const isAdmin = window.syncContentFromNotionAdmin?.isAdmin || false;
 
 	const tabs = [
 		{
 			name: 'import',
-			title: __( 'Import', 'notion2wp' ),
+			title: __( 'Import', 'sync-content-from-notion' ),
 			icon: download,
 			component: Import,
 		},
@@ -32,7 +32,7 @@ const App = () => {
 		...( isAdmin ? [
 			{
 				name: 'settings',
-				title: __( 'Settings', 'notion2wp' ),
+				title: __( 'Settings', 'sync-content-from-notion' ),
 				icon: settings,
 				component: Settings,
 			},
@@ -40,19 +40,19 @@ const App = () => {
 	];
 
 	return (
-		<div className="notion2wp-admin-app">
-			<div className="notion2wp-admin-app__header">
-				<h1>{ __( 'Notion2WP', 'notion2wp' ) }</h1>
+		<div className="sync-content-from-notion-admin-app">
+			<div className="sync-content-from-notion-admin-app__header">
+				<h1>{ __( 'Sync Content From Notion', 'sync-content-from-notion' ) }</h1>
 			</div>
 			<TabPanel
-				className="notion2wp-admin-app__tabs"
+				className="sync-content-from-notion-admin-app__tabs"
 				activeClass="is-active"
 				tabs={ tabs }
 			>
 				{ ( tab ) => {
 					const TabComponent = tab.component;
 					return (
-						<div className="notion2wp-admin-app__tab-content">
+						<div className="sync-content-from-notion-admin-app__tab-content">
 							<TabComponent />
 						</div>
 					);

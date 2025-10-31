@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Notion2WP plugin uses a modular block converter system to transform Notion blocks into WordPress Gutenberg blocks. This architecture provides flexibility, maintainability, and extensibility.
+The Sync Content From Notion plugin uses a modular block converter system to transform Notion blocks into WordPress Gutenberg blocks. This architecture provides flexibility, maintainability, and extensibility.
 
 ## Architecture
 
@@ -105,9 +105,9 @@ Create a new file in `includes/blocks/converters/`:
 
 ```php
 <?php
-namespace Notion2WP\Blocks\Converters;
+namespace SyncContentFromNotion\Blocks\Converters;
 
-use Notion2WP\Blocks\Abstract_Block_Converter;
+use SyncContentFromNotion\Blocks\Abstract_Block_Converter;
 
 defined( 'ABSPATH' ) || exit;
 

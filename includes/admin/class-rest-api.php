@@ -1,18 +1,18 @@
 <?php
 /**
- * Notion2WP REST API endpoints.
+ * Sync Content From Notion REST API endpoints.
  *
- * @package Notion2WP
+ * @package Sync Content From Notion
  */
 
-namespace Notion2WP\Admin;
+namespace SyncContentFromNotion\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use Notion2WP\Admin\Settings;
-use Notion2WP\Auth\Auth;
-use Notion2WP\Importer\Importer_Controller;
-use Notion2WP\Admin\Capabilities;
+use SyncContentFromNotion\Admin\Settings;
+use SyncContentFromNotion\Auth\Auth;
+use SyncContentFromNotion\Importer\Importer_Controller;
+use SyncContentFromNotion\Admin\Capabilities;
 use WP_REST_Response;
 use WP_REST_Server;
 use WP_REST_Request;
@@ -25,7 +25,7 @@ class Rest_API {
 	/**
 	 * API namespace.
 	 */
-	const NAMESPACE = 'notion2wp/v1';
+	const NAMESPACE = 'sync-content-from-notion/v1';
 
 	/**
 	 * Initialize REST API endpoints.
@@ -131,7 +131,7 @@ class Rest_API {
 			]
 		);
 
-		// Import endpoints - Any user with manage_notion2wp capability.
+		// Import endpoints - Any user with manage_sync_content_from_notion capability.
 		register_rest_route(
 			self::NAMESPACE,
 			'/import/items',
@@ -229,7 +229,7 @@ class Rest_API {
 		return new WP_REST_Response(
 			[
 				'success' => true,
-				'message' => __( 'Successfully connected to Notion!', 'notion2wp' ),
+				'message' => __( 'Successfully connected to Notion!', 'sync-content-from-notion' ),
 			],
 			200
 		);
@@ -247,13 +247,13 @@ class Rest_API {
 
 		if ( $result ) {
 			return new WP_REST_Response(
-				[ 'message' => __( 'Successfully disconnected from Notion.', 'notion2wp' ) ],
+				[ 'message' => __( 'Successfully disconnected from Notion.', 'sync-content-from-notion' ) ],
 				200
 			);
 		}
 
 		return new WP_REST_Response(
-			[ 'message' => __( 'Failed to disconnect from Notion.', 'notion2wp' ) ],
+			[ 'message' => __( 'Failed to disconnect from Notion.', 'sync-content-from-notion' ) ],
 			500
 		);
 	}
@@ -304,13 +304,13 @@ class Rest_API {
 
 		if ( $updated ) {
 			return new WP_REST_Response(
-				[ 'message' => __( 'Settings updated successfully.', 'notion2wp' ) ],
+				[ 'message' => __( 'Settings updated successfully.', 'sync-content-from-notion' ) ],
 				200
 			);
 		}
 
 		return new WP_REST_Response(
-			[ 'message' => __( 'Failed to update settings.', 'notion2wp' ) ],
+			[ 'message' => __( 'Failed to update settings.', 'sync-content-from-notion' ) ],
 			500
 		);
 	}
@@ -366,7 +366,7 @@ class Rest_API {
 				'errors'  => $results['errors'],
 				'message' => sprintf(
 					/* translators: %1$d: number of successful imports, %2$d: number of failed imports */
-					__( 'Import complete. Success: %1$d, Failed: %2$d', 'notion2wp' ),
+					__( 'Import complete. Success: %1$d, Failed: %2$d', 'sync-content-from-notion' ),
 					count( $results['success'] ),
 					count( $results['errors'] )
 				),
@@ -469,7 +469,7 @@ class Rest_API {
 			return new WP_REST_Response(
 				[
 					'success'       => true,
-					'message'       => __( 'Role capabilities updated successfully.', 'notion2wp' ),
+					'message'       => __( 'Role capabilities updated successfully.', 'sync-content-from-notion' ),
 					'allowed_roles' => Capabilities::get_roles_with_capability(),
 				],
 				200
@@ -477,7 +477,7 @@ class Rest_API {
 		}
 
 		return new WP_REST_Response(
-			[ 'message' => __( 'Failed to update role capabilities.', 'notion2wp' ) ],
+			[ 'message' => __( 'Failed to update role capabilities.', 'sync-content-from-notion' ) ],
 			500
 		);
 	}
