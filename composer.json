@@ -15,7 +15,7 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
 		"phpcompatibility/phpcompatibility-wp": "*",
 		"yoast/phpunit-polyfills": "^4.0",
-		"phpunit/phpunit": "^9.5",
+		"phpunit/phpunit": "^9.6",
 		"captainhook/captainhook": "^5.25"
 	},
 	"autoload": {
@@ -24,6 +24,7 @@
 		]
 	},
 	"scripts": {
+		"test": "phpunit --configuration phpunit.xml",
 		"post-install-cmd": [
 			"vendor/bin/cghooks add --no-lock"
 		],
