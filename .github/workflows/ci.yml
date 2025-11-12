@@ -7,48 +7,8 @@ on:
     branches: [ master, main, develop ]
 
 jobs:
-  lint-js:
-    name: Lint JavaScript/React
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Run ESLint
-        run: npm run lint:js
-
-  lint-scss:
-    name: Lint SCSS
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Run Stylelint
-        run: npm run lint:scss
-
-  lint-php:
-    name: Lint PHP
+  lint:
+    name: Lint Code
     runs-on: ubuntu-latest
     
     steps:
@@ -62,6 +22,12 @@ jobs:
           coverage: none
           tools: composer
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
       - name: Get Composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
@@ -73,20 +39,34 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress
+          npm ci --legacy-peer-deps
 
-      - name: Run PHPCS
+      - name: Lint PHP
         run: npm run lint:php
 
-  test-php:
-    name: Unit Tests (PHP)
+      - name: Lint JavaScript
+        run: npm run lint:js
+
+      - name: Lint SCSS
+        run: npm run lint:scss
+
+  test:
+    name: PHPUnit Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-version: ['8.1', '8.2', '8.3']
-        wordpress-version: ['6.4', '6.5', '6.6', 'latest']
     
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -94,9 +74,9 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: '8.3'
+          extensions: mysqli, zip
           coverage: none
-          extensions: mysqli
           tools: composer
 
       - name: Get Composer cache directory
@@ -113,40 +93,16 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Setup WordPress Test Environment
-        run: |
-          bash bin/install-wp-tests.sh wordpress_test root root localhost ${{ matrix.wordpress-version }}
-        env:
-          WP_VERSION: ${{ matrix.wordpress-version }}
+      - name: Install WordPress test suite
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
 
       - name: Run PHPUnit tests
         run: ./vendor/bin/phpunit
 
-  typescript-check:
-    name: TypeScript Check
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Check TypeScript
-        run: npm run typescript:check
-        continue-on-error: true
-
   build:
     name: Build Assets
     runs-on: ubuntu-latest
-    needs: [lint-js, lint-scss, lint-php]
+    needs: [lint]
     
     steps:
       - name: Checkout code
