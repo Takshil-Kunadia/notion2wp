@@ -42,6 +42,4 @@
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/dist/*</exclude-pattern>
-	<exclude-pattern>*/release/*</exclude-pattern>
-	<exclude-pattern>index.php</exclude-pattern>
 </ruleset>

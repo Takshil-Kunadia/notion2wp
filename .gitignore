@@ -38,3 +38,4 @@ release
 tsconfig.tsbuildinfo
 .eslintcache
 .stylelintcache
+.phpunit.result.cache
