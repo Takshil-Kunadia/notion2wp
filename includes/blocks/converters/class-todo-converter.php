@@ -9,6 +9,7 @@ namespace Notion2WP\Blocks\Converters;
 
 use Notion2WP\Blocks\Abstract_Block_Converter;
 use Notion2WP\Blocks\Block_Registry;
+use Notion2WP\Blocks\Block_Types;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,7 +27,7 @@ class Todo_Converter extends Abstract_Block_Converter {
 	public function supports( $block ) {
 		$type = $block['type'] ?? '';
 		// Support both grouped to-do lists and individual items.
-		return 'to_do' === $type;
+		return Block_Types::TO_DO === $type;
 	}
 
 	/**
@@ -166,7 +167,7 @@ class Todo_Converter extends Abstract_Block_Converter {
 			$type  = $child['type'] ?? '';
 
 			// Check if this is a to-do item or list item.
-			if ( in_array( $type, [ 'to_do', 'bulleted_list_item', 'numbered_list_item' ], true ) ) {
+			if ( in_array( $type, Block_Types::get_groupable_list_types(), true ) ) {
 				// Collect consecutive items of the same type.
 				$list_items = [ $child ];
 				$i++;

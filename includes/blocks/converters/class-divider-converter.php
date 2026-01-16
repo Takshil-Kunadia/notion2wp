@@ -8,6 +8,7 @@
 namespace Notion2WP\Blocks\Converters;
 
 use Notion2WP\Blocks\Abstract_Block_Converter;
+use Notion2WP\Blocks\Block_Types;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +24,7 @@ class Divider_Converter extends Abstract_Block_Converter {
 	 * @return bool
 	 */
 	public function supports( $block ) {
-		return isset( $block['type'] ) && 'divider' === $block['type'];
+		return isset( $block['type'] ) && Block_Types::DIVIDER === $block['type'];
 	}
 
 	/**

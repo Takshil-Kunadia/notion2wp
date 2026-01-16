@@ -8,6 +8,7 @@
 namespace Notion2WP\Blocks\Converters;
 
 use Notion2WP\Blocks\Abstract_Block_Converter;
+use Notion2WP\Blocks\Block_Types;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +24,7 @@ class Toggle_Converter extends Abstract_Block_Converter {
 	 * @return bool
 	 */
 	public function supports( $block ) {
-		return isset( $block['type'] ) && 'toggle' === $block['type'];
+		return isset( $block['type'] ) && Block_Types::TOGGLE === $block['type'];
 	}
 
 	/**
@@ -34,7 +35,7 @@ class Toggle_Converter extends Abstract_Block_Converter {
 	 * @return string Gutenberg block HTML.
 	 */
 	public function convert( $block, $context = [] ) {
-		$block_data = $block['toggle'] ?? [];
+		$block_data = $block[ Block_Types::TOGGLE ] ?? [];
 		$rich_text  = $block_data['rich_text'] ?? [];
 		$summary    = $this->rich_text_to_html( $rich_text );
 

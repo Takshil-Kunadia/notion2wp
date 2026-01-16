@@ -9,6 +9,7 @@ namespace Notion2WP\Blocks\Converters;
 
 use Notion2WP\Blocks\Abstract_Block_Converter;
 use Notion2WP\Blocks\Block_Registry;
+use Notion2WP\Blocks\Block_Types;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,7 +27,7 @@ class List_Converter extends Abstract_Block_Converter {
 	public function supports( $block ) {
 		$type = $block['type'] ?? '';
 		// Support both grouped lists (top-level) and individual items.
-		return in_array( $type, [ 'bulleted_list_item', 'numbered_list_item' ], true );
+		return in_array( $type, Block_Types::get_list_types(), true );
 	}
 
 	/**
@@ -68,7 +69,7 @@ class List_Converter extends Abstract_Block_Converter {
 			return '';
 		}
 
-		$is_ordered = 'numbered_list_item' === $type;
+		$is_ordered = Block_Types::NUMBERED_LIST_ITEM === $type;
 		$list_tag   = $is_ordered ? 'ol' : 'ul';
 		$block_name = 'core/list';
 
@@ -120,7 +121,7 @@ class List_Converter extends Abstract_Block_Converter {
 	 */
 	private function convert_single_item( $block, $context = [], $is_nested = false ) {
 		$type      = $block['type'] ?? '';
-		$is_ordered = 'numbered_list_item' === $type;
+		$is_ordered = Block_Types::NUMBERED_LIST_ITEM === $type;
 		$list_tag  = $is_ordered ? 'ol' : 'ul';
 
 		$html = '<' . $list_tag . '>';
@@ -207,7 +208,7 @@ class List_Converter extends Abstract_Block_Converter {
 			$type  = $child['type'] ?? '';
 
 			// Check if this is a list item.
-			if ( in_array( $type, [ 'bulleted_list_item', 'numbered_list_item' ], true ) ) {
+			if ( in_array( $type, Block_Types::get_list_types(), true ) ) {
 				// Collect consecutive list items of the same type.
 				$list_items = [ $child ];
 				$i++;

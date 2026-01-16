@@ -8,6 +8,7 @@
 namespace Notion2WP\Blocks\Converters;
 
 use Notion2WP\Blocks\Abstract_Block_Converter;
+use Notion2WP\Blocks\Block_Types;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +24,7 @@ class Callout_Converter extends Abstract_Block_Converter {
 	 * @return bool
 	 */
 	public function supports( $block ) {
-		return isset( $block['type'] ) && 'callout' === $block['type'];
+		return isset( $block['type'] ) && Block_Types::CALLOUT === $block['type'];
 	}
 
 	/**
@@ -34,7 +35,7 @@ class Callout_Converter extends Abstract_Block_Converter {
 	 * @return string Gutenberg block HTML.
 	 */
 	public function convert( $block, $context = [] ) {
-		$block_data = $block['callout'] ?? [];
+		$block_data = $block[ Block_Types::CALLOUT ] ?? [];
 		$rich_text  = $block_data['rich_text'] ?? [];
 		$icon       = $block_data['icon'] ?? [];
 		$color      = $block_data['color'] ?? 'default';
