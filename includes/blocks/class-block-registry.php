@@ -10,6 +10,11 @@ namespace Notion2WP\Blocks;
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Load block types.
+ */
+require_once __DIR__ . '/class-block-types.php';
+
+/**
  * Block Registry class.
  * Registers and manages all block converters.
  */
@@ -193,7 +198,7 @@ class Block_Registry {
 			 *
 			 * @param array $groupable_items Array of groupable item types.
 			 */
-			$groupable_items = apply_filters( 'notion2wp_groupable_list_items', [ 'bulleted_list_item', 'numbered_list_item', 'to_do' ] );
+			$groupable_items = apply_filters( 'notion2wp_groupable_list_items', Block_Types::get_groupable_list_types() );
 
 			// Check if this is a groupable list item.
 			if ( in_array( $type, $groupable_items, true ) ) {

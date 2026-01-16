@@ -8,6 +8,7 @@
 namespace Notion2WP\Blocks\Converters;
 
 use Notion2WP\Blocks\Abstract_Block_Converter;
+use Notion2WP\Blocks\Block_Types;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,7 +25,7 @@ class Table_Converter extends Abstract_Block_Converter {
 	 */
 	public function supports( $block ) {
 		$type = $block['type'] ?? '';
-		return in_array( $type, [ 'table', 'table_row' ], true );
+		return in_array( $type, [ Block_Types::TABLE, Block_Types::TABLE_ROW ], true );
 	}
 
 	/**
@@ -35,12 +36,12 @@ class Table_Converter extends Abstract_Block_Converter {
 	 * @return string Gutenberg block HTML.
 	 */
 	public function convert( $block, $context = [] ) {
-		if ( 'table_row' === $block['type'] ) {
+		if ( Block_Types::TABLE_ROW === $block['type'] ) {
 			return $this->convert_table_row( $block );
 		}
 
 		// Table block - children will be table_row blocks.
-		$block_data = $block['table'] ?? [];
+		$block_data = $block[ Block_Types::TABLE ] ?? [];
 		$has_header = $block_data['has_column_header'] ?? false;
 
 		$html = '<figure class="wp-block-table"><table>';
@@ -74,7 +75,7 @@ class Table_Converter extends Abstract_Block_Converter {
 	 * @return string
 	 */
 	private function convert_table_row( $row, $is_header = false ) {
-		$row_data = $row['table_row'] ?? [];
+		$row_data = $row[ Block_Types::TABLE_ROW ] ?? [];
 		$cells    = $row_data['cells'] ?? [];
 		$tag      = $is_header ? 'th' : 'td';
 

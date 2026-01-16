@@ -8,6 +8,7 @@
 namespace Notion2WP\Blocks\Converters;
 
 use Notion2WP\Blocks\Abstract_Block_Converter;
+use Notion2WP\Blocks\Block_Types;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,7 +25,7 @@ class Heading_Converter extends Abstract_Block_Converter {
 	 */
 	public function supports( $block ) {
 		$type = $block['type'] ?? '';
-		return in_array( $type, [ 'heading_1', 'heading_2', 'heading_3' ], true );
+		return in_array( $type, [ Block_Types::HEADING_1, Block_Types::HEADING_2, Block_Types::HEADING_3 ], true );
 	}
 
 	/**
