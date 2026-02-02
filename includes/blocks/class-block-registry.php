@@ -85,6 +85,7 @@ class Block_Registry {
 		require_once __DIR__ . '/converters/class-callout-converter.php';
 		require_once __DIR__ . '/converters/class-toggle-converter.php';
 		require_once __DIR__ . '/converters/class-todo-converter.php';
+		require_once __DIR__ . '/converters/class-column-converter.php';
 		require_once __DIR__ . '/converters/class-table-converter.php';
 		require_once __DIR__ . '/converters/class-bookmark-converter.php';
 		require_once __DIR__ . '/converters/class-embed-converter.php';
@@ -104,6 +105,7 @@ class Block_Registry {
 		$this->register( new Converters\Callout_Converter() );
 		$this->register( new Converters\Toggle_Converter() );
 		$this->register( new Converters\Todo_Converter() );
+		$this->register( new Converters\Column_Converter() );
 		$this->register( new Converters\Table_Converter() );
 		$this->register( new Converters\Bookmark_Converter() );
 		$this->register( new Converters\Embed_Converter() );
