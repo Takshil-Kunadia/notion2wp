@@ -217,6 +217,7 @@ Notion2WP supports the following Notion block types with automatic conversion:
 | Bookmark | `core/embed` | Rich link previews |
 | Divider | `core/separator` | Horizontal rules |
 | Table | `core/table` | Table structure preserved |
+| Column | `core/columns` | Multi-column layouts |
 
 ---
 
