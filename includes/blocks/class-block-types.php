@@ -37,6 +37,12 @@ class Block_Types {
 	const EMBED    = 'embed';
 
 	/**
+	 * Layout block types.
+	 */
+	const COLUMN_LIST = 'column_list';
+	const COLUMN      = 'column';
+
+	/**
 	 * Other block types.
 	 */
 	const DIVIDER   = 'divider';

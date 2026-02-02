@@ -43,6 +43,7 @@ The Notion2WP plugin uses a modular block converter system to transform Notion b
 | callout | `Callout_Converter` | `core/group` |
 | toggle | `Toggle_Converter` | `core/details` |
 | to_do | `Todo_Converter` | `core/list` |
+| column_list | `Column_Converter` | `core/columns` |
 | table | `Table_Converter` | `core/table` |
 | bookmark | `Bookmark_Converter` | `core/embed` |
 | embed | `Embed_Converter` | `core/embed` |
