@@ -231,9 +231,10 @@ class Importer_Controller {
 
 		// Import each page from the database.
 		foreach ( $pages['results'] as $page ) {
-			$page_id = $page['id'] ?? '';
+			$page_id   = $page['id'] ?? '';
+			$page_type = $page['object'] ?? 'page';
 
-			if ( empty( $page_id ) ) {
+			if ( empty( $page_id ) || 'page' !== $page_type ) {
 				continue;
 			}
 
@@ -280,22 +281,47 @@ class Importer_Controller {
 
 		$results = [];
 
-		// Import each page from the data source.
-		foreach ( $pages['results'] as $page ) {
-			$page_id = $page['id'] ?? '';
+		// Import each item from the data source.
+		foreach ( $pages['results'] as $item ) {
+			$item_id   = $item['id'] ?? '';
+			$item_type = $item['object'] ?? '';
 
-			if ( empty( $page_id ) ) {
+			if ( empty( $item_id ) ) {
 				continue;
 			}
 
-			$result = $this->import_page( $page_id );
+			// Databases and data sources nested inside a data source need
+			// their own import path — they are not pages.
+			if ( 'database' === $item_type ) {
+				$db_results = $this->import_database( $item_id );
+				if ( is_array( $db_results ) ) {
+					$results = array_merge( $results, $db_results );
+				} elseif ( is_wp_error( $db_results ) ) {
+					$db_results->add_data( $item_id, 'page_id' );
+					$results[] = $db_results;
+				}
+				continue;
+			}
+
+			if ( 'data_source' === $item_type ) {
+				$ds_results = $this->import_data_source( $item_id );
+				if ( is_array( $ds_results ) ) {
+					$results = array_merge( $results, $ds_results );
+				} elseif ( is_wp_error( $ds_results ) ) {
+					$ds_results->add_data( $item_id, 'page_id' );
+					$results[] = $ds_results;
+				}
+				continue;
+			}
+
+			$result = $this->import_page( $item_id );
 
 			if ( is_wp_error( $result ) ) {
-				$result->add_data( $page_id, 'page_id' );
+				$result->add_data( $item_id, 'page_id' );
 				$results[] = $result;
 			} else {
 				$results[] = [
-					'page_id' => $page_id,
+					'page_id' => $item_id,
 					'post_id' => $result,
 				];
 			}

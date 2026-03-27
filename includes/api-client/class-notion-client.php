@@ -186,7 +186,7 @@ class Notion_Client {
 			$body['start_cursor'] = $start_cursor;
 		}
 
-		return $this->make_request( '/databases/' . $database_id . '/query', 'GET', $body );
+		return $this->make_request( '/databases/' . $database_id . '/query', 'POST', $body );
 	}
 
 	/**
