@@ -35,34 +35,40 @@ class File_Converter extends Abstract_Block_Converter {
 	 * @return string Gutenberg block HTML.
 	 */
 	public function convert( $block, $context = [] ) {
-		$block_data = $block[ Block_Types::FILE ] ?? [];
-		$type       = $block_data['type'] ?? '';
-		$url        = '';
-		$name       = $block_data['name'] ?? 'file';
+		$block_data  = $block[ Block_Types::FILE ] ?? [];
+		$type        = $block_data['type'] ?? '';
+		$url         = '';
+		$expiry_time = null;
+		$name        = $block_data['name'] ?? 'file';
 
 		if ( 'external' === $type && ! empty( $block_data['external']['url'] ) ) {
 			$url = $block_data['external']['url'];
 		} elseif ( 'file' === $type && ! empty( $block_data['file']['url'] ) ) {
-			$url = $block_data['file']['url'];
+			$url         = $block_data['file']['url'];
+			$expiry_time = $block_data['file']['expiry_time'] ?? null;
 		}
 
 		if ( empty( $url ) ) {
 			return '';
 		}
 
+		$url = $this->resolve_media_url( $url, $type, Block_Types::FILE, $expiry_time );
+
+		$safe_url = $this->escape_media_url( $url );
+
 		$html = '<div class="wp-block-file">';
 		$html .= sprintf(
 			'<a href="%s">%s</a>',
-			$url,
+			$safe_url,
 			esc_html( $name )
 		);
 		$html .= sprintf(
 			'<a href="%s" class="wp-block-file__button wp-element-button" download>%s</a>',
-			rawurlencode( $url ),
+			$safe_url,
 			__( 'Download', 'notion2wp' )
 		);
 		$html .= '</div>';
 
-		return $this->wrap_gutenberg_block( 'core/file', $html, [ 'href' => rawurlencode( $url ) ] );
+		return $this->wrap_gutenberg_block( 'core/file', $html, [ 'href' => $url ] );
 	}
 }

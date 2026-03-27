@@ -7,6 +7,8 @@
 
 namespace Notion2WP\Blocks;
 
+use Notion2WP\Media\Media_Collector;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -171,6 +173,68 @@ abstract class Abstract_Block_Converter implements Block_Converter_Interface {
 	 */
 	protected function wrap_html_block( $html ) {
 		return $this->wrap_gutenberg_block( 'core/html', $html );
+	}
+
+	/**
+	 * Check if a string is a media placeholder token.
+	 *
+	 * @param string $url The string to check.
+	 * @return bool
+	 */
+	protected function is_media_placeholder( $url ) {
+		return 0 === strpos( $url, '{{notion_media:' );
+	}
+
+	/**
+	 * Escape a URL for use in HTML attributes, passing placeholder tokens through.
+	 *
+	 * Placeholder tokens ({{notion_media:...}}) are not valid URLs and would be
+	 * stripped by esc_url(). They are resolved to real URLs after post creation.
+	 *
+	 * @param string $url The URL or placeholder token.
+	 * @return string The escaped URL or raw placeholder token.
+	 */
+	protected function escape_media_url( $url ) {
+		return $this->is_media_placeholder( $url ) ? $url : esc_url( $url );
+	}
+
+	/**
+	 * Resolve a media URL for download.
+	 *
+	 * Uses the presence of expiry_time from the Notion API response as the
+	 * authoritative signal that a URL is temporary and must be downloaded.
+	 * Falls back to type "file" check if expiry_time is absent (defensive).
+	 *
+	 * @param string      $url         The media URL.
+	 * @param string      $file_type   The Notion file type ('external', 'file', 'file_upload').
+	 * @param string      $block_type  The block type constant (e.g., Block_Types::IMAGE).
+	 * @param string|null $expiry_time The expiry_time from the Notion file object, or null.
+	 * @return string The original URL or a placeholder token.
+	 */
+	protected function resolve_media_url( $url, $file_type, $block_type, $expiry_time = null ) {
+		// Primary signal: expiry_time means the URL is signed and will expire.
+		// Fallback: type "file" always has expiry_time in practice, but handle the defensive case where it might be absent.
+		$is_expiring = ( null !== $expiry_time ) || ( 'file' === $file_type );
+
+		if ( ! $is_expiring ) {
+			return $url;
+		}
+
+		/**
+		 * Filters whether a specific media URL should be downloaded.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param bool   $should_download Whether to download this URL.
+		 * @param string $url             The media URL.
+		 * @param string $file_type       The Notion file type.
+		 * @param string $block_type      The block type.
+		 */
+		if ( ! apply_filters( 'notion2wp_should_download_media', true, $url, $file_type, $block_type ) ) {
+			return $url;
+		}
+
+		return Media_Collector::get_instance()->register( $url, $block_type );
 	}
 
 	/**

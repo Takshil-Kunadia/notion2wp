@@ -39,21 +39,26 @@ class Image_Converter extends Abstract_Block_Converter {
 		$type       = $block_data['type'] ?? '';
 		$url        = '';
 
+		$expiry_time = null;
+
 		if ( 'external' === $type && ! empty( $block_data['external']['url'] ) ) {
 			$url = $block_data['external']['url'];
 		} elseif ( 'file' === $type && ! empty( $block_data['file']['url'] ) ) {
-			$url = $block_data['file']['url'];
+			$url         = $block_data['file']['url'];
+			$expiry_time = $block_data['file']['expiry_time'] ?? null;
 		}
 
 		if ( empty( $url ) ) {
 			return '';
 		}
 
+		$url = $this->resolve_media_url( $url, $type, Block_Types::IMAGE, $expiry_time );
+
 		$caption = $this->rich_text_to_html( $block_data['caption'] ?? [] );
 		$alt     = $this->extract_plain_text( $block_data['caption'] ?? [] );
 
 		$html = '<figure class="wp-block-image">';
-		$html .= '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $alt ) . '"/>';
+		$html .= '<img src="' . $this->escape_media_url( $url ) . '" alt="' . esc_attr( $alt ) . '"/>';
 		
 		if ( ! empty( $caption ) ) {
 			$html .= '<figcaption class="wp-element-caption">' . $caption . '</figcaption>';

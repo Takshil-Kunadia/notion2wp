@@ -10,6 +10,8 @@ namespace Notion2WP\Importer;
 use Notion2WP\Adapter\Notion_Client;
 use Notion2WP\Admin\Settings;
 use Notion2WP\Blocks\Block_Registry;
+use Notion2WP\Media\Media_Collector;
+use Notion2WP\Media\Media_Handler;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,13 +35,21 @@ class Importer_Controller {
 	private $property_handler;
 
 	/**
+	 * Media handler for downloading and resolving Notion-hosted media.
+	 *
+	 * @var Media_Handler
+	 */
+	private $media_handler;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Notion_Client $notion_client Notion API client instance.
 	 */
 	public function __construct( $notion_client = null ) {
 		$this->notion_client    = $notion_client ?? new Notion_Client();
-		$this->property_handler = new Page_Property_Handler();
+		$this->media_handler    = new Media_Handler();
+		$this->property_handler = new Page_Property_Handler( $this->media_handler );
 	}
 
 	/**
@@ -336,6 +346,9 @@ class Importer_Controller {
 		 */
 		$blocks = apply_filters( 'notion2wp_page_blocks', $blocks, $page_id, $page );
 
+		// Reset the media collector for this page import.
+		Media_Collector::get_instance()->reset();
+
 		// Convert to WordPress post format.
 		$post_data = $this->convert_to_wordpress_post( $page, $blocks );
 
@@ -345,6 +358,28 @@ class Importer_Controller {
 		if ( is_wp_error( $post_id ) ) {
 			return $post_id;
 		}
+
+		// Resolve media placeholders: download Notion-hosted media to WP Media Library.
+		$manifest      = Media_Collector::get_instance()->get_manifest();
+		$final_content = $post_data['post_content'];
+
+		if ( ! empty( $manifest ) ) {
+			$final_content = $this->media_handler->resolve_media_for_post(
+				$post_id,
+				$final_content,
+				$manifest
+			);
+		}
+
+		$final_content = wp_kses_post( $final_content );
+
+		wp_update_post(
+			[
+				'ID'           => $post_id,
+				'post_content' => $final_content,
+			],
+			true
+		);
 
 		// Handle cover image as featured image.
 		if ( ! empty( $page['cover'] ) ) {
@@ -394,7 +429,7 @@ class Importer_Controller {
 
 		$post_data = [
 			'post_title'   => sanitize_text_field( $title ),
-			'post_content' => wp_kses_post( $content ),
+			'post_content' => $content,
 			'post_status'  => $settings['default_post_status'] ?? 'draft',
 			'post_type'    => $settings['default_post_type'] ?? 'post',
 			'post_author'  => $settings['default_author_id'] ?? get_current_user_id(),

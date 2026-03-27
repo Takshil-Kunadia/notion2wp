@@ -35,19 +35,23 @@ class Video_Converter extends Abstract_Block_Converter {
 	 * @return string Gutenberg block HTML.
 	 */
 	public function convert( $block, $context = [] ) {
-		$block_data = $block[ Block_Types::VIDEO ] ?? [];
-		$type       = $block_data['type'] ?? '';
-		$url        = '';
+		$block_data  = $block[ Block_Types::VIDEO ] ?? [];
+		$type        = $block_data['type'] ?? '';
+		$url         = '';
+		$expiry_time = null;
 
 		if ( 'external' === $type && ! empty( $block_data['external']['url'] ) ) {
 			$url = $block_data['external']['url'];
 		} elseif ( 'file' === $type && ! empty( $block_data['file']['url'] ) ) {
-			$url = $block_data['file']['url'];
+			$url         = $block_data['file']['url'];
+			$expiry_time = $block_data['file']['expiry_time'] ?? null;
 		}
 
 		if ( empty( $url ) ) {
 			return '';
 		}
+
+		$url = $this->resolve_media_url( $url, $type, Block_Types::VIDEO, $expiry_time );
 
 		// Check if it's a YouTube/Vimeo URL - use embed.
 		if ( preg_match( '/(youtube\.com|youtu\.be|vimeo\.com)/i', $url ) ) {
@@ -58,7 +62,7 @@ class Video_Converter extends Abstract_Block_Converter {
 		}
 
 		// Regular video file.
-		$html = '<figure class="wp-block-video"><video controls src="' . esc_url( $url ) . '"></video></figure>';
+		$html = '<figure class="wp-block-video"><video controls src="' . $this->escape_media_url( $url ) . '"></video></figure>';
 		return $this->wrap_gutenberg_block( 'core/video', $html, [ 'src' => $url ] );
 	}
 }

@@ -28,6 +28,8 @@ class WP_Notion {
 		require_once NOTION2WP_ABSPATH . 'includes/admin/class-capabilities.php';
 		require_once NOTION2WP_ABSPATH . 'includes/auth/class-auth.php';
 		require_once NOTION2WP_ABSPATH . 'includes/api-client/class-notion-client.php';
+		require_once NOTION2WP_ABSPATH . 'includes/media/class-media-collector.php';
+		require_once NOTION2WP_ABSPATH . 'includes/media/class-media-handler.php';
 		require_once NOTION2WP_ABSPATH . 'includes/importer/class-importer-controller.php';
 		require_once NOTION2WP_ABSPATH . 'includes/importer/class-page-property-handler.php';
 
