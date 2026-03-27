@@ -22,6 +22,7 @@ const ImportModal = ( { importing, importResults, importProgress, onClose, onCan
 	return (
 		<Modal
 			title={ importing ? __( 'Importing...', 'notion2wp' ) : __( 'Import Complete', 'notion2wp' ) }
+			size="medium"
 			onRequestClose={ onClose }
 			isDismissible={ ! importing }
 			shouldCloseOnClickOutside={ ! importing }
