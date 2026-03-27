@@ -195,6 +195,7 @@ class Importer_Controller {
 				$results['success'][] = [
 					'page_id' => $item_id,
 					'post_id' => $result,
+					'title'   => get_the_title( $result ),
 				];
 			}
 		}
@@ -247,6 +248,7 @@ class Importer_Controller {
 				$results[] = [
 					'page_id' => $page_id,
 					'post_id' => $result,
+					'title'   => get_the_title( $result ),
 				];
 			}
 		}
@@ -323,6 +325,7 @@ class Importer_Controller {
 				$results[] = [
 					'page_id' => $item_id,
 					'post_id' => $result,
+					'title'   => get_the_title( $result ),
 				];
 			}
 		}

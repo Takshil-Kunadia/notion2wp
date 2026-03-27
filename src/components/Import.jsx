@@ -11,7 +11,7 @@
  * - Detailed success/error reporting
  */
 
-import { useState, useEffect, useMemo } from '@wordpress/element';
+import { useState, useEffect, useMemo, useRef } from '@wordpress/element';
 import {
 	Button,
 	Spinner,
@@ -41,6 +41,8 @@ const Import = () => {
 	const [ importing, setImporting ] = useState( false );
 	const [ error, setError ] = useState( '' );
 	const [ importResults, setImportResults ] = useState( null );
+	const [ importProgress, setImportProgress ] = useState( { completed: 0, total: 0, currentItem: '' } );
+	const cancelledRef = useRef( false );
 
 	// DataViews state
 	const [ view, setView ] = useState( {
@@ -99,7 +101,7 @@ const Import = () => {
 	};
 
 	/**
-	 * Import selected pages
+	 * Import selected items one at a time with progress tracking.
 	 *
 	 * @param {Array} selectedItems - Array of selected item objects
 	 */
@@ -112,39 +114,63 @@ const Import = () => {
 		setImporting( true );
 		setError( '' );
 		setImportResults( null );
+		cancelledRef.current = false;
 
-		try {
-			const items = selectedItems.map( item => ( {
-				id: item.id,
-				type: item.type,
-			} ) );
+		const total = selectedItems.length;
+		setImportProgress( { completed: 0, total, currentItem: '' } );
 
-			const res = await fetch( `${ apiUrl }import/pages`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-WP-Nonce': nonce,
-				},
-				body: JSON.stringify( {
-					items: items,
-				} ),
-			} );
+		const results = { success: [], errors: [] };
 
-			const data = await res.json();
-
-			if ( data.success.length > 0 ) {
-				setImportResults( data );
-			} else if ( data.errors && data.errors.length > 0 ) {
-				setImportResults( data );
-				setError( data.errors[0].message || __( 'Import failed.', 'notion2wp' ) );
-			} else {
-				setError( data.message || __( 'Import failed.', 'notion2wp' ) );
+		for ( let i = 0; i < selectedItems.length; i++ ) {
+			if ( cancelledRef.current ) {
+				break;
 			}
-		} catch ( err ) {
-			setError( __( 'Import error: ', 'notion2wp' ) + err.message );
+
+			const item = selectedItems[ i ];
+			const itemTitle = item.title || __( 'Untitled', 'notion2wp' );
+
+			setImportProgress( { completed: i, total, currentItem: itemTitle } );
+
+			try {
+				const res = await fetch( `${ apiUrl }import/pages`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce': nonce,
+					},
+					body: JSON.stringify( {
+						items: [ { id: item.id, type: item.type } ],
+					} ),
+				} );
+
+				const data = await res.json();
+
+				if ( data.success && data.success.length > 0 ) {
+					data.success.forEach( ( entry ) => {
+						results.success.push( { ...entry, title: entry.title || itemTitle } );
+					} );
+				}
+
+				if ( data.errors && data.errors.length > 0 ) {
+					data.errors.forEach( ( entry ) => {
+						results.errors.push( { ...entry, title: entry.title || itemTitle } );
+					} );
+				}
+			} catch ( err ) {
+				results.errors.push( { title: itemTitle, message: err.message } );
+			}
 		}
 
+		setImportProgress( { completed: total, total, currentItem: '' } );
+		setImportResults( results );
 		setImporting( false );
+	};
+
+	/**
+	 * Cancel an in-progress import.
+	 */
+	const handleCancelImport = () => {
+		cancelledRef.current = true;
 	};
 
 	/**
@@ -154,7 +180,6 @@ const Import = () => {
 		setImporting( false );
 		setImportResults( null );
 		setError( '' );
-
 	};
 
 	/**
@@ -311,7 +336,9 @@ const Import = () => {
 			<ImportModal
 				importing={ importing }
 				importResults={ importResults }
+				importProgress={ importProgress }
 				onClose={ closeImportModal }
+				onCancel={ handleCancelImport }
 			/>
 
 			{ /* Main Content */ }
