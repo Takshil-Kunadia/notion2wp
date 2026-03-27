@@ -56,3 +56,96 @@
 		max-width: 1400px;
 	}
 }
+
+// Import component
+.notion2wp-import {
+	&__header {
+		margin-bottom: 1.5rem;
+	}
+
+	&__description {
+		margin: 0;
+		color: #50575e;
+		font-size: 14px;
+	}
+
+	&__error {
+		margin-bottom: 1.5rem;
+		padding: 12px 16px;
+		background-color: #fcf0f1;
+		border-left: 4px solid #d63638;
+		color: #d63638;
+	}
+
+	// Modal states
+	&__modal-spinner {
+		padding: 2rem;
+	}
+
+	&__modal-spinner-text {
+		margin-left: 1rem;
+	}
+
+	&__modal-actions {
+		margin-top: 1.5rem;
+	}
+
+	// Results
+	&__results-section {
+		h4 {
+			margin-top: 0;
+		}
+
+		ul {
+			margin-bottom: 0;
+		}
+
+		&--success h4 {
+			color: #00a32a;
+		}
+
+		&--error h4 {
+			color: #d63638;
+		}
+	}
+
+	&__results-section + &__results-section {
+		margin-top: 1.5rem;
+	}
+
+	// Loading & empty states
+	&__loading {
+		padding: 3rem;
+	}
+
+	&__loading-text {
+		margin-left: 1rem;
+	}
+
+	&__empty {
+		text-align: center;
+		padding: 2rem;
+
+		p {
+			color: #757575;
+		}
+	}
+
+	// DataViews field styles
+	&__title-archived {
+		margin-left: 8px;
+		color: #757575;
+		font-size: 12px;
+		font-style: italic;
+	}
+
+	&__title-description {
+		color: #757575;
+		font-size: 13px;
+		margin-top: 4px;
+	}
+
+	&__media-thumb {
+		max-width: 100px;
+	}
+}
