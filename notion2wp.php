@@ -4,14 +4,14 @@
  *
  * @package           Notion2WP
  * @author            Takshil Kunadia
- * @copyright         2025 Takshil Kunadia
+ * @copyright         2026 Takshil Kunadia
  * @license           GPL2
  *
  * @wordpress-plugin
  * Plugin Name:       Notion2WP
  * Plugin URI:        https://notion2wp.framer.website/
  * Description:       Publish Notion databases and pages to WordPress posts seamlessly.
- * Version:           1.0.3
+ * Version:           1.1.0
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            Takshil Kunadia
