@@ -13,6 +13,7 @@
  * Description:       Publish Notion databases and pages to WordPress posts seamlessly.
  * Version:           1.1.0
  * Requires at least: 6.5
+ * Tested up to:      6.9.4
  * Requires PHP:      7.4
  * Author:            Takshil Kunadia
  * Author URI:        https://takshil.dev
