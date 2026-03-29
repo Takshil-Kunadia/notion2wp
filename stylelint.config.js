@@ -12,6 +12,7 @@ module.exports = {
 		'at-rule-no-unknown': null,
 		'@stylistic/indentation': 'tab',
 		'no-empty-source': null,
+		'no-descending-specificity': null,
 	},
 	ignoreFiles: [
 		'dist/**',

@@ -14,7 +14,6 @@ import {
 	TextControl,
 	Spinner,
 	Flex,
-	FlexItem,
 	Snackbar,
 	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
@@ -82,7 +81,7 @@ const Connection = () => {
 	 */
 	const handleGuideFinish = async () => {
 		setShowSetupGuide( false );
-		
+
 		// Save the option using core-data
 		try {
 			await saveEntityRecord( 'root', 'site', {
@@ -192,12 +191,12 @@ const Connection = () => {
 		return (
 			<Card>
 				<CardBody>
-					<Flex align="center" justify="center" style={ { padding: '2rem' } }>
+					<div className="notion2wp-loading">
 						<Spinner />
-						<span style={ { marginLeft: '1rem' } }>
+						<span className="notion2wp-loading__text">
 							{ __( 'Loading authentication status...', 'notion2wp' ) }
 						</span>
-					</Flex>
+					</div>
 				</CardBody>
 			</Card>
 		);
@@ -223,7 +222,7 @@ const Connection = () => {
 
 			{ /* Success/Error Messages */ }
 			{ ( message || error ) && (
-				<div style={ { marginBottom: '1rem' } }>
+				<div className="notion2wp-connection__messages">
 					{ message && (
 						<Snackbar
 							status="success"
@@ -249,51 +248,33 @@ const Connection = () => {
 			{ /* Connected State */ }
 			{ status && status.connected ? (
 				<Card>
-					<CardHeader>
-						<Flex align="center">
-							<strong style={ { marginLeft: '0.5rem', color: '#46b450' } }>
-								{ __( 'Connected to Notion', 'notion2wp' ) }
-							</strong>
-						</Flex>
-					</CardHeader>
 					<CardBody>
-						<div style={ { marginBottom: '1.5rem' } }>
-							<Flex direction="column" gap={ 3 }>
-								{ status.owner && (
-									<FlexItem>
-										<strong>{ __( 'Owner:', 'notion2wp' ) }</strong>
-										<div style={ { marginTop: '0.25rem', color: '#50575e' } }>
-											{ status.owner.type === 'user'
-												? status.owner.user?.name || status.owner.user?.id
-												: __( 'Workspace', 'notion2wp' )
-											}
-										</div>
-									</FlexItem>
-								) }
-
+						<div className="notion2wp-connection__connected">
+							<div className="notion2wp-connection__connected-info">
+								<span className="notion2wp-badge notion2wp-badge--success">
+									<span className="notion2wp-badge__dot" />
+									{ __( 'Connected', 'notion2wp' ) }
+								</span>
 								{ status.connection_date && (
-									<FlexItem>
-										<strong>{ __( 'Connected:', 'notion2wp' ) }</strong>
-										<div style={ { marginTop: '0.25rem', color: '#50575e' } }>
-											{ status.connection_date }
-										</div>
-									</FlexItem>
+									<span className="notion2wp-connection__connected-date">
+										{ status.connection_date }
+									</span>
 								) }
-							</Flex>
+							</div>
+							<Button
+								variant="secondary"
+								isDestructive
+								size="small"
+								onClick={ () => setShowDisconnectConfirm( true ) }
+								isBusy={ loading }
+								disabled={ loading }
+							>
+								{ loading
+									? __( 'Disconnecting...', 'notion2wp' )
+									: __( 'Disconnect', 'notion2wp' )
+								}
+							</Button>
 						</div>
-
-						<Button
-							variant="secondary"
-							isDestructive
-							onClick={ () => setShowDisconnectConfirm( true ) }
-							isBusy={ loading }
-							disabled={ loading }
-						>
-							{ loading
-								? __( 'Disconnecting...', 'notion2wp' )
-								: __( 'Disconnect', 'notion2wp' )
-							}
-						</Button>
 					</CardBody>
 				</Card>
 			) : (
@@ -301,17 +282,17 @@ const Connection = () => {
 				<>
 					<Card>
 						<CardHeader>
-							<Flex align="center" justify='space-between'>
-								<strong style={ { marginLeft: '0.5rem' } }>
+							<Flex align="center" justify="space-between">
+								<strong>
 									{ __( 'Connect to Notion', 'notion2wp' ) }
 								</strong>
 
 								{ /* Help Button for Setup Guide */ }
 								{ setupGuideShown && (
 									<Button
-										variant="link"
+										variant="tertiary"
 										icon={ help }
-										size='small'
+										size="small"
 										onClick={ () => setShowSetupGuide( true ) }
 									>
 										{ __( 'Setup Guide', 'notion2wp' ) }
@@ -320,7 +301,7 @@ const Connection = () => {
 							</Flex>
 						</CardHeader>
 						<CardBody>
-							<p style={ { marginTop: 0, color: '#50575e' } }>
+							<p className="notion2wp-card__description">
 								{ __( 'Connect your Notion workspace using an Internal Integration. This allows the plugin to access pages you share with it.', 'notion2wp' ) }
 							</p>
 
@@ -333,10 +314,10 @@ const Connection = () => {
 								placeholder={ __( 'Paste your Notion Internal Integration Token here', 'notion2wp' ) }
 								required
 								help={ __( 'Paste your Internal Integration Token from Notion. Keep this secret!', 'notion2wp' ) }
-								style={ { fontFamily: 'monospace' } }
+								className="notion2wp-connection__token-input"
 							/>
 
-							<div style={ { marginTop: '1.5rem' } }>
+							<div className="notion2wp-connection__connect-action">
 								<Button
 									type="submit"
 									variant="primary"
@@ -354,12 +335,9 @@ const Connection = () => {
 					</Card>
 
 					{ /* Additional Help Card */ }
-					<Card style={ { marginTop: '1rem' } }>
+					<Card>
 						<CardBody>
-							<h4 style={ { marginTop: 0 } }>
-								{ __( 'Need Help?', 'notion2wp' ) }
-							</h4>
-							<p style={ { marginBottom: 0, color: '#50575e' } }>
+							<p className="notion2wp-connection__help">
 								{ __( 'Learn more about ', 'notion2wp' ) }
 								<a
 									href="https://developers.notion.com/docs/authorization#internal-integration-auth-flow-set-up"

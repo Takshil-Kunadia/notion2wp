@@ -307,7 +307,7 @@ const Import = () => {
 
 	return (
 		<div className="notion2wp-import">
-			<Flex justify="space-between" align="flex-start" className="notion2wp-import__header">
+			<Flex justify="space-between" className="notion2wp-import__header">
 				<FlexBlock>
 					<p className="notion2wp-import__description">
 						{ __( 'Select pages, databases or data sources from your Notion workspace to import as WordPress posts.', 'notion2wp' ) }
@@ -345,12 +345,12 @@ const Import = () => {
 			{ loading ? (
 				<Card>
 					<CardBody>
-						<Flex align="center" justify="center" className="notion2wp-import__loading">
+						<div className="notion2wp-loading">
 							<Spinner />
-							<span className="notion2wp-import__loading-text">
+							<span className="notion2wp-loading__text">
 								{ __( 'Loading items from Notion...', 'notion2wp' ) }
 							</span>
-						</Flex>
+						</div>
 					</CardBody>
 				</Card>
 			) : items.length === 0 ? (

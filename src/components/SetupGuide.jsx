@@ -13,20 +13,17 @@ const SetupGuide = ( { onFinish } ) => {
 	const pages = [
 		{
 			image: (
-				<div style={ {
-					background: 'linear-gradient(135deg, #fdfbf7 0%, #a29f9b 100%)',
-					height: '200px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					marginBottom: '1rem',
-				} }>
-					<img src={ logo } alt={ __( 'Notion2WP Logo', 'notion2wp' ) } style={ { width: '120px', height: 'auto' } } />
+				<div className="notion2wp-guide__hero notion2wp-guide__hero--welcome">
+					<img
+						src={ logo }
+						alt={ __( 'Notion2WP Logo', 'notion2wp' ) }
+						className="notion2wp-guide__hero-logo"
+					/>
 				</div>
 			),
 			content: (
-				<div style={ { padding: '1rem', justifyItems: 'center' } }>
-					<h1>{ __( 'Welcome to Notion2WP! 👋', 'notion2wp' ) }</h1>
+				<div className="notion2wp-guide__content" style={ { textAlign: 'center' } }>
+					<h1>{ __( 'Welcome to Notion2WP', 'notion2wp' ) }</h1>
 					<p>
 						{ __(
 							'This guide will walk you through setting up your Notion integration in just a few minutes.',
@@ -44,36 +41,26 @@ const SetupGuide = ( { onFinish } ) => {
 		},
 		{
 			image: (
-				<div style={ {
-					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-					height: '200px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					color: 'white',
-					fontSize: '48px',
-					marginBottom: '1rem',
-				} }>
-					🔗
+				<div className="notion2wp-guide__hero notion2wp-guide__hero--integration">
+					<span className="notion2wp-guide__hero-icon">1</span>
 				</div>
 			),
 			content: (
-				<div style={ { padding: '1rem' } }>
-					<h2>{ __( 'Step 1: Create a Notion Integration', 'notion2wp' ) }</h2>
+				<div className="notion2wp-guide__content">
+					<h2>{ __( 'Create a Notion Integration', 'notion2wp' ) }</h2>
 					<p>
 						{ __(
 							'First, you\'ll need to create an Internal Integration in your Notion workspace.',
 							'notion2wp',
 						) }
 					</p>
-					<ol style={ { paddingLeft: '1.5rem' } }>
+					<ol>
 						<li>
 							{ __( 'Visit ', 'notion2wp' ) }
 							<a
 								href="https://www.notion.so/profile/integrations"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={ { color: '#0073aa' } }
 							>
 								{ __( 'Notion > My Integrations', 'notion2wp' ) }
 							</a>
@@ -89,32 +76,23 @@ const SetupGuide = ( { onFinish } ) => {
 		},
 		{
 			image: (
-				<div style={ {
-					background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-					height: '200px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					color: 'white',
-					fontSize: '48px',
-					marginBottom: '1rem',
-				} }>
-					⚙️
+				<div className="notion2wp-guide__hero notion2wp-guide__hero--capabilities">
+					<span className="notion2wp-guide__hero-icon">2</span>
 				</div>
 			),
 			content: (
-				<div style={ { padding: '1rem' } }>
-					<h2>{ __( 'Step 2: Configure Capabilities', 'notion2wp' ) }</h2>
+				<div className="notion2wp-guide__content">
+					<h2>{ __( 'Configure Capabilities', 'notion2wp' ) }</h2>
 					<p>
 						{ __(
 							'Enable the following capabilities for your integration:',
 							'notion2wp',
 						) }
 					</p>
-					<ul style={ { paddingLeft: '1.5rem', listStyleType: 'none' } }>
-						<li>☑️ { __( 'Read content (Required)', 'notion2wp' ) }</li>
-						<li>☑️ { __( 'Read comments (Optional)', 'notion2wp' ) }</li>
-						<li>🔘 { __( 'Read user information without email (Optional)', 'notion2wp' ) }</li>
+					<ul style={ { listStyleType: 'none', paddingLeft: 0 } }>
+						<li>{ __( 'Read content (Required)', 'notion2wp' ) }</li>
+						<li>{ __( 'Read comments (Optional)', 'notion2wp' ) }</li>
+						<li>{ __( 'Read user information without email (Optional)', 'notion2wp' ) }</li>
 					</ul>
 					<p>
 						{ __(
@@ -127,60 +105,44 @@ const SetupGuide = ( { onFinish } ) => {
 		},
 		{
 			image: (
-				<div style={ {
-					background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-					height: '200px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					color: 'white',
-					fontSize: '48px',
-					marginBottom: '1rem',
-				} }>
-					🔓
+				<div className="notion2wp-guide__hero notion2wp-guide__hero--share">
+					<span className="notion2wp-guide__hero-icon">3</span>
 				</div>
 			),
 			content: (
-				<div style={ { padding: '1rem' } }>
-					<h2>{ __( 'Step 4: Share Pages with Your Integration', 'notion2wp' ) }</h2>
+				<div className="notion2wp-guide__content">
+					<h2>{ __( 'Share Pages with Your Integration', 'notion2wp' ) }</h2>
 					<p>
 						{ __(
 							'For the plugin to access your content, you need to share pages with your integration:',
 							'notion2wp',
 						) }
 					</p>
-					<ol style={ { paddingLeft: '1.5rem' } }>
+					<ol>
 						<li>{ __( 'Click on Access Tabs', 'notion2wp' ) }</li>
 						<li>{ __( 'Select Teamspaces/Pages you want to be able import onto WordPress', 'notion2wp' ) }</li>
 						<li>{ __( 'Click "Save"', 'notion2wp' ) }</li>
 					</ol>
-					<p style={ { marginTop: '1rem', color: '#50575e', fontSize: '0.9em' } }>
-						💡 { __(
-							'Tip: You can also share a parent page, and the integration will have access to all child pages.',
-							'notion2wp',
-						) }
-					</p>
+					<div className="notion2wp-guide__callout notion2wp-guide__callout--tip">
+						<p>
+							{ __(
+								'Tip: You can also share a parent page, and the integration will have access to all child pages.',
+								'notion2wp',
+							) }
+						</p>
+					</div>
 				</div>
 			),
 		},
 		{
 			image: (
-				<div style={ {
-					background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-					height: '200px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					color: 'white',
-					fontSize: '48px',
-					marginBottom: '1rem',
-				} }>
-					🔑
+				<div className="notion2wp-guide__hero notion2wp-guide__hero--token">
+					<span className="notion2wp-guide__hero-icon">4</span>
 				</div>
 			),
 			content: (
-				<div style={ { padding: '1rem' } }>
-					<h2>{ __( 'Step 3: Copy Your Integration Token', 'notion2wp' ) }</h2>
+				<div className="notion2wp-guide__content">
+					<h2>{ __( 'Copy Your Integration Token', 'notion2wp' ) }</h2>
 					<p>
 						{ __(
 							'After creating the integration, you\'ll see an "Internal Integration Token". Click "Show" and copy it.',
@@ -193,15 +155,9 @@ const SetupGuide = ( { onFinish } ) => {
 							'notion2wp',
 						) }
 					</p>
-					<div style={ {
-						background: '#fff3cd',
-						border: '1px solid #ffc107',
-						borderRadius: '4px',
-						padding: '0.75rem',
-						marginTop: '1rem',
-					} }>
-						<strong>⚠️ { __( 'Important:', 'notion2wp' ) }</strong>
-						<p style={ { marginBottom: 0, marginTop: '0.5rem' } }>
+					<div className="notion2wp-guide__callout notion2wp-guide__callout--warning">
+						<strong>{ __( 'Important:', 'notion2wp' ) }</strong>
+						<p>
 							{ __(
 								'This token should be kept confidential. Never share it publicly!',
 								'notion2wp',
@@ -213,21 +169,12 @@ const SetupGuide = ( { onFinish } ) => {
 		},
 		{
 			image: (
-				<div style={ {
-					background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-					height: '200px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					color: '#333',
-					fontSize: '48px',
-					marginBottom: '1rem',
-				} }>
-					🎉
+				<div className="notion2wp-guide__hero notion2wp-guide__hero--complete">
+					<span className="notion2wp-guide__hero-icon">5</span>
 				</div>
 			),
 			content: (
-				<div style={ { padding: '1rem' } }>
+				<div className="notion2wp-guide__content">
 					<h2>{ __( 'You\'re All Set!', 'notion2wp' ) }</h2>
 					<p>
 						{ __(
@@ -241,21 +188,14 @@ const SetupGuide = ( { onFinish } ) => {
 							'notion2wp',
 						) }
 					</p>
-					<div style={ {
-						background: '#d1ecf1',
-						border: '1px solid #bee5eb',
-						borderRadius: '4px',
-						padding: '0.75rem',
-						marginTop: '1rem',
-					} }>
-						<strong>📚 { __( 'Need more help?', 'notion2wp' ) }</strong>
-						<p style={ { marginBottom: 0, marginTop: '0.5rem' } }>
+					<div className="notion2wp-guide__callout notion2wp-guide__callout--info">
+						<strong>{ __( 'Need more help?', 'notion2wp' ) }</strong>
+						<p>
 							{ __( 'Visit our ', 'notion2wp' ) }
 							<a
 								href="https://notion2wp.framer.website/"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={ { color: '#0073aa' } }
 							>
 								{ __( 'documentation', 'notion2wp' ) }
 							</a>

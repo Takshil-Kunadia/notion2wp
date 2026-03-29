@@ -6,7 +6,6 @@
  * Only accessible to administrators.
  */
 
-import { Flex, FlexBlock } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import Connection from './Connection';
 import RoleManagement from './RoleManagement';
@@ -14,19 +13,11 @@ import RoleManagement from './RoleManagement';
 const Settings = () => {
 	return (
 		<div className="notion2wp-settings">
-			<Flex justify="space-between" align="flex-start" style={ { marginBottom: '1.5rem' } }>
-				<FlexBlock>
-					<p style={ { margin: 0, color: '#50575e', fontSize: '14px' } }>
-						{ __( 'Manage your Notion connection and plugin settings.', 'notion2wp' ) }
-					</p>
-				</FlexBlock>
-			</Flex>
-
-			{ /* Notion Connection */ }
+			<p className="notion2wp-settings__description">
+				{ __( 'Manage your Notion connection and plugin settings.', 'notion2wp' ) }
+			</p>
 			<Connection />
-
-			{ /* Role Management */ }
-			<div style={ { marginTop: '1rem' } }>
+			<div className="notion2wp-settings__section">
 				<RoleManagement />
 			</div>
 		</div>
