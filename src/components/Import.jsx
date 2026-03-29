@@ -11,7 +11,7 @@
  * - Detailed success/error reporting
  */
 
-import { useState, useEffect, useMemo } from '@wordpress/element';
+import { useState, useEffect, useMemo, useRef } from '@wordpress/element';
 import {
 	Button,
 	Spinner,
@@ -20,12 +20,12 @@ import {
 	Flex,
 	FlexItem,
 	FlexBlock,
-	Snackbar,
 } from '@wordpress/components';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import notionLogo from '../assets/notion2wp-logo.svg';
+import ImportModal from './ImportModal';
 
 const Import = () => {
 	// Get localized data from WordPress
@@ -40,8 +40,9 @@ const Import = () => {
 	const [ loading, setLoading ] = useState( false );
 	const [ importing, setImporting ] = useState( false );
 	const [ error, setError ] = useState( '' );
-	const [ success, setSuccess ] = useState( '' );
 	const [ importResults, setImportResults ] = useState( null );
+	const [ importProgress, setImportProgress ] = useState( { completed: 0, total: 0, currentItem: '' } );
+	const cancelledRef = useRef( false );
 
 	// DataViews state
 	const [ view, setView ] = useState( {
@@ -100,7 +101,7 @@ const Import = () => {
 	};
 
 	/**
-	 * Import selected pages
+	 * Import selected items one at a time with progress tracking.
 	 *
 	 * @param {Array} selectedItems - Array of selected item objects
 	 */
@@ -112,54 +113,73 @@ const Import = () => {
 
 		setImporting( true );
 		setError( '' );
-		setSuccess( '' );
 		setImportResults( null );
+		cancelledRef.current = false;
 
-		try {
-			const items = selectedItems.map( item => ( {
-				id: item.id,
-				type: item.type,
-			} ) );
+		const total = selectedItems.length;
+		setImportProgress( { completed: 0, total, currentItem: '' } );
 
-			const res = await fetch( `${ apiUrl }import/pages`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-WP-Nonce': nonce,
-				},
-				body: JSON.stringify( {
-					items: items,
-				} ),
-			} );
+		const results = { success: [], errors: [] };
 
-			const data = await res.json();
-
-			if ( data.success.length > 0 ) {
-				setSuccess( data.message || __( 'Import completed successfully!', 'notion2wp' ) );
-				setImportResults( data );
-			} else if ( data.errors && data.errors.length > 0 ) {
-				setImportResults( data );
-				setError( data.errors[0].message || __( 'Import failed.', 'notion2wp' ) );
-			} else {
-				setError( data.message || __( 'Import failed.', 'notion2wp' ) );
+		for ( let i = 0; i < selectedItems.length; i++ ) {
+			if ( cancelledRef.current ) {
+				break;
 			}
-		} catch ( err ) {
-			setError( __( 'Import error: ', 'notion2wp' ) + err.message );
+
+			const item = selectedItems[ i ];
+			const itemTitle = item.title || __( 'Untitled', 'notion2wp' );
+
+			setImportProgress( { completed: i, total, currentItem: itemTitle } );
+
+			try {
+				const res = await fetch( `${ apiUrl }import/pages`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce': nonce,
+					},
+					body: JSON.stringify( {
+						items: [ { id: item.id, type: item.type } ],
+					} ),
+				} );
+
+				const data = await res.json();
+
+				if ( data.success && data.success.length > 0 ) {
+					data.success.forEach( ( entry ) => {
+						results.success.push( { ...entry, title: entry.title || itemTitle } );
+					} );
+				}
+
+				if ( data.errors && data.errors.length > 0 ) {
+					data.errors.forEach( ( entry ) => {
+						results.errors.push( { ...entry, title: entry.title || itemTitle } );
+					} );
+				}
+			} catch ( err ) {
+				results.errors.push( { title: itemTitle, message: err.message } );
+			}
 		}
 
+		setImportProgress( { completed: total, total, currentItem: '' } );
+		setImportResults( results );
 		setImporting( false );
-		clearImportResults();
 	};
 
 	/**
-	 * Clear import results after a delay
+	 * Cancel an in-progress import.
 	 */
-	const clearImportResults = () => {
-		setTimeout(() => {
-			setImportResults( null );
-			setError( '' );
-			setSuccess( '' );
-		}, 5000);
+	const handleCancelImport = () => {
+		cancelledRef.current = true;
+	};
+
+	/**
+	 * Close the import modal and clear results.
+	 */
+	const closeImportModal = () => {
+		setImporting( false );
+		setImportResults( null );
+		setError( '' );
 	};
 
 	/**
@@ -178,21 +198,12 @@ const Import = () => {
 						<FlexBlock>
 							<strong>{ item.title || __( 'Untitled', 'notion2wp' ) }</strong>
 							{ item.archived && (
-								<span style={{
-									marginLeft: '8px',
-									color: '#757575',
-									fontSize: '12px',
-									fontStyle: 'italic',
-								}}>
+								<span className="notion2wp-import__title-archived">
 									({ __( 'Archived', 'notion2wp' ) })
 								</span>
 							) }
 							{ item.type === 'database' && item.description && (
-								<div style={{
-									color: '#757575',
-									fontSize: '13px',
-									marginTop: '4px',
-								}}>
+								<div className="notion2wp-import__title-description">
 									{ item.description }
 								</div>
 							) }
@@ -208,9 +219,9 @@ const Import = () => {
 			type: 'media',
 			render: ( { item } ) => {
 				return item.media ? (
-					<img src={ item.media } alt={ __( 'Media', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
+					<img src={ item.media } alt={ __( 'Media', 'notion2wp' ) } className="notion2wp-import__media-thumb" />
 				) : (
-					<img src={ placeholderImage } alt={ __( 'Site Logo', 'notion2wp' ) } style={{ maxWidth: '100px' }} />
+					<img src={ placeholderImage } alt={ __( 'Site Logo', 'notion2wp' ) } className="notion2wp-import__media-thumb" />
 				);
 			},
 		},
@@ -296,9 +307,9 @@ const Import = () => {
 
 	return (
 		<div className="notion2wp-import">
-			<Flex justify="space-between" align="flex-start" style={{ marginBottom: '1.5rem' }}>
+			<Flex justify="space-between" className="notion2wp-import__header">
 				<FlexBlock>
-					<p style={{ margin: 0, color: '#50575e', fontSize: '14px' }}>
+					<p className="notion2wp-import__description">
 						{ __( 'Select pages, databases or data sources from your Notion workspace to import as WordPress posts.', 'notion2wp' ) }
 					</p>
 				</FlexBlock>
@@ -315,80 +326,39 @@ const Import = () => {
 				</FlexItem>
 			</Flex>
 
-			{ /* Importing Notice */ }
-			{ importing && (
-				<div style={{ marginBottom: '1.5rem' }}>
-					<Snackbar status="info">
-						{ __( 'Importing selected items. This may take a few moments...', 'notion2wp' ) }
-					</Snackbar>
+			{ /* Fetch Error */ }
+			{ error && ! importing && (
+				<div className="notion2wp-import__error">
+					{ error }
 				</div>
 			) }
 
-			{ /* Import Results */ }
-			{ importResults && (
-				<Card style={{ marginBottom: '1.5rem' }}>
-					<CardBody>
-						{ success && importResults.success && importResults.success.length > 0 && (
-							<div style={{ marginBottom: importResults.errors?.length > 0 ? '1.5rem' : 0 }}>
-								<h4 style={{ color: '#00a32a', marginTop: 0 }}>
-									✓ { __( 'Successfully Imported', 'notion2wp' ) } ({ importResults.success.length })
-								</h4>
-								<ul style={{ marginBottom: 0 }}>
-									{ importResults.success.map( ( result ) => (
-										<li key={ result.page_id }>
-											<a
-												href={ `/wp-admin/post.php?post=${ result.post_id }&action=edit` }
-												target="_blank"
-												rel="noreferrer"
-											>
-												{ __( 'Post ID:', 'notion2wp' ) } { result.post_id }
-											</a>
-											{ ' ' }
-											<span style={{ color: '#757575', fontSize: '12px' }}>
-												({ result.page_id })
-											</span>
-										</li>
-									) ) }
-								</ul>
-							</div>
-						) }
-
-						{ error && importResults.errors && importResults.errors.length > 0 && (
-							<div>
-								<h4 style={{ color: '#d63638', marginTop: 0 }}>
-									✗ { __( 'Failed', 'notion2wp' ) } ({ importResults.errors.length })
-								</h4>
-								<ul style={{ marginBottom: 0 }}>
-									{ importResults.errors.map( ( result, idx ) => (
-										<li key={ idx } style={{ color: '#d63638' }}>
-											<code>{ result.page_id }</code>: { result.message }
-										</li>
-									) ) }
-								</ul>
-							</div>
-						) }
-					</CardBody>
-				</Card>
-			) }
+			<ImportModal
+				importing={ importing }
+				importResults={ importResults }
+				importProgress={ importProgress }
+				onClose={ closeImportModal }
+				onCancel={ handleCancelImport }
+			/>
 
 			{ /* Main Content */ }
 			{ loading ? (
 				<Card>
 					<CardBody>
-						<Flex align="center" justify="center" style={{ padding: '3rem' }}>
+						<div className="notion2wp-loading">
 							<Spinner />
-							<span style={{ marginLeft: '1rem' }}>
+							<span className="notion2wp-loading__text">
 								{ __( 'Loading items from Notion...', 'notion2wp' ) }
 							</span>
-						</Flex>
+						</div>
 					</CardBody>
 				</Card>
 			) : items.length === 0 ? (
 				<Card>
 					<CardBody>
-						<div style={{ textAlign: 'center', padding: '2rem' }}>
+						<div className="notion2wp-import__empty">
 							<h3>{ __( 'No Items Found', 'notion2wp' ) }</h3>
-							<p style={{ color: '#757575' }}>
+							<p>
 								{ __( 'No pages, databases or data sources found in your Notion workspace.', 'notion2wp' ) }
 								<br />
 								{ __( 'Make sure you\'re connected and have shared pages with your integration.', 'notion2wp' ) }

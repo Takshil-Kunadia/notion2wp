@@ -163,7 +163,7 @@ class Rest_API {
 								'type' => [
 									'type'     => 'string',
 									'required' => true,
-									'enum'     => [ 'page', 'database' ],
+									'enum'     => [ 'page', 'database', 'data_source' ],
 								],
 							],
 						],

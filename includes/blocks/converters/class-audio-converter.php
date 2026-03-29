@@ -35,21 +35,25 @@ class Audio_Converter extends Abstract_Block_Converter {
 	 * @return string Gutenberg block HTML.
 	 */
 	public function convert( $block, $context = [] ) {
-		$block_data = $block[ Block_Types::AUDIO ] ?? [];
-		$type       = $block_data['type'] ?? '';
-		$url        = '';
+		$block_data  = $block[ Block_Types::AUDIO ] ?? [];
+		$type        = $block_data['type'] ?? '';
+		$url         = '';
+		$expiry_time = null;
 
 		if ( 'external' === $type && ! empty( $block_data['external']['url'] ) ) {
 			$url = $block_data['external']['url'];
 		} elseif ( 'file' === $type && ! empty( $block_data['file']['url'] ) ) {
-			$url = $block_data['file']['url'];
+			$url         = $block_data['file']['url'];
+			$expiry_time = $block_data['file']['expiry_time'] ?? null;
 		}
 
 		if ( empty( $url ) ) {
 			return '';
 		}
 
-		$html = '<figure class="wp-block-audio"><audio controls src="' . esc_url( $url ) . '"></audio></figure>';
+		$url = $this->resolve_media_url( $url, $type, Block_Types::AUDIO, $expiry_time );
+
+		$html = '<figure class="wp-block-audio"><audio controls src="' . $this->escape_media_url( $url ) . '"></audio></figure>';
 
 		return $this->wrap_gutenberg_block( 'core/audio', $html, [ 'src' => $url ] );
 	}

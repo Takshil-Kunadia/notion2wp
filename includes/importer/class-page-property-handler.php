@@ -9,12 +9,30 @@
 
 namespace Notion2WP\Importer;
 
+use Notion2WP\Media\Media_Handler;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Page Property Handler class for managing Notion page properties.
  */
 class Page_Property_Handler {
+
+	/**
+	 * Media handler for downloading and attaching media.
+	 *
+	 * @var Media_Handler
+	 */
+	private $media_handler;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Media_Handler|null $media_handler Media handler instance.
+	 */
+	public function __construct( $media_handler = null ) {
+		$this->media_handler = $media_handler ?? new Media_Handler();
+	}
 
 	/**
 	 * Extract title from Notion page.
@@ -126,26 +144,29 @@ class Page_Property_Handler {
 			return false;
 		}
 
-		// Check if image already exists for this post.
-		$existing_attachment_id = get_post_thumbnail_id( $post_id );
-		$existing_cover_url     = get_post_meta( $existing_attachment_id, '_notion_cover_url', true );
+		// Check for existing attachment using normalized URL (fixes dedup for signed URLs).
+		$existing_attachment_id = $this->media_handler->find_existing_attachment( $cover_url );
 
-		// If the same cover URL, don't re-download.
-		if ( $existing_attachment_id && $existing_cover_url === $cover_url ) {
+		if ( null !== $existing_attachment_id ) {
+			set_post_thumbnail( $post_id, $existing_attachment_id );
 			return $existing_attachment_id;
 		}
 
-		// Download and attach the image.
-		$attachment_id = $this->download_and_attach_media( $cover_url, $post_id, 'cover' );
+		// Determine if this is an expiring URL that needs downloading.
+		$cover_type  = $cover['type'] ?? '';
+		$expiry_time = ( 'file' === $cover_type ) ? ( $cover['file']['expiry_time'] ?? null ) : null;
+		$is_expiring = ( null !== $expiry_time ) || ( 'file' === $cover_type );
 
-		if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
-			// Store the original Notion cover URL for future comparison.
-			update_post_meta( $attachment_id, '_notion_cover_url', $cover_url );
-			update_post_meta( $attachment_id, '_notion_media_type', 'cover' );
+		if ( ! $is_expiring ) {
+			// External cover image — no download needed, just set the URL.
+			return false;
+		}
 
-			// Set as featured image.
+		// Download and attach the image via Media_Handler.
+		$attachment_id = $this->media_handler->download_and_sideload( $cover_url, $post_id, 'cover' );
+
+		if ( is_int( $attachment_id ) && $attachment_id > 0 ) {
 			set_post_thumbnail( $post_id, $attachment_id );
-
 			return $attachment_id;
 		}
 
@@ -193,90 +214,6 @@ class Page_Property_Handler {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Download media from URL and attach to WordPress post.
-	 *
-	 * @param string $media_url Media URL.
-	 * @param int    $post_id WordPress post ID.
-	 * @param string $context Context for the media (cover, icon, content).
-	 * @return int|\WP_Error Attachment ID on success, WP_Error on failure.
-	 */
-	public function download_and_attach_media( $media_url, $post_id, $context = 'content' ) {
-		// Require WordPress media functions.
-		require_once ABSPATH . 'wp-admin/includes/media.php';
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/image.php';
-
-		// Download media to temp file.
-		$temp_file = download_url( $media_url );
-
-		if ( is_wp_error( $temp_file ) ) {
-			return $temp_file;
-		}
-
-		// Get the file name and extension from the URL.
-		$filename = basename( wp_parse_url( $media_url, PHP_URL_PATH ) );
-
-		// Clean filename and ensure it has an extension.
-		$filename = $this->sanitize_filename( $filename, $context );
-
-		// Prepare file array.
-		$file_array = [
-			'name'     => $filename,
-			'tmp_name' => $temp_file,
-		];
-
-		// Upload to WordPress media library.
-		$attachment_id = media_handle_sideload( $file_array, $post_id );
-
-		// Clean up temp file.
-		if ( file_exists( $temp_file ) ) {
-			wp_delete_file( $temp_file );
-		}
-
-		if ( is_wp_error( $attachment_id ) ) {
-			return $attachment_id;
-		}
-
-		// Store context as meta.
-		update_post_meta( $attachment_id, '_notion_import_context', $context );
-
-		return $attachment_id;
-	}
-
-	/**
-	 * Sanitize and generate filename for media.
-	 *
-	 * @param string $filename Original filename.
-	 * @param string $context Media context.
-	 * @return string Sanitized filename.
-	 */
-	private function sanitize_filename( $filename, $context = 'media' ) {
-		// Remove query strings and URL fragments.
-		$filename = preg_replace( '/[?#].*/', '', $filename );
-
-		// Check if filename has a valid extension.
-		$valid_extensions = [ 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'mov', 'pdf' ];
-		$has_extension    = false;
-
-		foreach ( $valid_extensions as $ext ) {
-			if ( preg_match( '/\.' . $ext . '$/i', $filename ) ) {
-				$has_extension = true;
-				break;
-			}
-		}
-
-		// If no valid extension, generate a filename.
-		if ( ! $has_extension || empty( $filename ) ) {
-			$filename = 'notion-' . $context . '-' . wp_generate_password( 12, false ) . '.jpg';
-		}
-
-		// Sanitize the filename.
-		$filename = sanitize_file_name( $filename );
-
-		return $filename;
 	}
 
 	/**

@@ -10,13 +10,13 @@
  */
 import { TabPanel } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { settings, download } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
 import Settings from '../components/Settings';
 import Import from '../components/Import';
+import logo from '../assets/notion2wp-logo.svg';
 
 const App = () => {
 	const isAdmin = window.notion2wpAdmin?.isAdmin || false;
@@ -25,7 +25,6 @@ const App = () => {
 		{
 			name: 'import',
 			title: __( 'Import', 'notion2wp' ),
-			icon: download,
 			component: Import,
 		},
 		// Only show settings tab to administrators
@@ -33,7 +32,6 @@ const App = () => {
 			{
 				name: 'settings',
 				title: __( 'Settings', 'notion2wp' ),
-				icon: settings,
 				component: Settings,
 			},
 		] : [] ),
@@ -42,7 +40,14 @@ const App = () => {
 	return (
 		<div className="notion2wp-admin-app">
 			<div className="notion2wp-admin-app__header">
-				<h1>{ __( 'Notion2WP', 'notion2wp' ) }</h1>
+				<div className="notion2wp-admin-app__brand">
+					<img
+						src={ logo }
+						alt="Notion2WP"
+						className="notion2wp-admin-app__logo"
+					/>
+					<h1>{ __( 'Notion2WP', 'notion2wp' ) }</h1>
+				</div>
 			</div>
 			<TabPanel
 				className="notion2wp-admin-app__tabs"

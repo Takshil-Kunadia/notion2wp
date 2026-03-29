@@ -132,9 +132,11 @@ const RoleManagement = () => {
 		return (
 			<Card>
 				<CardBody>
-					<div style={ { display: 'flex', alignItems: 'center', gap: '0.5rem' } }>
+					<div className="notion2wp-loading">
 						<Spinner />
-						<span>{ __( 'Loading role permissions...', 'notion2wp' ) }</span>
+						<span className="notion2wp-loading__text">
+							{ __( 'Loading role permissions...', 'notion2wp' ) }
+						</span>
 					</div>
 				</CardBody>
 			</Card>
@@ -168,12 +170,12 @@ const RoleManagement = () => {
 					</Notice>
 				) }
 
-				<p style={ { marginTop: message || error ? '1rem' : 0, color: '#50575e' } }>
+				<p className="notion2wp-card__description">
 					{ __( 'Select which user roles can access and import pages.', 'notion2wp' ) }
 				</p>
 
 				{ /* Role Checkboxes */ }
-				<div style={ { marginTop: '1rem' } }>
+				<div className="notion2wp-roles__list">
 					{ availableRoles.length > 0 ? (
 						availableRoles.map( ( role ) => (
 							<CheckboxControl
@@ -182,11 +184,10 @@ const RoleManagement = () => {
 								checked={ allowedRoles.includes( role.name ) }
 								onChange={ () => handleRoleToggle( role.name ) }
 								disabled={ saving || role.name === 'administrator' }
-								help={ role.name === 'administrator' ? __( 'Administrators always have access', 'notion2wp' ) : '' }
 							/>
 						) )
 					) : (
-						<p style={ { color: '#757575', fontStyle: 'italic' } }>
+						<p className="notion2wp-roles__empty">
 							{ __( 'No roles available.', 'notion2wp' ) }
 						</p>
 					) }
@@ -194,11 +195,9 @@ const RoleManagement = () => {
 
 				{ /* Saving Indicator */ }
 				{ saving && (
-					<div style={ { marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' } }>
+					<div className="notion2wp-roles__saving">
 						<Spinner />
-						<span style={ { color: '#757575' } }>
-							{ __( 'Updating roles...', 'notion2wp' ) }
-						</span>
+						<span>{ __( 'Updating roles...', 'notion2wp' ) }</span>
 					</div>
 				) }
 			</CardBody>

@@ -1,58 +1,1120 @@
+@use "sass:color";
 @import "@wordpress/dataviews/build-style/style.css";
 
+// ============================================================================
+// Design System
+// ============================================================================
+
+// Colors
+$color-bg:              #f5f5f7;
+$color-surface:         #fff;
+$color-surface-hover:   #fafafa;
+$color-border:          rgb(0 0 0 / 6%);
+$color-border-strong:   rgb(0 0 0 / 12%);
+$color-divider:         rgb(0 0 0 / 8%);
+$color-text-primary:    #1d1d1f;
+$color-text-secondary:  #86868b;
+$color-text-tertiary:   #aeaeb2;
+$color-accent:          #007AFF;
+$color-accent-hover:    #0066d6;
+$color-accent-light:    rgb(0 122 255 / 8%);
+$color-success:         #34C759;
+$color-success-light:   rgb(52 199 89 / 8%);
+$color-error:           #FF3B30;
+$color-error-light:     rgb(255 59 48 / 8%);
+$color-warning-bg:      #FFF9E6;
+$color-warning-border:  #FFD60A;
+
+// Derived colors
+$color-success-dark:    color.adjust($color-success, $lightness: -10%);
+$color-success-darker:  color.adjust($color-success, $lightness: -15%);
+$color-error-dark:      color.adjust($color-error, $lightness: -10%);
+$color-primary-light:   color.adjust($color-text-primary, $lightness: 15%);
+$color-accent-lighter:  color.adjust($color-accent, $lightness: 10%);
+$color-warning-dark:    color.adjust($color-warning-border, $lightness: -25%);
+
+// Typography
+$font-stack: -apple-system, blinkmacsystemfont, 'SF Pro Text', 'SF Pro Display',
+	'Helvetica Neue', helvetica, arial, sans-serif;
+$font-mono:  'SF Mono', sfmono-regular, ui-monospace, menlo, monaco, monospace;
+
+// Spacing
+$space-xs:   4px;
+$space-sm:   8px;
+$space-md:   16px;
+$space-lg:   24px;
+$space-xl:   32px;
+$space-2xl:  48px;
+
+// Radii
+$radius-sm:  6px;
+$radius-md:  8px;
+$radius-lg:  10px;
+$radius-pill: 980px;
+
+// Shadows
+$shadow-sm:  0 1px 2px rgb(0 0 0 / 4%);
+$shadow-md:  0 2px 8px rgb(0 0 0 / 6%), 0 1px 2px rgb(0 0 0 / 4%);
+$shadow-lg:  0 4px 24px rgb(0 0 0 / 8%), 0 2px 8px rgb(0 0 0 / 4%);
+$shadow-xl:  0 8px 40px rgb(0 0 0 / 12%), 0 4px 16px rgb(0 0 0 / 6%);
+
+// Transitions
+$ease-out:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
+$ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+$duration-fast:   0.15s;
+$duration-normal: 0.25s;
+$duration-slow:   0.4s;
+
+
+// ============================================================================
+// DataViews Override
+// ============================================================================
+
 .dataviews-wrapper {
-	background: white;
-	padding: 0.5rem;
-	border-radius: 5px;
-}
+	background: $color-surface;
+	padding: $space-lg;
+	border-radius: $radius-lg;
+	box-shadow: $shadow-md;
+	border: 1px solid $color-border;
 
-.notion2wp-admin-app {
-	font-family: 'SF Pro Text',-apple-system,BlinkMacSystemFont,Roboto,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';
+	.dataviews-filters__view-actions {
+		gap: $space-sm;
+	}
 
-	&__header {
-		margin-bottom: 1rem;
+	// Clean table rows
+	.dataviews-view-table {
+		th {
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: 0.06em;
+			text-transform: uppercase;
+			color: $color-text-secondary;
+			border-bottom: 1px solid $color-divider;
+			padding: $space-md;
+		}
 
-		h1 {
-			margin: 0;
-			font-size: 23px;
-			font-weight: 400;
-			line-height: 1.4;
+		td {
+			padding: $space-md;
+			border-bottom: 1px solid $color-border;
+			font-size: 14px;
+			color: $color-text-primary;
+			vertical-align: middle;
+		}
+
+		tr:hover td {
+			background: $color-accent-light;
+		}
+
+		tr:last-child td {
+			border-bottom: none;
 		}
 	}
 
+	// Grid view
+	.dataviews-view-grid {
+		gap: $space-md;
+	}
+
+	// Pagination
+	.dataviews-pagination {
+		border-top: 1px solid $color-border;
+		padding-top: $space-md;
+		margin-top: $space-md;
+	}
+}
+
+
+// ============================================================================
+// App Shell (single consolidated block)
+// ============================================================================
+
+.notion2wp-admin-app {
+	font-family: $font-stack;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	color: $color-text-primary;
+
+	// Header
+	&__header {
+		margin-bottom: $space-md;
+	}
+
+	&__brand {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+
+		h1 {
+			margin: 0;
+			font-size: 22px;
+			font-weight: 700;
+			letter-spacing: -0.025em;
+			color: $color-text-primary;
+		}
+	}
+
+	&__logo {
+		width: 28px;
+		height: 28px;
+	}
+
+	// Segmented Control Tabs
 	&__tabs {
 		.components-tab-panel__tabs {
-			margin-bottom: 1.5rem;
-			border-bottom: 1px solid #dcdcde;
+			margin-bottom: $space-md;
+			border-bottom: none;
+			gap: 0;
+			background: rgb(0 0 0 / 5%);
+			border-radius: $radius-md;
+			padding: 3px;
+			display: inline-flex;
 		}
 
 		.components-button.components-tab-panel__tabs-item {
-			font-size: 14px;
+			font-family: $font-stack;
+			font-size: 13px;
 			font-weight: 500;
-			padding: 0.75rem 1rem;
+			padding: 6px 20px;
 			margin: 0;
 			border: none;
-			border-bottom: 3px solid transparent;
+			border-bottom: none;
+			border-radius: calc(#{$radius-md} - 2px);
 			background: transparent;
-			color: #1e1e1e;
-			transition: all 0.1s ease-in-out;
+			color: $color-text-secondary;
+			box-shadow: none;
+			outline: none;
+			transition: all $duration-fast $ease-out;
+			height: auto;
+			min-height: 0;
+			line-height: 1.4;
+
+			&::after {
+				background: none;
+			}
 
 			&:hover {
-				color: #0073aa;
+				color: $color-text-primary;
+				background: rgb(0 0 0 / 3%);
+				box-shadow: none;
 			}
 
 			&.is-active {
-				color: #0073aa;
-				border-bottom-color: #0073aa;
+				color: $color-text-primary;
+				background: $color-surface;
+				box-shadow: 0 1px 3px rgb(0 0 0 / 8%), 0 1px 1px rgb(0 0 0 / 4%);
+				font-weight: 600;
+
+				&:focus,
+				&:focus:not(:disabled) {
+					box-shadow: 0 1px 3px rgb(0 0 0 / 8%), 0 1px 1px rgb(0 0 0 / 4%);
+				}
 			}
 
-			.components-tab-panel__tabs-item-icon {
-				margin-right: 0.5rem;
+			&:focus,
+			&:active,
+			&:focus:not(:disabled) {
+				box-shadow: none;
+				outline: none;
 			}
 		}
 	}
 
 	&__tab-content {
-		max-width: 1400px;
+		max-width: 100%;
+	}
+
+	// ==========================================================================
+	// Buttons — override WP defaults
+	// ==========================================================================
+
+	.components-button {
+		font-family: $font-stack;
+		font-size: 14px;
+		font-weight: 500;
+		border-radius: $radius-sm;
+		transition: all $duration-fast $ease-out;
+		height: auto;
+		padding: 8px 18px;
+
+		&.is-primary {
+			background: $color-text-primary;
+			color: $color-surface;
+			border: none;
+			box-shadow: $shadow-sm;
+
+			&:hover:not(:disabled) {
+				background: $color-primary-light;
+				box-shadow: $shadow-md;
+			}
+
+			&:active:not(:disabled) {
+				transform: scale(0.98);
+			}
+
+			&:focus:not(:disabled) {
+				box-shadow: 0 0 0 2px $color-surface, 0 0 0 4px $color-text-primary;
+			}
+		}
+
+		&.is-secondary {
+			background: $color-surface;
+			color: $color-text-primary;
+			border: 1px solid $color-border-strong;
+			box-shadow: $shadow-sm;
+
+			&:hover:not(:disabled) {
+				background: $color-surface-hover;
+				border-color: $color-border-strong;
+				box-shadow: $shadow-md;
+				color: $color-text-primary;
+			}
+
+			&:active:not(:disabled) {
+				transform: scale(0.98);
+			}
+		}
+
+		&.is-tertiary {
+			background: transparent;
+			color: $color-text-secondary;
+			border: none;
+
+			&:hover:not(:disabled) {
+				background: rgb(0 0 0 / 4%);
+				color: $color-text-primary;
+			}
+		}
+
+		&.is-destructive {
+			&.is-secondary {
+				color: $color-error;
+				border-color: rgba($color-error, 0.3);
+				background: $color-surface;
+
+				&:hover:not(:disabled) {
+					background: $color-error-light;
+					border-color: rgba($color-error, 0.4);
+					color: $color-error;
+				}
+			}
+
+			&.is-tertiary {
+				color: $color-error;
+
+				&:hover:not(:disabled) {
+					background: $color-error-light;
+					color: $color-error;
+				}
+			}
+		}
+
+		&.is-link {
+			color: $color-accent;
+			text-decoration: none;
+			padding: 0;
+
+			&:hover {
+				color: $color-accent-hover;
+				text-decoration: underline;
+			}
+		}
+
+		&:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+	}
+
+	// ==========================================================================
+	// Form Controls — override WP defaults
+	// ==========================================================================
+
+	.components-text-control__input,
+	.components-text-control input[type="text"],
+	.components-text-control input[type="password"] {
+		font-family: $font-stack;
+		font-size: 15px;
+		padding: 10px 14px;
+		border: 1px solid $color-border-strong;
+		border-radius: $radius-sm;
+		background: $color-surface;
+		color: $color-text-primary;
+		transition: border-color $duration-fast $ease-out,
+			box-shadow $duration-fast $ease-out;
+		height: auto;
+
+		&::placeholder {
+			color: $color-text-tertiary;
+		}
+
+		&:focus {
+			border-color: $color-accent;
+			box-shadow: 0 0 0 3px $color-accent-light;
+			outline: none;
+		}
+	}
+
+	.components-base-control__label {
+		font-size: 13px;
+		font-weight: 600;
+		color: $color-text-primary;
+		margin-bottom: $space-sm;
+		letter-spacing: -0.01em;
+	}
+
+	.components-base-control__help {
+		font-size: 13px;
+		color: $color-text-secondary;
+		margin-top: $space-xs;
+	}
+
+	.components-checkbox-control {
+		.components-checkbox-control__label {
+			font-size: 15px;
+			color: $color-text-primary;
+		}
+
+		.components-base-control__help {
+			margin-left: 28px;
+			font-size: 13px;
+			color: $color-text-tertiary;
+		}
+	}
+
+	// ==========================================================================
+	// Snackbar / Notice — override
+	// ==========================================================================
+
+	.components-snackbar {
+		border-radius: $radius-md;
+		box-shadow: $shadow-lg;
+		font-family: $font-stack;
+		font-size: 14px;
+		border: none;
+	}
+
+	.components-notice {
+		border-radius: $radius-sm;
+		font-family: $font-stack;
+		margin: 0 0 $space-md;
+		border: none;
+		box-shadow: none;
+
+		&.is-success {
+			background: $color-success-light;
+			color: $color-success-darker;
+		}
+
+		&.is-error {
+			background: $color-error-light;
+			color: $color-error;
+		}
+	}
+
+	// ==========================================================================
+	// Modal
+	// ==========================================================================
+
+	.components-modal__screen-overlay {
+		background: rgb(0 0 0 / 40%);
+		backdrop-filter: blur(8px);
+	}
+
+	.components-modal__frame {
+		border-radius: $radius-lg;
+		box-shadow: $shadow-xl;
+		border: 1px solid $color-border;
+		overflow: hidden;
+	}
+
+	.components-modal__header {
+		border-bottom: 1px solid $color-border;
+		padding: $space-lg;
+
+		.components-modal__header-heading {
+			font-size: 17px;
+			font-weight: 600;
+			letter-spacing: -0.01em;
+		}
+	}
+
+	.components-modal__content {
+		padding: $space-lg;
+		font-family: $font-stack;
+	}
+
+	// ==========================================================================
+	// Spinner override
+	// ==========================================================================
+
+	.components-spinner {
+		border-color: $color-border-strong;
+		border-top-color: $color-text-primary;
+	}
+
+	// ==========================================================================
+	// WP Card override
+	// ==========================================================================
+
+	.components-card {
+		border-radius: $radius-lg;
+		box-shadow: $shadow-md;
+		border: 1px solid $color-border;
+		overflow: hidden;
+	}
+
+	.components-card__header {
+		border-bottom: 1px solid $color-border;
+		padding: $space-lg;
+
+		strong {
+			font-size: 17px;
+			font-weight: 600;
+			letter-spacing: -0.01em;
+		}
+	}
+
+	.components-card__body {
+		padding: $space-lg;
+	}
+
+	// ==========================================================================
+	// Links
+	// ==========================================================================
+
+	a:not(.components-button) {
+		color: $color-accent;
+		text-decoration: none;
+		transition: color $duration-fast $ease-out;
+
+		&:hover {
+			color: $color-accent-hover;
+			text-decoration: underline;
+		}
+	}
+
+	// ==========================================================================
+	// Confirm Dialog override
+	// ==========================================================================
+
+	.components-confirm-dialog {
+		border-radius: $radius-lg;
+		box-shadow: $shadow-xl;
+	}
+
+	// ==========================================================================
+	// Setup Guide
+	// ==========================================================================
+
+	.components-guide {
+		.components-guide__page {
+			font-family: $font-stack;
+		}
+
+		.components-guide__page-control {
+			margin: 0;
+		}
+	}
+}
+
+
+// ============================================================================
+// Card
+// ============================================================================
+
+.notion2wp-card {
+	background: $color-surface;
+	border-radius: $radius-lg;
+	box-shadow: $shadow-md;
+	border: 1px solid $color-border;
+	overflow: hidden;
+	transition: box-shadow $duration-normal $ease-out;
+
+	& + & {
+		margin-top: $space-lg;
+	}
+
+	&__header {
+		padding: $space-lg $space-lg $space-md;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	&__title {
+		font-size: 17px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		color: $color-text-primary;
+		margin: 0;
+	}
+
+	&__body {
+		padding: 0 $space-lg $space-lg;
+	}
+
+	&__description {
+		font-size: 14px;
+		line-height: 1.5;
+		color: $color-text-secondary;
+		margin: 0 0 $space-lg;
+	}
+}
+
+
+// ============================================================================
+// Status Badge
+// ============================================================================
+
+.notion2wp-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 12px;
+	border-radius: $radius-pill;
+	font-size: 13px;
+	font-weight: 500;
+
+	&--success {
+		background: $color-success-light;
+		color: $color-success-dark;
+	}
+
+	&--error {
+		background: $color-error-light;
+		color: $color-error;
+	}
+
+	&__dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: currentcolor;
+	}
+}
+
+
+// ============================================================================
+// Detail Row
+// ============================================================================
+
+.notion2wp-detail {
+	display: flex;
+	flex-direction: column;
+	gap: $space-xs;
+
+	&__label {
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		color: $color-text-tertiary;
+	}
+
+	&__value {
+		font-size: 15px;
+		color: $color-text-primary;
+	}
+
+	& + & {
+		margin-top: $space-md;
+	}
+}
+
+
+// ============================================================================
+// Import Page
+// ============================================================================
+
+.notion2wp-import {
+	&__header {
+		margin-bottom: $space-sm;
+	}
+
+	&__description {
+		margin: 0;
+		color: $color-text-secondary;
+		font-size: 15px;
+		line-height: 1.5;
+	}
+
+	// Error banner
+	&__error {
+		margin-bottom: $space-sm;
+		padding: $space-md $space-lg;
+		background: $color-error-light;
+		border-radius: $radius-md;
+		color: $color-error;
+		font-size: 14px;
+		font-weight: 500;
+		display: flex;
+		align-items: center;
+		gap: $space-sm;
+	}
+
+	// Modal progress
+	&__modal-progress {
+		padding: $space-sm 0;
+	}
+
+	&__modal-progress-status {
+		margin: 0 0 $space-md;
+		font-size: 15px;
+		font-weight: 500;
+		color: $color-text-primary;
+	}
+
+	&__modal-progress-item {
+		font-weight: 400;
+		color: $color-text-secondary;
+	}
+
+	&__modal-actions {
+		margin-top: $space-lg;
+	}
+
+	// Progress bar
+	&__progress-track {
+		width: 100%;
+		height: 6px;
+		background: rgb(0 0 0 / 6%);
+		border-radius: 3px;
+		overflow: hidden;
+	}
+
+	&__progress-bar {
+		height: 100%;
+		background: linear-gradient(90deg, $color-accent, $color-accent-lighter);
+		border-radius: 3px;
+		transition: width $duration-slow $ease-out;
+	}
+
+	// Results
+	&__results-section {
+		h4 {
+			margin: 0 0 $space-sm;
+			font-size: 15px;
+			font-weight: 600;
+			letter-spacing: -0.01em;
+		}
+
+		ul {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		li {
+			padding: $space-sm 0;
+			font-size: 14px;
+			border-bottom: 1px solid $color-border;
+
+			a {
+				color: $color-accent;
+				text-decoration: none;
+				font-weight: 500;
+
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+
+			&:last-child {
+				border-bottom: none;
+			}
+		}
+
+		&--success {
+			padding: $space-md;
+			background: $color-success-light;
+			border-radius: $radius-md;
+
+			h4 {
+				color: $color-success-dark;
+			}
+
+			li {
+				border-color: rgba($color-success, 0.15);
+			}
+		}
+
+		&--error {
+			padding: $space-md;
+			background: $color-error-light;
+			border-radius: $radius-md;
+
+			h4 {
+				color: $color-error;
+			}
+
+			li {
+				border-color: rgba($color-error, 0.15);
+				color: $color-error-dark;
+			}
+		}
+	}
+
+	&__results-section + &__results-section {
+		margin-top: $space-md;
+	}
+
+	// Loading state
+	&__loading {
+		padding: $space-2xl;
+	}
+
+	&__loading-text {
+		margin-left: $space-md;
+		color: $color-text-secondary;
+		font-size: 15px;
+	}
+
+	// Empty state
+	&__empty {
+		text-align: center;
+		padding: $space-2xl $space-xl;
+
+		h3 {
+			margin: 0 0 $space-sm;
+			font-size: 20px;
+			font-weight: 600;
+			letter-spacing: -0.02em;
+			color: $color-text-primary;
+		}
+
+		p {
+			color: $color-text-secondary;
+			font-size: 15px;
+			line-height: 1.6;
+			max-width: 420px;
+			margin: 0 auto;
+		}
+	}
+
+	// DataViews field styles
+	&__title-archived {
+		margin-left: $space-sm;
+		color: $color-text-tertiary;
+		font-size: 12px;
+		font-style: italic;
+	}
+
+	&__title-description {
+		color: $color-text-secondary;
+		font-size: 13px;
+		margin-top: $space-xs;
+		line-height: 1.4;
+	}
+
+	&__media-thumb {
+		width: 56px;
+		height: 56px;
+		object-fit: cover;
+		border-radius: $radius-sm;
+	}
+}
+
+
+// ============================================================================
+// Settings Page
+// ============================================================================
+
+.notion2wp-settings {
+	&__description {
+		margin: 0 0 $space-sm;
+		color: $color-text-secondary;
+		font-size: 15px;
+		line-height: 1.5;
+	}
+
+	&__section {
+		margin-top: $space-lg;
+	}
+
+	// Space between consecutive WP Cards within settings
+	.components-card + .components-card {
+		margin-top: $space-lg;
+	}
+}
+
+
+// ============================================================================
+// Connection Component
+// ============================================================================
+
+.notion2wp-connection {
+	.components-card + .components-card {
+		margin-top: $space-lg;
+	}
+
+	&__messages {
+		margin-bottom: $space-md;
+	}
+
+	// Connected state — single row
+	&__connected {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: $space-md;
+	}
+
+	&__connected-info {
+		display: flex;
+		align-items: center;
+		gap: $space-md;
+	}
+
+	&__connected-date {
+		font-size: 13px;
+		color: $color-text-tertiary;
+	}
+
+	// Token input
+	&__token-input {
+		font-family: $font-mono;
+	}
+
+	&__connect-action {
+		margin-top: $space-lg;
+	}
+
+	// Help card
+	&__help {
+		font-size: 14px;
+		line-height: 1.6;
+		color: $color-text-secondary;
+		margin: 0;
+
+		a {
+			color: $color-accent;
+			text-decoration: none;
+			font-weight: 500;
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+}
+
+
+// ============================================================================
+// Role Management
+// ============================================================================
+
+.notion2wp-roles {
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		margin-top: $space-md;
+		border: 1px solid $color-border;
+		border-radius: $radius-md;
+		overflow: hidden;
+
+		.components-base-control {
+			margin: 0;
+			padding: $space-sm $space-md;
+			border-bottom: 1px solid $color-border;
+			transition: background $duration-fast $ease-out;
+
+			&:hover {
+				background: $color-surface-hover;
+			}
+
+			&:last-child {
+				border-bottom: none;
+			}
+
+			// Disabled row (Administrator) — visually locked
+			&:has(input:disabled) {
+				background: $color-surface-hover;
+				opacity: 0.6;
+				cursor: not-allowed;
+
+				&:hover {
+					background: $color-surface-hover;
+				}
+
+				.components-checkbox-control__label {
+					cursor: not-allowed;
+				}
+			}
+		}
+	}
+
+	&__empty {
+		color: $color-text-tertiary;
+		font-size: 14px;
+		font-style: italic;
+		margin: 0;
+	}
+
+	&__saving {
+		display: flex;
+		align-items: center;
+		gap: $space-sm;
+		margin-top: $space-md;
+		color: $color-text-tertiary;
+		font-size: 14px;
+	}
+}
+
+
+// ============================================================================
+// Loading State
+// ============================================================================
+
+.notion2wp-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: $space-md;
+	padding: $space-xl;
+
+	&__text {
+		color: $color-text-secondary;
+		font-size: 15px;
+	}
+}
+
+
+// ============================================================================
+// Setup Guide
+// ============================================================================
+
+.notion2wp-guide {
+	&__hero {
+		height: 200px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: $space-md;
+		border-radius: $radius-md $radius-md 0 0;
+
+		&--welcome {
+			background: linear-gradient(135deg, #f5f5f7 0%, #d2d2d7 100%);
+		}
+
+		&--integration {
+			background: linear-gradient(135deg, #5e5ce6 0%, #bf5af2 100%);
+			color: white;
+		}
+
+		&--capabilities {
+			background: linear-gradient(135deg, #ff6482 0%, #ff2d55 100%);
+			color: white;
+		}
+
+		&--share {
+			background: linear-gradient(135deg, #ff9f0a 0%, #ff6723 100%);
+			color: white;
+		}
+
+		&--token {
+			background: linear-gradient(135deg, #30d158 0%, #34c759 100%);
+			color: white;
+		}
+
+		&--complete {
+			background: linear-gradient(135deg, #64d2ff 0%, #5ac8fa 100%);
+			color: white;
+		}
+	}
+
+	&__hero-icon {
+		font-size: 48px;
+		line-height: 1;
+	}
+
+	&__hero-logo {
+		width: 100px;
+		height: auto;
+		filter: drop-shadow(0 2px 8px rgb(0 0 0 / 10%));
+	}
+
+	&__content {
+		padding: $space-lg;
+
+		h1, h2 {
+			font-weight: 700;
+			letter-spacing: -0.02em;
+			color: $color-text-primary;
+			margin-top: 0;
+		}
+
+		h1 {
+			font-size: 24px;
+			text-align: center;
+		}
+
+		h2 {
+			font-size: 20px;
+		}
+
+		p {
+			font-size: 15px;
+			line-height: 1.6;
+			color: $color-text-secondary;
+		}
+
+		ol, ul {
+			padding-left: $space-lg;
+			font-size: 15px;
+			line-height: 1.6;
+			color: $color-text-secondary;
+		}
+
+		li {
+			margin-bottom: $space-sm;
+		}
+
+		a {
+			color: $color-accent;
+			text-decoration: none;
+			font-weight: 500;
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+
+	&__callout {
+		padding: $space-md;
+		border-radius: $radius-md;
+		margin-top: $space-md;
+		font-size: 14px;
+		line-height: 1.5;
+
+		&--warning {
+			background: $color-warning-bg;
+			border: 1px solid rgba($color-warning-border, 0.4);
+
+			strong {
+				color: $color-warning-dark;
+			}
+		}
+
+		&--info {
+			background: rgb(0 122 255 / 6%);
+			border: 1px solid rgb(0 122 255 / 15%);
+
+			strong {
+				color: $color-accent;
+			}
+		}
+
+		&--tip {
+			background: rgb(52 199 89 / 6%);
+			color: $color-text-secondary;
+			border: 1px solid rgb(52 199 89 / 15%);
+		}
+
+		p {
+			margin: $space-sm 0 0;
+			font-size: inherit;
+		}
 	}
 }
