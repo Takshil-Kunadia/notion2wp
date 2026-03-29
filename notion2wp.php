@@ -23,7 +23,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NOTION2WP_VERSION', '1.0.3' );
+define( 'NOTION2WP_VERSION', '1.1.0' );
 
 // Define plugin constants.
 if ( ! defined( 'NOTION2WP_PLUGIN_FILE' ) ) {
