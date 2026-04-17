@@ -20,6 +20,7 @@ function notion2wp_uninstall() {
 	// Remove plugin options.
 	delete_option( 'notion2wp_settings' );
 	delete_option( 'notion2wp_allowed_roles' );
+	delete_option( 'notion2wp_integration_token' );
 
 	// Remove custom capability from all roles.
 	$roles = wp_roles();

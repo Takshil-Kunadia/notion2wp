@@ -93,9 +93,8 @@ We take the security of Notion2WP seriously. If you have discovered a security v
 ### Current Security Measures
 
 1. **Authentication**
-   - Secure token storage in WordPress database
-   - WordPress nonce verification for all AJAX requests
-   - Capability checks for admin operations
+   - Integration token stored in its own dedicated option (`notion2wp_integration_token`), not mixed into the general settings blob.
+   - Optional override: define `NOTION2WP_INTEGRATION_TOKEN` in `wp-config.php` to keep the token entirely off the database. When set, the admin UI treats the connection as read-only and refuses to overwrite the constant.
 
 2. **Data Handling**
    - Input sanitization using WordPress functions
@@ -114,9 +113,7 @@ We take the security of Notion2WP seriously. If you have discovered a security v
 
 ### Known Limitations
 
-- Integration tokens are stored in WordPress database (encrypted via WordPress)
-- Requires WordPress admin access for configuration
-- Depends on WordPress security measures
+- WordPress has no plugin isolation; secrets are accessible to any plugin in the same PHP process. See the threat model above.
 
 ## Disclosure Policy
 
