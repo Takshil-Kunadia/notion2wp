@@ -585,6 +585,13 @@ $duration-slow:   0.4s;
 		color: $color-error;
 	}
 
+	&--info {
+		background: $color-surface-hover;
+		color: $color-text-secondary;
+		font-family: $font-mono;
+		font-size: 12px;
+	}
+
 	&__dot {
 		width: 6px;
 		height: 6px;
@@ -870,6 +877,15 @@ $duration-slow:   0.4s;
 		color: $color-text-tertiary;
 	}
 
+	&__constant-note {
+		margin: $space-md 0 0;
+		padding-top: $space-md;
+		border-top: 1px solid $color-border;
+		font-size: 13px;
+		line-height: 1.5;
+		color: $color-text-secondary;
+	}
+
 	// Token input
 	&__token-input {
 		font-family: $font-mono;
@@ -1115,6 +1131,25 @@ $duration-slow:   0.4s;
 		p {
 			margin: $space-sm 0 0;
 			font-size: inherit;
+		}
+	}
+
+	&__code {
+		margin: $space-sm 0 0;
+		padding: $space-sm $space-md;
+		background: $color-text-primary;
+		color: #e5e5ea;
+		border-radius: $radius-sm;
+		font-family: $font-mono;
+		font-size: 12px;
+		line-height: 1.5;
+		overflow-x: auto;
+
+		code {
+			background: none;
+			color: inherit;
+			font-size: inherit;
+			padding: 0;
 		}
 	}
 }
