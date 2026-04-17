@@ -11,7 +11,7 @@
  * Plugin Name:       Notion2WP
  * Plugin URI:        https://notion2wp.framer.website/
  * Description:       Publish Notion databases and pages to WordPress posts seamlessly.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Requires at least: 6.5
  * Tested up to:      6.9.4
  * Requires PHP:      7.4
@@ -24,7 +24,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NOTION2WP_VERSION', '1.1.0' );
+define( 'NOTION2WP_VERSION', '1.2.0' );
 
 // Define plugin constants.
 if ( ! defined( 'NOTION2WP_PLUGIN_FILE' ) ) {
