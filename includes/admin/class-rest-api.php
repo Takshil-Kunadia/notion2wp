@@ -267,10 +267,7 @@ class Rest_API {
 	public static function get_settings( $request ) {
 		$settings = Settings::get_settings();
 
-		// Remove sensitive data from response.
-		unset( $settings['client_secret'] );
-		unset( $settings['access_token'] );
-		unset( $settings['refresh_token'] );
+		unset( $settings['integration_token'] );
 
 		return new WP_REST_Response( $settings, 200 );
 	}
@@ -287,7 +284,6 @@ class Rest_API {
 
 		// Merge with current settings, preserving auth data.
 		$auth_keys = [
-			'integration_token',
 			'bot_id',
 			'owner',
 			'duplicated_template_id',

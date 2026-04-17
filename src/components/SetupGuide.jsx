@@ -164,6 +164,18 @@ const SetupGuide = ( { onFinish } ) => {
 							) }
 						</p>
 					</div>
+					<div className="notion2wp-guide__callout notion2wp-guide__callout--info">
+						<strong>{ __( 'Advanced: keep the token out of the database', 'notion2wp' ) }</strong>
+						<p>
+							{ __(
+								'For hardened deployments, you can define the token in wp-config.php instead of pasting it into the admin UI. When this constant is set, Notion2WP reads from it and never writes the token to the database.',
+								'notion2wp',
+							) }
+						</p>
+						<pre className="notion2wp-guide__code">
+							<code>{ 'define( \'NOTION2WP_INTEGRATION_TOKEN\', \'secret_xxxxxxxxxxxxxxxx\' );' }</code>
+						</pre>
+					</div>
 				</div>
 			),
 		},

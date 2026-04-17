@@ -7,6 +7,8 @@
 
 namespace Notion2WP\Admin;
 
+use Notion2WP\Auth\Auth;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -31,7 +33,6 @@ class Settings {
 	 */
 	private static $default_settings = [
 		// Internal Integration Settings.
-		'integration_token'      => '',
 		'bot_id'                 => '',
 		'owner'                  => null,
 		'token_obtained_at'      => null,
@@ -205,7 +206,6 @@ class Settings {
 		$settings = self::get_settings();
 
 		return [
-			'integration_token' => $settings['integration_token'],
 			'bot_id'            => $settings['bot_id'],
 			'owner'             => $settings['owner'],
 			'token_obtained_at' => $settings['token_obtained_at'],
@@ -283,6 +283,7 @@ class Settings {
 
 		delete_option( self::SETTINGS_OPTION );
 		delete_option( self::SETUP_GUIDE_OPTION );
+		delete_option( Auth::TOKEN_OPTION );
 	}
 }
 

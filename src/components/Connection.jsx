@@ -255,26 +255,41 @@ const Connection = () => {
 									<span className="notion2wp-badge__dot" />
 									{ __( 'Connected', 'notion2wp' ) }
 								</span>
-								{ status.connection_date && (
+								{ status.managed_by_constant && (
+									<span className="notion2wp-badge notion2wp-badge--info">
+										{ __( 'Managed via wp-config.php', 'notion2wp' ) }
+									</span>
+								) }
+								{ status.connection_date && ! status.managed_by_constant && (
 									<span className="notion2wp-connection__connected-date">
 										{ status.connection_date }
 									</span>
 								) }
 							</div>
-							<Button
-								variant="secondary"
-								isDestructive
-								size="small"
-								onClick={ () => setShowDisconnectConfirm( true ) }
-								isBusy={ loading }
-								disabled={ loading }
-							>
-								{ loading
-									? __( 'Disconnecting...', 'notion2wp' )
-									: __( 'Disconnect', 'notion2wp' )
-								}
-							</Button>
+							{ ! status.managed_by_constant && (
+								<Button
+									variant="secondary"
+									isDestructive
+									size="small"
+									onClick={ () => setShowDisconnectConfirm( true ) }
+									isBusy={ loading }
+									disabled={ loading }
+								>
+									{ loading
+										? __( 'Disconnecting...', 'notion2wp' )
+										: __( 'Disconnect', 'notion2wp' )
+									}
+								</Button>
+							) }
 						</div>
+						{ status.managed_by_constant && (
+							<p className="notion2wp-connection__constant-note">
+								{ __(
+									'The integration token is supplied by the NOTION2WP_INTEGRATION_TOKEN constant in your wp-config.php. To change or remove the token, edit the constant on the server.',
+									'notion2wp',
+								) }
+							</p>
+						) }
 					</CardBody>
 				</Card>
 			) : (

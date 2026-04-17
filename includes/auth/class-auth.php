@@ -8,6 +8,7 @@
 namespace Notion2WP\Auth;
 
 use Notion2WP\Admin\Settings;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -34,6 +35,16 @@ class Auth {
 	const API_VERSION = '2025-09-03';
 
 	/**
+	 * Option name that stores the integration token.
+	 */
+	const TOKEN_OPTION = 'notion2wp_integration_token';
+
+	/**
+	 * Constant that, when defined in wp-config.php, takes precedence over any value in the database.
+	 */
+	const TOKEN_CONSTANT = 'NOTION2WP_INTEGRATION_TOKEN';
+
+	/**
 	 * Save integration token.
 	 *
 	 * @param string $integration_token The Notion integration token.
@@ -47,15 +58,23 @@ class Auth {
 			);
 		}
 
+		if ( self::is_token_managed_by_constant() ) {
+			return new WP_Error(
+				'notion2wp_token_locked',
+				__( 'Integration token is configured via the NOTION2WP_INTEGRATION_TOKEN constant in wp-config.php and cannot be changed from the admin UI.', 'notion2wp' )
+			);
+		}
+
 		$test_result = self::verify_token( $integration_token );
 
 		if ( is_wp_error( $test_result ) ) {
 			return $test_result;
 		}
 
-		// Store the token and workspace info.
-		$settings = Settings::get_settings();
-		$settings['integration_token'] = $integration_token;
+		update_option( self::TOKEN_OPTION, $integration_token, false );
+		self::drop_legacy_token();
+
+		$settings                      = Settings::get_settings();
 		$settings['bot_id']            = $test_result['bot_id'] ?? '';
 		$settings['token_obtained_at'] = time();
 
@@ -119,13 +138,12 @@ class Auth {
 	}
 
 	/**
-	 * Check if we have a valid integration token.
+	 * Check if we have an integration token configured.
 	 *
 	 * @return bool
 	 */
 	public static function has_valid_token() {
-		$settings = Settings::get_settings();
-		return ! empty( $settings['integration_token'] );
+		return '' !== (string) self::get_integration_token();
 	}
 
 	/**
@@ -134,8 +152,22 @@ class Auth {
 	 * @return string|null
 	 */
 	public static function get_integration_token() {
-		$settings = Settings::get_settings();
-		return $settings['integration_token'] ?? null;
+		if ( self::is_token_managed_by_constant() ) {
+			return (string) constant( self::TOKEN_CONSTANT );
+		}
+
+		$token = get_option( self::TOKEN_OPTION, '' );
+		if ( is_string( $token ) && '' !== $token ) {
+			return $token;
+		}
+
+		$legacy = self::drop_legacy_token();
+		if ( null !== $legacy ) {
+			update_option( self::TOKEN_OPTION, $legacy, false );
+			return $legacy;
+		}
+
+		return null;
 	}
 
 	/**
@@ -144,16 +176,27 @@ class Auth {
 	 * @return bool
 	 */
 	public static function revoke_token() {
-		$settings = Settings::get_settings();
+		delete_option( self::TOKEN_OPTION );
+		self::drop_legacy_token();
 
-		// Clear all integration-related settings.
-		unset( $settings['integration_token'] );
+		$settings = Settings::get_settings();
 		unset( $settings['bot_id'] );
 		unset( $settings['token_obtained_at'] );
 
 		Settings::update_settings( $settings, false );
 
 		return true;
+	}
+
+	/**
+	 * Whether the token is supplied via a wp-config.php constant.
+	 *
+	 * @return bool
+	 */
+	public static function is_token_managed_by_constant() {
+		return defined( self::TOKEN_CONSTANT )
+			&& is_string( constant( self::TOKEN_CONSTANT ) )
+			&& '' !== constant( self::TOKEN_CONSTANT );
 	}
 
 	/**
@@ -165,16 +208,38 @@ class Auth {
 		$settings = Settings::get_settings();
 
 		$status = [
-			'connected'       => false,
-			'connection_date' => null,
+			'connected'           => false,
+			'connection_date'     => null,
+			'managed_by_constant' => self::is_token_managed_by_constant(),
 		];
 
-		if ( ! empty( $settings['integration_token'] ) ) {
+		if ( self::has_valid_token() ) {
 			$status['connected']       = true;
 			$status['connection_date'] = ! empty( $settings['token_obtained_at'] ) ?
 				date_i18n( get_option( 'date_format' ), $settings['token_obtained_at'] ) : null;
 		}
 
 		return $status;
+	}
+
+	/**
+	 * Remove a legacy plaintext token from the settings blob.
+	 *
+	 * Returns the legacy value (if any) so callers can migrate it into the dedicated option.
+	 *
+	 * @return string|null
+	 */
+	private static function drop_legacy_token() {
+		$settings = get_option( Settings::SETTINGS_OPTION, [] );
+
+		if ( ! is_array( $settings ) || empty( $settings['integration_token'] ) ) {
+			return null;
+		}
+
+		$legacy = (string) $settings['integration_token'];
+		unset( $settings['integration_token'] );
+		update_option( Settings::SETTINGS_OPTION, $settings );
+
+		return $legacy;
 	}
 }
